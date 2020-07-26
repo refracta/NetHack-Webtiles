@@ -1,5 +1,5 @@
 # 예제
-tmux -new s server
+tmux new -s server
 
 gcc main.c -o server
 
@@ -7,7 +7,7 @@ gcc main.c -o server
 
 Ctrl B, T
 
-tmux -new s client
+tmux new -s client
 
 npm install unix-dgram-socket
 
