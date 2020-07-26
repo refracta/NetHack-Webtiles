@@ -1,38 +1,52 @@
-const UnixDgramSocket = require('unix-dgram-socket').UnixDgramSocket;
+const {
+    spawn
+} = require('child_process');
+
+const {
+    UnixDgramSocket
+} = require('unix-dgram-socket');
 const socket = new UnixDgramSocket();
 
+var DEFAULT_SERVER_PATH = '/tmp/nethack-webtiles-server';
+var DEFAULT_CLIENT_PATH = '/tmp/nethack-webtiles-client';
+var DEFAULT_NETHACK_PATH = '/nh/install/games/nethack';
+DEFAULT_NETHACK_PATH = '/root/nh/install/games/example';
 
-// Call on error
+const SERVER_PATH = (pid) => `${DEFAULT_SERVER_PATH}-${pid}`;
+const CLIENT_PATH = () => `${DEFAULT_CLIENT_PATH}-default`;
+
 socket.on('error', (error) => {
     console.log(error);
 });
 
-// Call when new message is received
 socket.on('message', (message, info) => {
-    console.log(message.toString(UnixDgramSocket.payloadEncoding));
-    console.log(info);
+    message = message.toString(UnixDgramSocket.payloadEncoding);
+    message = message.substring(0, message.indexOf('\0'));
+    var obj = JSON.parse(message);
+    switch (obj.msg) {
+    case 'init_socket':
+        console.log('init socket');
+        console.log(obj);
+        socket.connect(SERVER_PATH(obj.pid));
+        break;
+
+    default:
+
+        break;
+    }
 });
 
-// Call on successful connect
 socket.on('connect', (path) => {
-    console.log(`socket connected to path: ${path}`);
+    console.log(`SocketConnect: ${path}`);
+    socket.send(JSON.stringify({
+            msg: 'init_socket_end',
+        }), path);
 });
 
-// Call when socket is bind to path
 socket.on('listening', (path) => {
-    console.log(`socket listening on path: ${path}`);
+    console.log(`SocketListening: ${path}`);
 });
 
-//socket.send("Special inter-process delivery!", "/tmp/socket1.sock");
+socket.bind(CLIENT_PATH());
 
-// Dgram socket is connection-less so call connect only set default destination path and can be called many times
-socket.bind("/tmp/client_bind");
-socket.connect("/tmp/test_udp");
-
-// Send can be called without path if 'connect' was called before
-socket.send("ping");
-
-// CLose socket to prevent further communication
-//socket.close();
-
-//socket.bind("/tmp/client_bind");
+spawn(DEFAULT_NETHACK_PATH);
