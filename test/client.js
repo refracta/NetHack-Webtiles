@@ -49,4 +49,5 @@ socket.on('listening', (path) => {
 
 socket.bind(CLIENT_PATH());
 
-spawn(DEFAULT_NETHACK_PATH);
+var process = spawn(DEFAULT_NETHACK_PATH);
+console.log('ProcessAPI PID:', process.pid);
