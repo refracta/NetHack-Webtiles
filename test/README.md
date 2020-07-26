@@ -1,11 +1,7 @@
 # 예제
-tmux new -s server
-
 gcc main.c -o server
 
-./server /tmp/test_udp
-
-Ctrl B, T
+client.js의 DEFAULT_NETHACK_PATH를 server 경로로 변경
 
 tmux new -s client
 
