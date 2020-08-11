@@ -10,7 +10,10 @@ const mainSocket = new UnixDgramSocket();
 var DEFAULT_SERVER_PATH = '/tmp/nethack-webtiles-server';
 var DEFAULT_CLIENT_PATH = '/tmp/nethack-webtiles-client';
 var DEFAULT_NETHACK_PATH = '/nh/install/games/nethack';
-DEFAULT_NETHACK_PATH = '/root/nh/install/games/example';
+var argv = process.argv.slice(2);
+if(argv.length > 0){
+	DEFAULT_NETHACK_PATH = argv.join(' ');
+}
 
 const SERVER_PATH = (pid) => `${DEFAULT_SERVER_PATH}-${pid}`;
 const CLIENT_PATH = () => `${DEFAULT_CLIENT_PATH}-default`;
@@ -91,5 +94,5 @@ mainSocket.on('listening', (path) => {
 
 mainSocket.bind(CLIENT_PATH());
 
-//var process = spawn(DEFAULT_NETHACK_PATH);
-//console.log('ProcessAPI PID:', process.pid);
+var process = spawn(DEFAULT_NETHACK_PATH);
+console.log('ProcessAPI PID:', process.pid);
