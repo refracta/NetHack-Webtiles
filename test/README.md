@@ -1,5 +1,5 @@
 # pseudo-c-server
-Nethack-Webtiles-Injector가 적용된 상태의 넷핵 역활을 해줄 의사(Pseudo) 서버입니다.
+Nethack-Webtiles-Injector가 적용된 상태의 넷핵 역할을 해줄 의사(Pseudo) 서버입니다.
 ```
 cd pseudo-c-server
 cmake CMakeLists.txt
