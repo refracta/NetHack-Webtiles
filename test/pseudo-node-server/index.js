@@ -56,6 +56,7 @@ mainSocket.on('message', (message, info) => {
             sendSocket.close();
             clearInterval(pingTimeoutCheckIntervalId);
             clearInterval(sendPingIntervalId);
+			delete SOCKET_MAP[pid];
         });
         sendSocket.on('connect', (path) => {
             console.log(`SendSocketConnect: ${path}`);
@@ -69,6 +70,7 @@ mainSocket.on('message', (message, info) => {
                     sendSocket.close();
                     clearInterval(pingTimeoutCheckIntervalId);
                     clearInterval(sendPingIntervalId);
+					delete SOCKET_MAP[pid];
                 }
             }, Math.floor(PING_TIMEOUT / 3));
             sendPingIntervalId = setInterval(() => {
