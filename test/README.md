@@ -27,7 +27,5 @@ Nethack-Webtiles 처리용 Node 의사 서버입니다.
 ```
 cd pseudo-node-server
 npm install
-node index.js
-
-/* index.js의 DEFAULT_NETHACK_PATH를 pseudo-c-server의 실행 파일 위치로 설정해주세요 */
+npm start
 ```

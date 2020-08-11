@@ -17,7 +17,7 @@
 #define DEFAULT_SERVER_PATH "/tmp/nethack-webtiles-server"
 #define DEFAULT_CLIENT_PATH "/tmp/nethack-webtiles-client"
 #define CLIENT_ENDPOINT_PATH "default"
-#define PING_TIMEOUT 30000
+#define PING_TIMEOUT 10000
 #define DEFAULT_BUFFER_SIZE 8192
 #define millisecondDiff(begin, end) (((double) (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec) * 1.0e-9) * 1000)
 
@@ -81,7 +81,7 @@ int bindSocket(int sockfd, struct sockaddr_un address) {
 void sendInitMsg(int sockfd, struct sockaddr_un address) {
     char initSocketMsg[BUFSIZ];
     sprintf(initSocketMsg, "{\"msg\":\"init_socket\", \"pid\":%d}", getpid());
-    printf("%s\n", initSocketMsg);
+
     sendto(sockfd, (void *) &initSocketMsg, sizeof(initSocketMsg), 0, (struct sockaddr *) &address, sizeof(address));
 }
 
@@ -121,10 +121,11 @@ void handleMsg(int sockfd, struct sockaddr_un address, json_object *obj) {
 
 void handleSocket(int sockfd, struct sockaddr_un address) {
     char receiveBuffer[DEFAULT_BUFFER_SIZE];
+    int addressSize = sizeof(address);
     int recv = recvfrom(sockfd, (void *) &receiveBuffer, sizeof(receiveBuffer), 0, (struct sockaddr *) &address,
-                        &address);
+                        &addressSize);
     if (recv != -1) {
-        printf("RECEIVE(%d): %s\n", recv, receiveBuffer);
+        printf("Receive(%d): %s\n", recv, receiveBuffer);
         json_object *obj = json_tokener_parse(receiveBuffer);
         if (obj != NULL) {
             handleMsg(sockfd, address, obj);
@@ -137,7 +138,7 @@ void handleSocket(int sockfd, struct sockaddr_un address) {
     clock_gettime(CLOCK_MONOTONIC, &currentTime);
 
     if (lastSendPingTime.tv_sec != 0 && millisecondDiff(lastSendPingTime, currentTime) >= PING_TIMEOUT / 3) {
-        sendto(sockfd, (void *) &PING_MSG, sizeof(PING_MSG), 0, (struct sockaddr *) &address, sizeof(address));
+        sendto(sockfd, (void *) &PING_MSG, sizeof(PING_MSG), 0, (struct sockaddr *) &address, addressSize);
         clock_gettime(CLOCK_MONOTONIC, &lastSendPingTime);
     }
 
@@ -167,6 +168,7 @@ int main() {
     while (true) {
         handleSocket(sockfd, clientAddress);
     }
+
     close(sockfd);
     exit(0);
 }

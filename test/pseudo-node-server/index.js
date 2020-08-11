@@ -5,21 +5,23 @@ const {
 const {
     UnixDgramSocket
 } = require('unix-dgram-socket');
+// https://stackoverflow.com/questions/52807556/process-argv-is-undefined-in-node-js
+const process = require('process');
 const mainSocket = new UnixDgramSocket();
 
 var DEFAULT_SERVER_PATH = '/tmp/nethack-webtiles-server';
 var DEFAULT_CLIENT_PATH = '/tmp/nethack-webtiles-client';
 var DEFAULT_NETHACK_PATH = '/nh/install/games/nethack';
 var argv = process.argv.slice(2);
-if(argv.length > 0){
-	DEFAULT_NETHACK_PATH = argv.join(' ');
+if (argv.length > 0) {
+    DEFAULT_NETHACK_PATH = argv.join(' ');
 }
 
 const SERVER_PATH = (pid) => `${DEFAULT_SERVER_PATH}-${pid}`;
 const CLIENT_PATH = () => `${DEFAULT_CLIENT_PATH}-default`;
 const SOCKET_MAP = {};
 
-const PING_TIMEOUT = 30000;
+const PING_TIMEOUT = 10000;
 
 function handleCore(socket, path, obj) {
     switch (obj.msg) {
@@ -40,11 +42,11 @@ mainSocket.on('message', (message, info) => {
     message = message.toString(UnixDgramSocket.payloadEncoding).substring(0, message.indexOf('\0'));
     let obj = JSON.parse(message);
     let pid = info.remoteSocket.split('-').pop();
-    let path = info.path;
+    let path = info.remoteSocket;
     let socket = SOCKET_MAP[pid];
 
     if (!socket && obj.msg === 'init_socket') {
-        console.log('InitSocket');
+        console.log('InitSocket:', path);
         let sendSocket = new UnixDgramSocket();
         let pingTimeoutCheckIntervalId;
         let sendPingIntervalId;
@@ -77,13 +79,15 @@ mainSocket.on('message', (message, info) => {
         });
         sendSocket.connect(SERVER_PATH(obj.pid));
         SOCKET_MAP[pid] = sendSocket;
-    } else if (obj.msg === 'ping') {
+    } else if (socket && obj.msg === 'ping') {
+        console.log(`Ping from ${path}`);
         lastReceivePingTime = new Date().getTime();
         socket.send(JSON.stringify({
                 msg: 'pong',
             }) + '\0', path);
-    } else if (obj.msg === 'pong') {}
-    else if (socket) {
+    } else if (socket && obj.msg === 'pong') {
+        console.log(`Pong from ${path}`);
+    } else if (socket) {
         handleCore(socket, obj, path);
     }
 });
@@ -94,5 +98,7 @@ mainSocket.on('listening', (path) => {
 
 mainSocket.bind(CLIENT_PATH());
 
-var process = spawn(DEFAULT_NETHACK_PATH);
-console.log('ProcessAPI PID:', process.pid);
+for (var i = 0; i < 20; i++) {
+    var runProcess = spawn(DEFAULT_NETHACK_PATH);
+    console.log('Run Process! PID:', runProcess.pid);
+}
