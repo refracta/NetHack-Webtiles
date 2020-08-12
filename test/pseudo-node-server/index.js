@@ -26,10 +26,11 @@ const PING_TIMEOUT = 10000;
 function handleCore(socket, path, obj) {
     switch (obj.msg) {
     case 'debug':
-
+		console.log('DebugMsg:', obj);
+		break;
     default:
         console.log('Unknown Request!');
-        console.log(`PID: ${pid}`, obj);
+        console.log(`path: ${path}`, obj);
         break;
     }
 }
@@ -44,7 +45,7 @@ mainSocket.on('message', (message, info) => {
     let pid = info.remoteSocket.split('-').pop();
     let path = info.remoteSocket;
     let socket = SOCKET_MAP[pid];
-
+	console.log(obj);
     if (!socket && obj.msg === 'init_socket') {
         console.log('InitSocket:', path);
         let sendSocket = new UnixDgramSocket();
@@ -65,8 +66,8 @@ mainSocket.on('message', (message, info) => {
                     msg: 'init_socket_end',
                 }) + '\0', path);
             pingTimeoutCheckIntervalId = setInterval(() => {
-                if (lastReceivePingTime - new Date().getTime() >= PING_TIMEOUT) {
-                    console.error('PingTimeoutError:', `PID: ${pid}\n`, error);
+                if (new Date().getTime() - lastReceivePingTime >= PING_TIMEOUT) {
+                    console.error('PingTimeoutError:', `PID: ${pid}`);
                     sendSocket.close();
                     clearInterval(pingTimeoutCheckIntervalId);
                     clearInterval(sendPingIntervalId);
@@ -90,7 +91,7 @@ mainSocket.on('message', (message, info) => {
     } else if (socket && obj.msg === 'pong') {
         console.log(`Pong from ${path}`);
     } else if (socket) {
-        handleCore(socket, obj, path);
+        handleCore(socket, path, obj);
     }
 });
 
@@ -100,7 +101,7 @@ mainSocket.on('listening', (path) => {
 
 mainSocket.bind(CLIENT_PATH());
 
-for (var i = 0; i < 20; i++) {
-    var runProcess = spawn(DEFAULT_NETHACK_PATH);
-    console.log('Run Process! PID:', runProcess.pid);
-}
+//for (var i = 0; i < 20; i++) {
+//    var runProcess = spawn(DEFAULT_NETHACK_PATH);
+//    console.log('Run Process! PID:', runProcess.pid);
+//}
