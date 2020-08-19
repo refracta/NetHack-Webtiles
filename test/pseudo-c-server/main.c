@@ -147,6 +147,7 @@ void handleSocket(int sockfd, struct sockaddr_un address) {
     }
 }
 
+
 int main() {
     char *serverPath = SERVER_PATH();
     struct sockaddr_un serverAddress = getPathAddress(serverPath);
