@@ -54,7 +54,9 @@ function send(data, path) {
         clearInterval(connectionInfo.pingTimeoutCheckIntervalId);
         clearInterval(connectionInfo.sendPingIntervalId);
         delete CONNECTION_INFO[path];
+		return false;
     }
+	return true;
 }
 
 socket.on('message', (message, info) => {
