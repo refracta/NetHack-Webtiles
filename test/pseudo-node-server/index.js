@@ -51,9 +51,11 @@ function send(data, path) {
     if (!socket.send(JSON.stringify(data) + '\0', path)) {
         console.log(`SocketSendError(${path}): ${JSON.stringify(data)}\n`);
         var connectionInfo = CONNECTION_INFO[path];
-        clearInterval(connectionInfo.pingTimeoutCheckIntervalId);
-        clearInterval(connectionInfo.sendPingIntervalId);
-        delete CONNECTION_INFO[path];
+		if(connectionInfo){
+			clearInterval(connectionInfo.pingTimeoutCheckIntervalId);
+			clearInterval(connectionInfo.sendPingIntervalId);
+			delete CONNECTION_INFO[path];
+		}
 		return false;
     }
 	return true;
