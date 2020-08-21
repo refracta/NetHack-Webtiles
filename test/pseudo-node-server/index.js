@@ -76,10 +76,17 @@ socket.on('message', (message, info) => {
         connectionInfo.path = path;
         connectionInfo.pid = parseInt(path.split('-').pop());
         connectionInfo.lastReceivePingTime = new Date().getTime();
-        CONNECTION_INFO[path] = connectionInfo;
-        send({
+		
+		let initEndStatus = send({
             msg: 'init_socket_end'
         }, path);
+		
+		if(!initEndStatus){
+			console.error('InitEndError!');
+			return;
+		}
+        CONNECTION_INFO[path] = connectionInfo;
+        
         connectionInfo.pingTimeoutCheckIntervalId = setInterval(() => {
             if (new Date().getTime() - connectionInfo.lastReceivePingTime >= PING_TIMEOUT) {
                 console.error('PingTimeoutError:', `Path: ${path}`);
