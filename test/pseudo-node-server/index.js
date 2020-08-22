@@ -30,11 +30,18 @@ const CLIENT_PATH = () => `${DEFAULT_CLIENT_PATH}-default`;
 const CONNECTION_INFO = {};
 
 const PING_TIMEOUT = 10000;
+// PING_TIMEOUT = PING_TIMEOUT * PING_TIMEOUT;
+const DISABLE_TIMEOUT_DISCONNECT = true;
+const DISABLE_SEND_FUNCTION = false;
 
 function handleCore(path, obj) {
     switch (obj.msg) {
     case 'debug':
         console.log('DebugMsg:', obj);
+        break;
+	case 'functionCall':
+		delete obj.msg;
+        console.log(`FunctionCall(${new Date().getTime()}):`, obj);
         break;
     default:
         console.log('Unknown Request!');
@@ -48,6 +55,9 @@ socket.on('error', (error) => {
 });
 
 function send(data, path) {
+	if(DISABLE_SEND_FUNCTION){
+		return true;
+	}
     if (!socket.send(JSON.stringify(data) + '\0', path)) {
         console.log(`SocketSendError(${path}): ${JSON.stringify(data)}\n`);
         var connectionInfo = CONNECTION_INFO[path];
@@ -92,7 +102,7 @@ socket.on('message', (message, info) => {
         CONNECTION_INFO[path] = connectionInfo;
         
         connectionInfo.pingTimeoutCheckIntervalId = setInterval(() => {
-            if (new Date().getTime() - connectionInfo.lastReceivePingTime >= PING_TIMEOUT) {
+            if (!DISABLE_TIMEOUT_DISCONNECT && new Date().getTime() - connectionInfo.lastReceivePingTime >= PING_TIMEOUT) {
                 console.error('PingTimeoutError:', `Path: ${path}`);
                 clearInterval(connectionInfo.pingTimeoutCheckIntervalId);
                 clearInterval(connectionInfo.sendPingIntervalId);
