@@ -9,6 +9,7 @@ $(document).ready(() => {
         } else {
             if (e.ctrlKey)
                 return; // should have been processed in keydown
+			$('#key-ui').text(`keyCode: ${code}`);
             socket.emit('data', {
                 msg: 'key',
                 keyCode: code
@@ -17,6 +18,7 @@ $(document).ready(() => {
     });
     $('body').keydown(e => {
         if (e.keyCode == 27) {
+			$('#key-ui').text(`keyCode: ${code}`);
             socket.emit('data', {
                 msg: 'key',
                 keyCode: e.keyCode
@@ -35,6 +37,7 @@ $(document).ready(() => {
         } else if ((code >= 97) && (code <= 122)) {
             code = code - 96;
         }
+		$('#key-ui').text(`keyCode: ${code}`);
         socket.emit('data', {
             msg: 'key',
             keyCode: code
@@ -52,7 +55,6 @@ const START_Y = TILE_SIZE / 2;
 
 const MAX_LINE = 12;
 socket.on('data', function (data) {
-    console.log(data);
     if (data.msg == 'putstr') {
         if ($('#msg-ui p').length > MAX_LINE) {
             $($('#msg-ui p')[0]).remove();
