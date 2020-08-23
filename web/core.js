@@ -48,7 +48,7 @@ $(document).ready(() => {
 });
 
 const TILE_SIZE = 32;
-const MAX_X = 79;
+const MAX_X = 80;
 const MAX_Y = 21;
 const START_X = TILE_SIZE / 2;
 const START_Y = TILE_SIZE / 2;
