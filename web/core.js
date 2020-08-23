@@ -18,7 +18,7 @@ $(document).ready(() => {
     });
     $('body').keydown(e => {
         if (e.keyCode == 27) {
-			$('#key-ui').text(`keyCode: ${code}`);
+			$('#key-ui').text(`keyCode: ${e.keyCode}`);
             socket.emit('data', {
                 msg: 'key',
                 keyCode: e.keyCode
