@@ -16,7 +16,6 @@ $(document).ready(() => {
         }
     });
     $('body').keydown(e => {
-
         if (!e.ctrlKey)
             return; // key events without ctrl is handled in `keypress` events
         if (e.keyCode == 17)

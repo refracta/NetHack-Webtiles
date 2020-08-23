@@ -8,3 +8,5 @@ test/pseudo-c-server/CMakeCache.txt
 test/pseudo-c-server/Makefile
 test/pseudo-c-server/pseudo-c-server
 test/pseudo-c-server/cmake_install.cmake
+./node_modules
+./package-lock.json
