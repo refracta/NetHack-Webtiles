@@ -15,5 +15,5 @@
     "start": "node index.js /root/nh/install/games/nethack"
   },
   "author": "refracta",
-  "license": "ISC",
+  "license": "ISC"
 }
