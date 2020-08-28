@@ -1,4 +1,27 @@
-var socket = io();
+
+WebSocket.prototype.emit = function(data){
+    this.send(JSON.stringify(data));
+}
+
+var loc = window.location, new_uri;
+if (loc.protocol === "https:") {
+    new_uri = "wss:";
+} else {
+    new_uri = "ws:";
+}
+new_uri += "//" + loc.host;
+new_uri += loc.pathname;
+var socket = new WebSocket(new_uri);
+
+
+socket.onopen = function(event) {
+    //ws.send("Client message: Hi!");
+}
+
+socket.onerror = function(event) {
+    //console.log("Server error message: ", event.data);
+}
+
 
 $(document).ready(() => {
     $('body').keypress(e => {
@@ -10,7 +33,7 @@ $(document).ready(() => {
             if (e.ctrlKey)
                 return; // should have been processed in keydown
 			$('#key-ui').text(`keyCode: ${code}`);
-            socket.emit('data', {
+            socket.emit({
                 msg: 'key',
                 keyCode: code
             });
@@ -19,7 +42,7 @@ $(document).ready(() => {
     $('body').keydown(e => {
         if (e.keyCode == 27) {
 			$('#key-ui').text(`keyCode: ${e.keyCode}`);
-            socket.emit('data', {
+            socket.emit({
                 msg: 'key',
                 keyCode: e.keyCode
             });
@@ -38,7 +61,7 @@ $(document).ready(() => {
             code = code - 96;
         }
 		$('#key-ui').text(`keyCode: ${code}`);
-        socket.emit('data', {
+        socket.emit( {
             msg: 'key',
             keyCode: code
         });
@@ -54,7 +77,10 @@ const START_X = TILE_SIZE / 2;
 const START_Y = TILE_SIZE / 2;
 
 const MAX_LINE = 12;
-socket.on('data', function (data) {
+
+// 서버로 부터 메시지를 수신한다
+socket.onmessage = function(event) {
+    var data = JSON.parse(event.data);
     if (data.msg == 'putstr') {
         if ($('#msg-ui p').length > MAX_LINE) {
             $($('#msg-ui p')[0]).remove();
@@ -65,7 +91,8 @@ socket.on('data', function (data) {
     } else if (data.msg == 'update_tile') {
         tile.add.image(START_X + data.x * TILE_SIZE, START_Y + data.y * TILE_SIZE, 'tile', data.tile);
     }
-});
+}
+
 
 function tileInit() {
     var config = {
