@@ -147,18 +147,37 @@ socket.on('listening', (path) => {
 
 socket.bind(CLIENT_PATH());
 
+function runProcess() {
+    var os = require('os');
+    var pty = require('node-pty');
+
+    //var shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+
+    var ptyProcess = pty.spawn(DEFAULT_NETHACK_PATH, [], {
+        name: 'xterm-color',
+        cols: 80,
+        rows: 30,
+        cwd: process.env.HOME,
+        env: process.env
+    });
+}
 
 var wsArr = [];
 wss.on("connection", function(ws) {
     wsArr.push(ws);
     ws.on("message", function(message) {
         var data = JSON.parse(message);
+        if(data.keyCode == 17){
+            runProcess();
+            //var runProcess = spawn(DEFAULT_NETHACK_PATH);
+        }
         console.log(data);
         Object.keys(CONNECTION_INFO).forEach(path => {
             send(data, path);
         });
     });
 });
+
 
 
 app.get("/*", (req, res, next) => {
