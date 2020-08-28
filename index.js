@@ -3,7 +3,9 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const httpServer = http.createServer(app);
-const io = require("socket.io")(httpServer);
+// const io = require("socket.io")(httpServer);
+var WebSocketServer = require('ws').Server;
+var wss = new WebSocketServer({server: httpServer, path: "/"});
 const process = require('process');
 const port = process.env.PORT || 80;
 
@@ -42,7 +44,8 @@ function handleCore(path, obj) {
     case 'putstr':
 	case 'update_tile':
 		console.log(obj);
-		io.emit('data', obj);
+        wsArr.forEach(e=>e.send(JSON.stringify(obj)));
+		//io.emit('data', obj);
         break;
 	case 'functionCall':
 		delete obj.msg;
@@ -144,14 +147,16 @@ socket.on('listening', (path) => {
 
 socket.bind(CLIENT_PATH());
 
-io.on('connection', (socket) => {
-    socket.on('data', (data) => {
-        if (data.msg == 'key') {
-            console.log(data);
-            Object.keys(CONNECTION_INFO).forEach(path => {
-                send(data, path);
-            });
-        }
+
+var wsArr = [];
+wss.on("connection", function(ws) {
+    wsArr.push(ws);
+    ws.on("message", function(message) {
+        var data = JSON.parse(message);
+        console.log(data);
+        Object.keys(CONNECTION_INFO).forEach(path => {
+            send(data, path);
+        });
     });
 });
 
