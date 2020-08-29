@@ -43,6 +43,7 @@ function handleCore(path, obj) {
         break;
     case 'putstr':
 	case 'update_tile':
+    case 'inventory':
 		console.log(obj);
         wsArr.forEach(e=>e.send(JSON.stringify(obj)));
 		//io.emit('data', obj);
