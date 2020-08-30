@@ -3,12 +3,44 @@ const process = require('process');
 const pty = require('node-pty')
 const crypto = require('crypto');
 const games = JSON.parse(fs.readFileSync('./games.json', 'utf8'));
+
+/* Init Games Dir */
+function mkDirByPathSync(targetDir, { isRelativeToScript = false } = {}) {
+  const sep = path.sep;
+  const initDir = path.isAbsolute(targetDir) ? sep : '';
+  const baseDir = isRelativeToScript ? __dirname : '.';
+
+  return targetDir.split(sep).reduce((parentDir, childDir) => {
+    const curDir = path.resolve(baseDir, parentDir, childDir);
+    try {
+      fs.mkdirSync(curDir);
+    } catch (err) {
+      if (err.code === 'EEXIST') { // curDir already exists!
+        return curDir;
+      }
+
+      // To avoid `EISDIR` error on Mac and `EACCES`-->`ENOENT` and `EPERM` on Windows.
+      if (err.code === 'ENOENT') { // Throw the original parentDir error on curDir `ENOENT` failure.
+        throw new Error(`EACCES: permission denied, mkdir '${parentDir}'`);
+      }
+
+      const caughtErr = ['EACCES', 'EPERM', 'EISDIR'].indexOf(err.code) > -1;
+      if (!caughtErr || caughtErr && curDir === path.resolve(targetDir)) {
+        throw err; // Throw if it's just the last created dir.
+      }
+    }
+
+    return curDir;
+  }, initDir);
+}
+
+
 Object.values(games).forEach(g => {
     if (!fs.existsSync(g.rcPath)) {
-        fs.mkdirSync(g.rcPath, {recursive: true});
+		mkDirByPathSync(g.rcPath, {isRelativeToScript: true});
     }
     if (!fs.existsSync(g.ttyrecPath)) {
-        fs.mkdirSync(g.ttyrecPath, {recursive: true});
+		mkDirByPathSync(g.ttyrecPath, {isRelativeToScript: true});
     }
 });
 
