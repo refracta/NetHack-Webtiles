@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const process = require('process');
 const pty = require('node-pty')
 const crypto = require('crypto');
