@@ -6,42 +6,42 @@ const crypto = require('crypto');
 const games = JSON.parse(fs.readFileSync('./games.json', 'utf8'));
 
 /* Init Games Dir */
-function mkDirByPathSync(targetDir, { isRelativeToScript = false } = {}) {
-  const sep = path.sep;
-  const initDir = path.isAbsolute(targetDir) ? sep : '';
-  const baseDir = isRelativeToScript ? __dirname : '.';
+function mkDirByPathSync(targetDir, {isRelativeToScript = false} = {}) {
+    const sep = path.sep;
+    const initDir = path.isAbsolute(targetDir) ? sep : '';
+    const baseDir = isRelativeToScript ? __dirname : '.';
 
-  return targetDir.split(sep).reduce((parentDir, childDir) => {
-    const curDir = path.resolve(baseDir, parentDir, childDir);
-    try {
-      fs.mkdirSync(curDir);
-    } catch (err) {
-      if (err.code === 'EEXIST') { // curDir already exists!
+    return targetDir.split(sep).reduce((parentDir, childDir) => {
+        const curDir = path.resolve(baseDir, parentDir, childDir);
+        try {
+            fs.mkdirSync(curDir);
+        } catch (err) {
+            if (err.code === 'EEXIST') { // curDir already exists!
+                return curDir;
+            }
+
+            // To avoid `EISDIR` error on Mac and `EACCES`-->`ENOENT` and `EPERM` on Windows.
+            if (err.code === 'ENOENT') { // Throw the original parentDir error on curDir `ENOENT` failure.
+                throw new Error(`EACCES: permission denied, mkdir '${parentDir}'`);
+            }
+
+            const caughtErr = ['EACCES', 'EPERM', 'EISDIR'].indexOf(err.code) > -1;
+            if (!caughtErr || caughtErr && curDir === path.resolve(targetDir)) {
+                throw err; // Throw if it's just the last created dir.
+            }
+        }
+
         return curDir;
-      }
-
-      // To avoid `EISDIR` error on Mac and `EACCES`-->`ENOENT` and `EPERM` on Windows.
-      if (err.code === 'ENOENT') { // Throw the original parentDir error on curDir `ENOENT` failure.
-        throw new Error(`EACCES: permission denied, mkdir '${parentDir}'`);
-      }
-
-      const caughtErr = ['EACCES', 'EPERM', 'EISDIR'].indexOf(err.code) > -1;
-      if (!caughtErr || caughtErr && curDir === path.resolve(targetDir)) {
-        throw err; // Throw if it's just the last created dir.
-      }
-    }
-
-    return curDir;
-  }, initDir);
+    }, initDir);
 }
 
 
 Object.values(games).forEach(g => {
     if (!fs.existsSync(g.rcPath)) {
-		mkDirByPathSync(g.rcPath, {isRelativeToScript: true});
+        mkDirByPathSync(g.rcPath, {isRelativeToScript: true});
     }
     if (!fs.existsSync(g.ttyrecPath)) {
-		mkDirByPathSync(g.ttyrecPath, {isRelativeToScript: true});
+        mkDirByPathSync(g.ttyrecPath, {isRelativeToScript: true});
     }
 });
 
@@ -77,13 +77,14 @@ uds.handler = function udsHandler(data, info) {
 
 const sessions = {};
 
-function getUserGameConfig(gameInfo, sessionInfo) {
+function getUserGameConfigWithInit(gameInfo, sessionInfo) {
     if (typeof sessionInfo === 'string') {
         // if info is sessionKey
         sessionInfo = sessions[sessionInfo];
     }
     let rcPath = gameInfo.rcPath + sessionInfo.username + '.nethackrc';
     let ttyrecPath = gameInfo.ttyrecPath + sessionInfo.username + '/';
+    !fs.existsSync(ttyrecPath) ? mkDirByPathSync(ttyrecPath, {isRelativeToScript: true}) : void 0;
     ttyrecPath += new Date().toISOString() + '.ttyrec';
 
     let rcOptions = `NETHACKOPTIONS=@${rcPath}`;
@@ -194,7 +195,7 @@ ws.handler = function (data, socket) {
                 let gameInfo = games[data.id];
                 if (gameInfo) {
                     let sessionInfo = sessions[info.sessionKey];
-                    let config = getUserGameConfig(gameInfo, sessionInfo);
+                    let config = getUserGameConfigWithInit(gameInfo, sessionInfo);
                     ws.send({
                         msg: 'get_rc_response',
                         rcText: getRCText(config.rcPath),
@@ -209,7 +210,7 @@ ws.handler = function (data, socket) {
                 let gameInfo = games[data.id];
                 if (gameInfo) {
                     let sessionInfo = sessions[info.sessionKey];
-                    let config = getUserGameConfig(gameInfo, sessionInfo);
+                    let config = getUserGameConfigWithInit(gameInfo, sessionInfo);
                     setRCText(config.rcPath, data.rcText);
                     ws.send({msg: 'save_rc_success'}, socket);
                 }
@@ -221,7 +222,7 @@ ws.handler = function (data, socket) {
                 if (gameInfo) {
                     // TODO 현재 플레이 중이면 해당 게임 종료 요청 보내야함
                     let sessionInfo = sessions[info.sessionKey];
-                    let config = getUserGameConfig(gameInfo, sessionInfo);
+                    let config = getUserGameConfigWithInit(gameInfo, sessionInfo);
                     let ptyProcess = pty.spawn('/bin/bash', [], {
                         name: 'xterm-color',
                         cols: 80,
@@ -230,6 +231,7 @@ ws.handler = function (data, socket) {
                         env: process.env
                     });
                     ptyProcess.write(config.cmd.nethackWithTTYREC);
+                    console.log(config.cmd.nethackWithTTYREC);
                     let roomInfo = gameRoom[socket.username] = {
                         id: gameInfo.id,
                         name: gameInfo.name,
