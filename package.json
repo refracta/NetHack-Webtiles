@@ -1,12 +1,13 @@
 {
   "name": "nethack-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "dependencies": {
     "express": "4.17.1",
-    "socket.io": "2.3.0",
     "unix-dgram-socket": "1.1.0",
     "node-pty": "0.9.0",
+    "node-uuid": "1.4.8",
+    "lowdb": "1.0.0",
     "ws": "7.3.1"
   },
   "devDependencies": {},
@@ -15,5 +16,6 @@
     "start": "node index.js /root/nh/install/games/nethack"
   },
   "author": "refracta",
-  "license": "ISC"
+  "license": "ISC",
+  "type": "module"
 }

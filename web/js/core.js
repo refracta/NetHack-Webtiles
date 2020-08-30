@@ -1,28 +1,12 @@
+import wsClient from "./ws-client.js";
+wsClient.init();
 
-WebSocket.prototype.emit = function(data){
-    this.send(JSON.stringify(data));
-}
+import uiHandler from "./ui-handler.js";
+uiHandler.init(wsClient);
 
-var loc = window.location, new_uri;
-if (loc.protocol === "https:") {
-    new_uri = "wss:";
-} else {
-    new_uri = "ws:";
-}
-new_uri += "//" + loc.host;
-new_uri += loc.pathname;
-var socket = new WebSocket(new_uri);
+import tileRenderer from "./tile-renderer.js";
 
-
-socket.onopen = function(event) {
-    //ws.send("Client message: Hi!");
-}
-
-socket.onerror = function(event) {
-    //console.log("Server error message: ", event.data);
-}
-
-
+/*
 $(document).ready(() => {
     $('body').keypress(e => {
         var code = e.charCode || e.keyCode;
@@ -67,7 +51,7 @@ $(document).ready(() => {
         });
     });
 
-    tileInit();
+    // tileInit();
 });
 
 const TILE_SIZE = 32;
@@ -75,7 +59,6 @@ const MAX_X = 79 + 1;
 const MAX_Y = 21;
 const START_X = TILE_SIZE / 2;
 const START_Y = TILE_SIZE / 2;
-
 const MAX_LINE = 12;
 
 // 서버로 부터 메시지를 수신한다
@@ -87,10 +70,31 @@ socket.onmessage = function(event) {
         }
         var pText = $('<p style="margin: 0px"></p>');
         pText.text(data.str);
+        if(data.str.includes('You descend the stairs.') || data.str.includes('You climb up the stairs.')){
+            tile.add.rectangle(0, 0, MAX_X*64, MAX_Y*64, 0x000000);
+        }
         $('#msg-ui').append(pText);
     } else if (data.msg == 'update_tile') {
         tile.add.image(START_X + data.x * TILE_SIZE, START_Y + data.y * TILE_SIZE, 'tile', data.tile);
+    }else if (data.msg == 'status_update') {
+        if(data.fldidx == 20){
+            $('#dungeon-level').text("던전 레벨: "+data.text);
+            return;
+        }else if(data.fldidx == 17){
+            $('#hungry-level').text("배고픔: "+data.text);
+            return;
+        }else if(data.fldidx == 18){
+            $('#hp-level').text("체력: "+data.text);
+            return;
+        } // 0 로어
+        if ($('#status-ui p').length > 3) {
+            $($('#status-ui p')[0]).remove();
+        }
+        var pText = $('<p style="margin: 0px"></p>');
+        pText.text(`${data.fldidx}: ${data.text}`);
+        $('#status-ui').append(pText);
     }
+
 }
 
 
@@ -119,3 +123,10 @@ function tileInit() {
         self.tile = this;
     }
 }
+
+$(document).ready(e=>{
+    $('#register').click(e=>{
+        $('#modalRegisterForm').modal('show');
+    });
+});
+*/
