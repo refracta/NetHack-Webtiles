@@ -72,7 +72,7 @@ function setRCText(rcPath, rcText) {
 
 const gameRoom = {};
 const connectionInfo = {};
-// 지정 시간마다 시간 초과 세션 없애기
+// TODO 지정 시간마다 시간 초과 세션 없애기
 ws.handler = function (data, socket) {
     let info = connectionInfo[socket.id];
     if (!info) {
@@ -186,7 +186,7 @@ ws.handler = function (data, socket) {
             if (info.isLogin) {
                 let gameInfo = games[data.id];
                 if (gameInfo) {
-                    // 현재 플레이 중이면 해당 게임 종료 요청 보내야함
+                    // TODO 현재 플레이 중이면 해당 게임 종료 요청 보내야함
                     let sessionInfo = sessions[info.sessionKey];
                     let config = getUserGameConfig(gameInfo, sessionInfo);
                     let ptyProcess = pty.spawn('/bin/bash', [], {
