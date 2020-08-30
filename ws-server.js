@@ -1,5 +1,5 @@
 const WebSocketServer = require('ws').Server;
-const uuid = require('node-uuid');
+const uuid = require('uuid');
 
 class WSServer {
     constructor() {
