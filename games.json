@@ -11,13 +11,13 @@
     "id": "unh",
     "rcPath": "/usr/rcfiles/unh/",
     "ttyrecPath": "/usr/ttyrec/",
-    "gamePath": "/nh/install/games/nethack"
+    "gamePath": "/root/nh/install/games/nethack"
   },
   "sem": {
     "name": "Slash'EM",
     "id": "sem",
     "rcPath": "/usr/rcfiles/unh/",
     "ttyrecPath": "/usr/ttyrec/",
-    "gamePath": "/nh/install/games/nethack"
+    "gamePath": "/root/nh/install/games/nethack"
   }
 }
