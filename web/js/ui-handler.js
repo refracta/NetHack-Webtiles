@@ -24,7 +24,7 @@ class UIHandler {
     }
 
     clearMainContent() {
-        $('#main-content').clear();
+         $('#main-content').empty();
     }
 
     setAccountInfo(text) {
