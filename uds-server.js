@@ -75,9 +75,19 @@ class UDSServer {
                         msg: 'pong'
                     }, info);
                 } else if (data.msg === 'pong') {
-                    console.log(`Pong from ${path}`);
+                    //console.log(`Pong from ${path}`);
+                } else if (data.msg === 'queued_msg') {
+                    if (this.handler) {
+                        if(this.preHandler){
+                            this.preHandler(data);
+                        }
+                        data.list.forEach(d => this.handler(d, info));
+                    }
                 } else {
                     if (this.handler) {
+                        if(this.preHandler){
+                            this.preHandler(data);
+                        }
                         this.handler(data, info);
                     }
                 }
@@ -101,21 +111,27 @@ class UDSServer {
         return `${this.gameUDSPath}-${pid}`;
     }
 
-    // pathInfo = info Object or path String
+    // pathinfo = info Object or path String
     send(data, pathInfo) {
         if (this.debugMode && this.debugOption.disableSendFunction) {
             return true;
         }
+        let path;
         if (typeof pathInfo === "object") {
-            pathInfo = pathInfo.path;
+            path = pathInfo.path;
+        } else {
+            path = pathInfo;
         }
-        if (!this.socket.send(JSON.stringify(data) + '\0', pathInfo)) {
-            console.error(`UDSSocketSendError(${pathInfo}): ${JSON.stringify(data)}`);
-            let info = this.connectionInfo[pathInfo];
+        if (!this.socket.send(JSON.stringify(data) + '\0', path)) {
+            console.error(`UDSSocketSendError(${path}): ${JSON.stringify(data)}`);
+            let info = this.connectionInfo[path];
             if (info) {
                 clearInterval(info.pingTimeoutCheckIntervalId);
                 clearInterval(info.sendPingIntervalId);
-                delete this.connectionInfo[pathInfo];
+                if (info.onclose) {
+                    info.onclose(info);
+                }
+                delete this.connectionInfo[path];
             }
             return false;
         }

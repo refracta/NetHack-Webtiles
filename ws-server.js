@@ -38,11 +38,17 @@ class WSServer {
             });
             socket.on("error", (error) => {
                 console.error(`WebSocketError${address}: ${error}`);
+                if(this.onerror){
+                    this.onerror(socket, error);
+                }
                 socket.close();
             });
             socket.on("close", () => {
                 console.error(`WebSocket Connection Close: ${address}`);
                 this.wsList.splice(this.wsList.indexOf(socket), 1);
+                if(this.onclose){
+                    this.onclose(socket);
+                }
             });
         });
     }

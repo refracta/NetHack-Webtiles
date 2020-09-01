@@ -15,16 +15,14 @@ class WSClient {
             if (localStorage.sessionKey) {
                 this.send({msg: 'login', sessionKey: localStorage.sessionKey});
             }
-            let play = location.hash.match(/^#play-(.+)/i);
             let watch = location.hash.match(/^#watch-(.+)/i);
-            if (play) {
-                this.send({msg: 'status_change', status: 'play', id: play[1]});
-            } else if (watch) {
-                this.send({msg: 'status_change', status: 'watch', username: watch[1]});
+           if (watch) {
+                this.send({msg: 'watch', username: watch[1]});
             } else {
-                this.send({msg: 'status_change', status: 'lobby'});
+                this.send({msg: 'lobby'});
             }
         }
+        /*
         this.socket.onerror = (event) => {
             alert("Connection Error!");
             //console.log("Server error message: ", event.data);
@@ -33,6 +31,7 @@ class WSClient {
             alert("Connection Close!");
             //console.log("Server error message: ", event.data);
         }
+         */
         this.socket.onmessage = (event) => {
             let data;
             try {
@@ -40,7 +39,7 @@ class WSClient {
             } catch (e) {
                 console.error('Error JSON Parsing:', message);
             }
-
+            console.log('RAW DATA:' ,data);
             if (this.handler) {
                 this.handler(data, this.socket);
             }

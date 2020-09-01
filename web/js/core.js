@@ -2,9 +2,11 @@ import wsClient from "./ws-client.js";
 wsClient.init();
 
 import uiHandler from "./ui-handler.js";
+self.uiHandler = uiHandler;
 uiHandler.init(wsClient);
 
-import tileRenderer from "./tile-renderer.js";
+
+
 
 /*
 $(document).ready(() => {

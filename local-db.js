@@ -14,7 +14,7 @@ class LocalDB {
         }).write();
     }
     getUser(username) {
-        return db.get('users').value()[username];
+        return db.get('users').value()[username.toLowerCase()];
     }
 
     isRegistered(username) {
@@ -28,7 +28,7 @@ class LocalDB {
 
     register(data) {
         db.get('users').assign({
-            [data.username]: {
+            [data.username.toLowerCase()]: {
                 username: data.username,
                 password: data.password,
                 email: data.email

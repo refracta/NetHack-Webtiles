@@ -1,3 +1,65 @@
+#browserhack-status {
+    left: 0;
+    right: 250px;
+    bottom: 0;
+    background-color: #283654;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    width: fit-content;
+    white-space: pre;
+}
+#tile-content{
+    display: grid;
+}
+
+.item-description .cursed,
+#browserhack-status .red {
+    /* solarized */
+    color: #dc322f;
+}
+
+.item-description .blessed,
+#browserhack-status .green {
+    /* solarized */
+    color: #859900;
+}
+
+#browserhack-status .orange {
+    /* solarized */
+    color: #cb4b16;
+}
+
+.item-description .uncursed,
+#browserhack-status .highlight {
+    /* solarized */
+    color: #93a1a1;
+}
+
+#browserhack-status .name {
+    /* solarized */
+    color: #ffffff;
+    font-size: 24pt;
+}
+
+#browserhack-status .status-table {
+    display: inline-table;
+    vertical-align: middle;
+}
+
+#browserhack-status .status-misc {
+    margin-left: 20px;
+    font-size: 16pt;
+    vertical-align: middle;
+}
+
+.ingame-text {
+    color: #ffffff;
+    display: block;
+}
+#message-content{
+    padding-left: 0.8em;
+}
+
 .ui-darkblue {
     background-color: #283654;
     color: #ffffff;
@@ -30,9 +92,11 @@
 #register-form {
     color: #000000;
 }
+
 #register-modal {
     margin-top: 60px;
 }
+
 #edit-rc-modal {
     margin-top: 55px;
 }
@@ -156,11 +220,45 @@
         width: 1870px;
     }
 }
+#message-content {
+position: fixed;
+    bottom: 0;
+    padding-bottom: 10px;
+}
 
 body {
     padding-top: 80px;
     padding-bottom: 20px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    max-width: 100%;
+    overflow: auto;
 }
+
+.extend {
+    max-width: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+#loading > div {
+    display: grid;
+}
+#loading {
+    height:100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
 
 /* === */
 
@@ -183,11 +281,11 @@ body {
     transition: margin 0.3s linear;
 }
 
-#player-list {
+#game-list {
     background-color: #d9e1e8;
 }
 
-#player-list th, #player-list td {
+#game-list th, #game-list td {
     border: 1px solid #1c1e24;
 }
 
@@ -197,4 +295,87 @@ body {
         flex: 0 0 40%;
         max-width: 40%;
     }
+}
+/*CHAT*/
+#chat {
+    background: rgba(0, 0, 0, 0.85);
+    width: 400px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+
+    color: #A2A2A2;
+
+    font-size: small;
+
+    padding: 5px;
+    border: 1px solid #626262;
+
+    z-index: 3000;
+}
+
+#chat a {
+    color: inherit;
+    font-weight: inherit;
+}
+
+#chat #chat_body {
+    width: 100%;
+}
+
+#chat_caption {
+    font-weight: normal;
+    text-decoration: none;
+}
+
+#chat_caption:hover {
+    background-color: #111111;
+}
+
+#chat_login_text {
+    border-top: 1px dashed #626262;
+}
+
+.chat_automated {
+    color: white;
+    font-style: italic;
+}
+
+#message_count {
+    float: right;
+}
+#message_count.has_new {
+    font-weight: bolder;
+    color: green;
+}
+
+#chat_history_container {
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    margin-bottom: 3px;
+}
+
+#chat_history {
+    width: 100%;
+}
+
+.chat_sender {
+    font-weight: bold;
+}
+
+#spectator_list .player {
+    font-weight: bold;
+}
+
+#spectator_list .watcher {
+    font-weight: normal;
+}
+
+#chat_input {
+    width: 388px;
+    font: small monospace;
 }
