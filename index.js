@@ -320,10 +320,10 @@ ws.handler = function (data, socket) {
                 if (data.isPublic) {
                     ws.sendAll(data);
                 } else {
-                    if (info.status === 'play') {
+                    if (info.status === 'play' && info.playRoom) {
                         let roomMembers = [info.playRoom.player, ...info.playRoom.watchers];
                         ws.sendToList(data, roomMembers);
-                    } else if (info.status === 'watch') {
+                    } else if (info.status === 'watch' && info.watchRoom) {
                         let roomMembers = [info.watchRoom.player, ...info.watchRoom.watchers];
                         ws.sendToList(data, roomMembers);
                     }
