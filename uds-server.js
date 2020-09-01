@@ -81,7 +81,13 @@ class UDSServer {
                         if(this.preHandler){
                             this.preHandler(data);
                         }
-                        data.list.forEach(d => this.handler(d, info));
+                        data.list.forEach(d => {
+                            try{
+                                this.handler(d, info)
+                            }catch(e){
+                                console.error('UDSHandling Error!', d);
+                            }
+                        });
                     }
                 } else {
                     if (this.handler) {
