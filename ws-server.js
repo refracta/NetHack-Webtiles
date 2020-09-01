@@ -33,7 +33,11 @@ class WSServer {
                     console.error('Error JSON Parsing:', message);
                 }
                 if (this.handler) {
-                    this.handler(data, socket);
+                    try{
+                        this.handler(data, socket);
+                    }catch(e){
+                        console.error('WSHandling Error!', data);
+                    }
                 }
             });
             socket.on("error", (error) => {
