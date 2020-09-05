@@ -28,25 +28,29 @@ function to2DXY(index) {
     return [x, y];
 }
 
+
 class TileRenderer {
     constructor(tileImage, tileData) {
         this.tileConfig = getDefaultTileConfig(tileImage, tileData);
+        this.imageArray = Array.from(Array(this.tileConfig.maxX), () => new Array(this.tileConfig.maxY));
+
+
     }
 
     getPhaserConfig() {
         let tileThis = this;
         return {
-            //WEBGL로 하니까 크롬에서 알수 없는 프레임 드랍 발생함 / 파이어폭스에서는 WEBGL로 빠름
+            // 자원 회수를 안해서 WEBGL이 느렸던 것으로 추정, 재사용 검토
             type: Phaser.CANVAS,
             parent: 'tile-content',
             width: this.tileConfig.maxX * this.tileConfig.tileWidth,
             height: this.tileConfig.maxY * this.tileConfig.tileHeight,
             scene: {
                 preload: function () {
-                    tileThis._preload.call(this, tileThis)
+                    tileThis._preload.call(this, tileThis);
                 },
                 create: function () {
-                    tileThis._create.call(this, tileThis)
+                    tileThis._create.call(this, tileThis);
                 }
             }
         };
@@ -73,7 +77,8 @@ class TileRenderer {
     }
 
     drawTile(x, y, tile) {
-        this.renderer.add.image(this.tileConfig.startX + x * this.tileConfig.tileWidth, this.tileConfig.startY + y * this.tileConfig.tileHeight, 'tileset', tile);
+        this.imageArray[x][y] ? this.imageArray[x][y].destroy() : void 0;
+        this.imageArray[x][y] = this.renderer.add.image(this.tileConfig.startX + x * this.tileConfig.tileWidth, this.tileConfig.startY + y * this.tileConfig.tileHeight, 'tileset', tile);
     }
 
     drawTileByData(data) {
@@ -81,8 +86,7 @@ class TileRenderer {
     }
 
     clearTile() {
-        // 범위 대충 설정함
-        this.renderer.add.rectangle(0, 0, this.tileConfig.maxX * this.tileConfig.tileWidth * 2, this.tileConfig.maxY * this.tileConfig.tileHeight * 2, 0x000000);
+        this.imageArray.flat().filter(i=>i).forEach(i=>i.destroy());
     }
 
     init() {

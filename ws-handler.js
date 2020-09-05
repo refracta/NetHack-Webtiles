@@ -293,6 +293,7 @@ class WSHandler {
     updateLobbyWatcher() {
         let lobbyList = this.getStatusSocketInfoList('lobby');
         let userList = [...new Set(lobbyList.filter(s => this.server.connectionInfoMap[s.socket.id].isLogin).map(s => this.server.connectionInfoMap[s.socket.id].username))];
+        userList.sort();
         this.sender.updateWatcher(userList, lobbyList.length, lobbyList);
     }
 
@@ -306,8 +307,7 @@ class WSHandler {
 
     roomToWatcherData(room) {
         let list = [...room.watchers].map(s => s.username);
-        let userList = [...new Set([room.player.username, ...list.filter(e => e)])];
-        userList.sort();
+        let userList = [...new Set([room.player.username, ...list.filter(e => e).sort()])];
         return {userList, numberOfWatchers: list.length};
     }
 

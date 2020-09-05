@@ -1,8 +1,9 @@
 
 class SiteUIHandler {
-    constructor(sender) {
+    constructor(sender, config) {
         this.sender = sender;
-        $("#chat_caption").bind("click", this.toggle);
+        this.config = config;
+
         this.new_message_count = 0;
         this.spectators = {
             count: 0,
@@ -12,7 +13,6 @@ class SiteUIHandler {
         this.message_history = [];
         this.unsent_message = "";
         this.history_pos = -1;
-
         // this.message;
     }
 
@@ -343,6 +343,7 @@ class SiteUIHandler {
     }
 
     init() {
+        $("#chat_caption").bind("click", this.toggle);
         $('#chat_input').bind('keydown', this.chat_message_send.bind(this));
         $('#register-btn').click(e => this.showRegisterModal(true));
         $('#close-register-btn').click(e => this.showRegisterModal(false));

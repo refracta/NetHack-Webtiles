@@ -1,6 +1,7 @@
 class GameUIHandler {
-    constructor(sender) {
+    constructor(sender, config) {
         this.sender = sender;
+        this.config = config;
     }
 
     clearTerminal() {
@@ -63,6 +64,7 @@ class GameUIHandler {
         $('#item-content').show();
     }
 
+    // TODO FIX CALC
     resizeMessageContent() {
         let leftHeight = $('body').height() - $('#browserhack-status').height() - $('#tile-content').height();
         while ($('#message-content span:hidden').length > 20) {
@@ -162,10 +164,13 @@ class GameUIHandler {
     initTerminal() {
         this.clearTerminal();
         this.terminal = new Terminal({
-            fontSize: 14,
+            fontSize: 15,
             fontFamily: 'Courier New'
         });
-        this.terminal.resize(80, 25);
+
+        // TODO WEB RC fontWeightBold: 'normal'
+
+        this.terminal.resize(this.config.terminalCols, this.config.terminalRows);
         /*this.fitAddon = new FitAddon();
         this.terminal.loadAddon(fitAddon);*/
 

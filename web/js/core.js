@@ -23,9 +23,9 @@ self.WSHandler = WSHandler;
 
     let sender = new WSSender(client);
 
-    let siteUIHandler = new SiteUiHandler(sender);
+    let siteUIHandler = new SiteUiHandler(sender, config);
     siteUIHandler.init();
-    let gameUIHandler = new GameUIHandler(sender);
+    let gameUIHandler = new GameUIHandler(sender, config);
 
     let handler = new WSHandler({siteUIHandler, gameUIHandler, client, sender});
     handler.init();
