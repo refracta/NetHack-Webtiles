@@ -21,7 +21,7 @@ class UDSServer {
         this.debugOption = {disableTimeoutDisconnect: false, disableSendFunction: false};
 
         this.socket = new UnixDgramSocket();
-        this.connectionInfo = {};
+        this.connectionInfoMap = {};
 
         this.socket.on('message', (message, socketInfo) => {
             message = message.toString(UnixDgramSocket.payloadEncoding).substring(0, message.indexOf('\0'));
@@ -33,7 +33,7 @@ class UDSServer {
                 return;
             }
             let path = socketInfo.remoteSocket;
-            let info = this.connectionInfo[path];
+            let info = this.connectionInfoMap[path];
 
             if (!info && data.msg === 'init_socket') {
                 console.log('InitSocket:', path);
@@ -52,14 +52,14 @@ class UDSServer {
                     console.error('InitEndError!');
                     return;
                 }
-                this.connectionInfo[path] = info;
+                this.connectionInfoMap[path] = info;
 
                 info.pingTimeoutCheckIntervalId = setInterval(() => {
-                    if ((this.debugMode && !this.debugOption.disableTimeoutDisconnect) && new Date().getTime() - connectionInfo.lastReceivePingTime >= PING_TIMEOUT) {
+                    if ((this.debugMode && !this.debugOption.disableTimeoutDisconnect) && new Date().getTime() - connectionInfoMap.lastReceivePingTime >= PING_TIMEOUT) {
                         console.error('PingTimeoutError:', `Path: ${path}`);
                         clearInterval(info.pingTimeoutCheckIntervalId);
                         clearInterval(info.sendPingIntervalId);
-                        delete this.connectionInfo[path];
+                        delete this.connectionInfoMap[path];
                     }
                 }, Math.ceil(this.pingTimeout / 3));
                 info.sendPingIntervalId = setInterval(() => {
@@ -85,7 +85,9 @@ class UDSServer {
                             try{
                                 this.handler(d, info)
                             }catch(e){
-                                console.error('UDSHandling Error!', d);
+                                console.error('UDSHandling Error!');
+                                console.error(e);
+                                console.error(data);
                             }
                         });
                     }
@@ -130,14 +132,14 @@ class UDSServer {
         }
         if (!this.socket.send(JSON.stringify(data) + '\0', path)) {
             console.error(`UDSSocketSendError(${path}): ${JSON.stringify(data)}`);
-            let info = this.connectionInfo[path];
+            let info = this.connectionInfoMap[path];
             if (info) {
                 clearInterval(info.pingTimeoutCheckIntervalId);
                 clearInterval(info.sendPingIntervalId);
-                if (info.onclose) {
-                    info.onclose(info);
+                if (info.closeHandler) {
+                    info.closeHandler(info);
                 }
-                delete this.connectionInfo[path];
+                delete this.connectionInfoMap[path];
             }
             return false;
         }
@@ -151,45 +153,12 @@ class UDSServer {
     }
 
     sendAll(data) {
-        this.sendToList(data, Object.values(this.connectionInfo));
+        this.sendToList(data, Object.values(this.connectionInfoMap));
     }
 
     init() {
         this.socket.bind(this.getServerUDSPath());
     }
 }
-
-/*
-function handleCore(data, path) {
-    switch (data.msg) {
-        case 'debug':
-            console.log('DebugMsg:', data);
-            break;
-        case 'putstr':
-        case 'update_tile':
-        case 'status_update':
-            console.log(data);
-            wsList.forEach(e => e.send(JSON.stringify(data)));
-            //io.emit('data', data);
-            break;
-        case 'functionCall':
-            delete data.msg;
-            var funcString = data.functionMain.split('(').shift() + '(' + data.paramLine.map(e => e.replace(';', '')).join(', ') + ')';
-            console.log(`FunctionCall(${new Date().getTime()}): ${funcString}`);
-            break;
-        case 'functionEnd':
-            delete data.msg;
-            var funcString = data.functionMain.split('(').shift() + '(' + data.paramLine.map(e => e.replace(';', '')).join(', ') + ')';
-            console.log(`FunctionEnd(${new Date().getTime()}): ${funcString}`);
-            break;
-        default:
-            console.log('Unknown Request!');
-            console.log(`path: ${path}`, data);
-            break;
-    }
-}
-
-
- */
 
 exports = module.exports = new UDSServer();

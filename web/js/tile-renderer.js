@@ -7,7 +7,9 @@ function getDefaultTileConfig(tileImage, tileData) {
 
     return {...tileData, maxX, maxY, startX, startY, tileImage};
 }
+
 const MATRIX_COL = 256;
+
 function to2DIndex(x, y) {
     return y * MATRIX_COL + x;
 }
@@ -19,7 +21,8 @@ function to2DY(index) {
 function to2DX(index) {
     return index - to2DY(MATRIX_COL, index) * MATRIX_COL;
 }
-function to2DXY(index){
+
+function to2DXY(index) {
     let y = Math.floor(index / MATRIX_COL);
     let x = index - y * MATRIX_COL;
     return [x, y];

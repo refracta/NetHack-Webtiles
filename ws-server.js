@@ -3,26 +3,34 @@ const uuid = require('uuid');
 
 class WSServer {
     constructor() {
-        this.wsList = [];
+        this.connectionInfoMap = {};
     }
 
-    send(data, socket) {
-        socket.send(JSON.stringify(data));
+    send(data, socketInfo) {
+        if(socketInfo.send){
+            socket.send(JSON.stringify(data));
+        }else{
+            socketInfo.socket.send(JSON.stringify(data));
+        }
     }
 
-    sendToList(data, socketList) {
-        socketList.forEach(s => this.send(data, s));
+    sendToList(data, socketInfoList) {
+        socketInfoList.forEach(s => this.send(data, s));
     }
 
     sendAll(data){
-        this.sendToList(data, this.wsList);
+        this.sendToList(data, Object.values(this.connectionInfoMap));
     }
 
     init(options) {
         this.server = new WebSocketServer(options);
         this.server.on("connection", (socket, req) => {
             socket.id = uuid.v4();
-            this.wsList.push(socket);
+            let info = {};
+            info.socket = socket;
+            info.req = req;
+            this.connectionInfoMap[socket.id] = info;
+
             let address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
             console.log('WebSocket Connection Start:', address);
             socket.on("message", (message) => {
@@ -34,24 +42,27 @@ class WSServer {
                 }
                 if (this.handler) {
                     try{
-                        this.handler(data, socket);
+                        this.handler(data, info);
                     }catch(e){
-                        console.error('WSHandling Error!', data);
+                        console.error('WSHandling Error!');
+                        console.error(e);
+                        console.error(data);
                     }
                 }
             });
             socket.on("error", (error) => {
                 console.error(`WebSocketError${address}: ${error}`);
-                if(this.onerror){
-                    this.onerror(socket, error);
+                if(this.errorHandler){
+                    info.error = error;
+                    this.errorHandler(info);
                 }
                 socket.close();
             });
             socket.on("close", () => {
                 console.error(`WebSocket Connection Close: ${address}`);
-                this.wsList.splice(this.wsList.indexOf(socket), 1);
-                if(this.onclose){
-                    this.onclose(socket);
+                delete this.connectionInfoMap[info.socket.id];
+                if(this.closeHandler){
+                    this.closeHandler(info);
                 }
             });
         });

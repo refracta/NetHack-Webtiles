@@ -7,6 +7,10 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <script src="//cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@4.8.1/lib/xterm.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.8.1/css/xterm.css">
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.4.0/lib/xterm-addon-fit.min.js"></script>
+
     <script type="module" src="js/core.js"></script>
     <link rel="stylesheet" href="css/default.css">
 </head>
@@ -215,95 +219,29 @@
 <div id="game-content">
     <div id="tile-content"></div>
     <div id="browserhack-status"></div>
+    <div id="terminal-content"></div>
     <div id="message-content"></div>
-    <div id="item-content" class="alert alert-info" style="position: fixed; top:0; display: none;" role="alert"></div>
+    <div id="item-content" class="alert alert-info" role="alert"></div>
 </div>
 <div id="chat" style="" class="focus-trap">
     <a href="javascript:" id="chat_caption">
-<!--        <span id="spectator_count">1 spectators</span>-->
+        <span id="spectator_count">0 spectators</span>
         <span id="message_count">(Esc: back to game, Quotes('): go to chat)</span>
     </a>
-    <span id="spectator_list"><!--<a href="http://crawl.akrasiac.org/scoring/players/asciiphilia.html"
-                                         target="_blank" class="player">ASCIIPhilia</a>, <a
-                    href="http://crawl.akrasiac.org/scoring/players/beem.html" target="_blank" class="watcher">beem</a></span>-->
+    <br>
+    <span id="spectator_list"></span>
             <div id="chat_history_container">
-                <span id="chat_history"><!--<span class="chat_sender">ASCIIPhilia</span>: <span class="chat_msg">asdf</span><br><span
-                        class="chat_sender">ASCIIPhilia</span>: <span class="chat_msg">asdf</span><br><span
-                        class="chat_sender">ASCIIPhilia</span>: <span class="chat_msg">asdf</span><br><span
-                        class="chat_sender">ASCIIPhilia</span>: <span class="chat_msg">asdf</span><br><span
-                        class="chat_sender">ASCIIPhilia</span>: <span class="chat_msg">asfd</span><br><span
-                        class="chat_sender">ASCIIPhilia</span>: <span class="chat_msg">asdf</span><br></span>-->
-
+                <span id="chat_history">
                 </span>
             </div>
             <input class="text" type="text" name="chat_input" id="chat_input" style="">
             <div id="chat_login_text" style="display: none;">
                 <a id="chat_login_link" href="javascript:">Login</a> to chat
             </div>
-        <!--$("#chat_body").append('<embed height="80" width="100%" src="http://www.gagalive.kr/gagalive.swf?chatroom=%7E%7E%7Estonesoup%21&bgcolor=000&fontcolor=white"></embed>
-        &user=None
-        ')-->
-        <!-- 공용인데 플레이어는 채팅이랑 플레이용 키보드 입력이 중복되서 안됨 -->
-            <style>
-                #chat_public {
-                    height: 80px;
-                    overflow-y: hidden;
-                    margin-top: 3px;
-                }
 
-                #chat_public.hidden {
-                    height: 0px;
-                }
-
-                #chat_public.single {
-                    height: 30px;
-                }
-
-                #chat_public_control {
-                    width: 394px;
-                }
-
-                #chat_public_control a {
-                    cursor: pointer;
-                }
-
-                #gagalive {
-                    height: 115px;
-                    width: 394px;
-                    margin-top: -35px;
-                }
-
-                #chat_public.single #gagalive {
-                    height: 115px;
-                    width: 394px;
-                    margin-top: -53px;
-                }
-            </style>
-            <script>
-                function redrawPublicChat() {
-//$("#chat_public").html('<embed id="gagalive" height="115" width="394" src="http://www.gagalive.kr/gagalive.swf?chatroom=%7E%7E%7Estonesoup%21&bgcolor=000&fontcolor=white&user='+printName()+'">');
-                }
-            </script>
-        <!--<div id="chat_public_control"><a onclick="javascript:loadCookie();">[Enable Webtiles Additional Function
-            Module]</a></div>-->
             <div id="chat_public" class="hidden">
-                <!--
-                <embed id="gagalive" height="115" width="394" src="http://www.gagalive.kr/gagalive.swf?chatroom=%7E%7E%7Estonesoup%21&bgcolor=000&fontcolor=white&user=None"></embed>
-                -->
+
             </div>
 </div>
-
-<!--<h1>NetHack Webtiles</h1>
-<h3 id="key-ui"></h3>
-<div id="msg-ui">
-</div>
-<div id="status-ui" style="float: left; margin-top: 0px;">
-    <h3 id="hp-level" style="color:red;background-color:black;"></h3>
-    <h3 id="dungeon-level" style="color:greenyellow;background-color:black;"></h3>
-    <h3 id="hungry-level" style="color:yellow;background-color:black;"></h3>
-</div>
-<div id="tile-ui">
-</div>-->
-
 
 </html>

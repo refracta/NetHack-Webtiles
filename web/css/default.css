@@ -1,4 +1,46 @@
+#item-content {
+    position: fixed;
+    top: 0;
+    left: 455px;
+    display: none;
+}
+
+#chat_public {
+    height: 80px;
+    overflow-y: hidden;
+    margin-top: 3px;
+}
+
+#chat_public.hidden {
+    height: 0px;
+}
+
+#chat_public.single {
+    height: 30px;
+}
+
+#chat_public_control {
+    width: 394px;
+}
+
+#chat_public_control a {
+    cursor: pointer;
+}
+
+#gagalive {
+    height: 115px;
+    width: 394px;
+    margin-top: -35px;
+}
+
+#chat_public.single #gagalive {
+    height: 115px;
+    width: 394px;
+    margin-top: -53px;
+}
+
 #browserhack-status {
+    float: left;
     left: 0;
     right: 250px;
     bottom: 0;
@@ -8,7 +50,8 @@
     width: fit-content;
     white-space: pre;
 }
-#tile-content{
+
+#tile-content {
     display: grid;
 }
 
@@ -56,7 +99,9 @@
     color: #ffffff;
     display: block;
 }
-#message-content{
+
+#message-content {
+    opacity: 0.85;
     padding-left: 0.8em;
 }
 
@@ -220,9 +265,12 @@
         width: 1870px;
     }
 }
+
 #message-content {
-position: fixed;
-    bottom: 0;
+    position: fixed;
+    /*bottom: 0;*/
+    top: 0;
+    right: 0;
     padding-bottom: 10px;
 }
 
@@ -234,10 +282,10 @@ body {
     bottom: 0;
     right: 0;
     left: 0;
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
     max-width: 100%;
     overflow: auto;
 }
@@ -248,11 +296,13 @@ body {
     padding: 0;
     margin: 0;
 }
+
 #loading > div {
     display: grid;
 }
+
 #loading {
-    height:100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -296,13 +346,18 @@ body {
         max-width: 40%;
     }
 }
+
+#terminal-content {
+    float: right;
+}
+
 /*CHAT*/
 #chat {
     background: rgba(0, 0, 0, 0.85);
     width: 400px;
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
 
     color: #A2A2A2;
 
@@ -341,12 +396,21 @@ body {
     font-style: italic;
 }
 
+#chat {
+
+}
+
 #message_count {
     float: right;
 }
+
 #message_count.has_new {
     font-weight: bolder;
     color: green;
+}
+
+#terminal-content {
+    left: 0;
 }
 
 #chat_history_container {

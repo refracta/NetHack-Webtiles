@@ -1,12 +1,2 @@
-test/pseudo-node-server/node_modules
-test/pseudo-node-server/package-lock.json
-test/pseudo-c-server/.idea
-test/pseudo-c-server/cmake-build-debug
-test/pseudo-c-server/CMakeFiles
-test/pseudo-c-server/cmake_install
-test/pseudo-c-server/CMakeCache.txt
-test/pseudo-c-server/Makefile
-test/pseudo-c-server/pseudo-c-server
-test/pseudo-c-server/cmake_install.cmake
 ./node_modules
 ./package-lock.json
