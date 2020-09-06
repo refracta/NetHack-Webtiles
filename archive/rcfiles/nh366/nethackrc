@@ -118,3 +118,6 @@ OPTIONS=hilite_status:condition/slime/red&inverse
 OPTIONS=hilite_status:characteristics/up/green/down/red
 # gold
 OPTIONS=hilite_status: gold/up/yellow/down/brown
+## Dog Name & Cat Name
+OPTIONS=dogname:Dangdangee
+OPTIONS=catname:Tekaaluk
