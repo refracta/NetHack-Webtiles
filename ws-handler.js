@@ -61,7 +61,7 @@ class WSHandler {
             console.log('Login request:', data.sessionKey ? data.sessionKey : data.username);
             if (!data.sessionKey) {
                 if (!this.db.isRegistered(data.username)) {
-                    this.sender.loginFail('User not exists!');
+                    this.sender.loginFail('User not exists!', [info]);
                     return;
                 }
                 if (this.db.isValidLogin(data.username, data.password)) {
