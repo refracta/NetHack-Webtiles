@@ -13,6 +13,7 @@ sudo docker run -it \
     -v "$PWD":/usr/src/NetHack-Webtiles \
 	-p 80:80 \
 	-p 81:81 \
+	-p 82:82 \
     --name nethack-webtiles-dev \
     emalron/nethack \
     bash
