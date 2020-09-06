@@ -10,7 +10,7 @@
 
 
 #PREFIX=/usr
-PREFIX=/usr/src/Nethack-Webtiles/games/nh366
+PREFIX=/usr/src/NetHack-Webtiles/games/nh366
 HACKDIR=$(PREFIX)/games/lib/$(GAME)dir
 SHELLDIR = $(PREFIX)/games
 INSTDIR=$(HACKDIR)
