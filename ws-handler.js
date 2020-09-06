@@ -324,7 +324,7 @@ class WSHandler {
 
         let ttyrecPath = gameInfo.ttyrecPath + sessionInfo.username + '/';
         !fs.existsSync(ttyrecPath) ? Utils.mkDirByPathSync(ttyrecPath) : void 0;
-        ttyrecPath += new Date().toISOString() + '.ttyrec';
+        ttyrecPath += gameInfo.id + '-' + new Date().toISOString() + '.ttyrec';
 
         let rcOptions = `NETHACKOPTIONS=@${rcPath}`;
         let nethack = `${fs.existsSync(rcPath) ? rcOptions + ' ' : ''}${gameInfo.gamePath} -u ${sessionInfo.username}`;
