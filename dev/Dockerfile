@@ -11,7 +11,7 @@ RUN cmake ../json-c && \
         make install
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/usr/local/lib
 
-WORKDIR /usr/NetHack-Webtiles
+WORKDIR /usr/src/NetHack-Webtiles
 RUN cp ./dev/archive.index-normal /etc/nginx/sites-available/
 RUN cp ./dev/archive.index-json /etc/nginx/sites-available/
 RUN sudo ln -s /etc/nginx/sites-available/archive.index-normal /etc/nginx/sites-enabled/
