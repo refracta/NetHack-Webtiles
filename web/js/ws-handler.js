@@ -150,7 +150,7 @@ class WSHandler {
                 this.deferMode = false;
 
                 this.siteUIHandler.clearLoading();
-                this.sender.key(32);
+                // this.sender.key(32);
                 this.gameUIHandler.showTileContent(true);
                 this.gameUIHandler.showGameContent(true);
                 this.gameUIHandler.openTerminal();

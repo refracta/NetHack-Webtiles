@@ -3,6 +3,7 @@
     "name": "NetHack 3.6.6",
     "id": "nh366",
     "rcPath": "/usr/src/NetHack-Webtiles/archive/rcfiles/nh366/",
+    "dumplogPath": "/usr/src/NetHack-Webtiles/archive/dumplogs/nh366/",
     "ttyrecPath": "/usr/src/NetHack-Webtiles/archive/ttyrec/nh366/",
     "gamePath": "/usr/src/NetHack-Webtiles/games/nh366/games/nethack"
   }

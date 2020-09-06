@@ -321,6 +321,8 @@ class WSHandler {
         if (!fs.existsSync(rcPath) && fs.existsSync(defaultRCPath)) {
             fs.copyFileSync(defaultRCPath, rcPath);
         }
+		let dumplogPath = gameInfo.dumplogPath + sessionInfo.username + '/';
+		!fs.existsSync(dumplogPath) ? Utils.mkDirByPathSync(dumplogPath) : void 0;
 
         let ttyrecPath = gameInfo.ttyrecPath + sessionInfo.username + '/';
         !fs.existsSync(ttyrecPath) ? Utils.mkDirByPathSync(ttyrecPath) : void 0;
@@ -333,7 +335,7 @@ class WSHandler {
         }
         let ttyrec = `ttyrec ${ttyrecPath}`;
         let nethackWithTTYREC = `${ttyrec} -e "${nethack}"`;
-        return {rcPath, defaultRCPath, ttyrecPath, cmd: {nethack, ttyrec, nethackWithTTYREC}};
+        return {rcPath, dumplogPath, defaultRCPath, ttyrecPath, cmd: {nethack, ttyrec, nethackWithTTYREC}};
     }
 
 
