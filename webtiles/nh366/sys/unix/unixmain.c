@@ -7,6 +7,7 @@
 
 #include "hack.h"
 #include "dlb.h"
+#include "webtiles.h"
 
 #include <ctype.h>
 #include <sys/stat.h>
@@ -14,8 +15,8 @@
 #include <pwd.h>
 #ifndef O_RDONLY
 #include <fcntl.h>
-#include "webtiles.h"
 #endif
+
 
 #if !defined(_BULL_SOURCE) && !defined(__sgi) && !defined(_M_UNIX)
 #if !defined(SUNOS4) && !(defined(ULTRIX) && defined(__GNUC__))

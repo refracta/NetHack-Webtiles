@@ -1,0 +1,10 @@
+server {
+    listen 82;
+    charset utf-8;
+    root /usr/src/NetHack-Webtiles/archive;
+    location / {
+        absolute_redirect off;
+        autoindex on;
+        autoindex_format json;
+    }
+}

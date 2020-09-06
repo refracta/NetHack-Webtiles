@@ -43,7 +43,7 @@ class WSSender {
         this.data(data, [roomInfo.player, ...roomInfo.watchers]);
     }
 
-    loginFail(userList, reason, socketInfoList) {
+    loginFail(reason, socketInfoList) {
         this.server.sendToList({msg: 'login_fail', reason}, socketInfoList);
     }
 

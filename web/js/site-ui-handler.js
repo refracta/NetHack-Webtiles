@@ -343,6 +343,7 @@ class SiteUIHandler {
     }
 
     init() {
+        $("#archive-link").attr('href', this.config.archiveURL);
         $("#chat_caption").bind("click", this.toggle);
         $('#chat_input').bind('keydown', this.chat_message_send.bind(this));
         $('#register-btn').click(e => this.showRegisterModal(true));

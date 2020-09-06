@@ -61,7 +61,7 @@ class WSHandler {
             console.log('Login request:', data.sessionKey ? data.sessionKey : data.username);
             if (!data.sessionKey) {
                 if (!this.db.isRegistered(data.username)) {
-                    this.sender.loginFail('User not exists!');
+                    this.sender.loginFail('User not exists!', [info]);
                     return;
                 }
                 if (this.db.isValidLogin(data.username, data.password)) {
@@ -324,7 +324,7 @@ class WSHandler {
 
         let ttyrecPath = gameInfo.ttyrecPath + sessionInfo.username + '/';
         !fs.existsSync(ttyrecPath) ? Utils.mkDirByPathSync(ttyrecPath) : void 0;
-        ttyrecPath += new Date().toISOString() + '.ttyrec';
+        ttyrecPath += gameInfo.id + '-' + new Date().toISOString() + '.ttyrec';
 
         let rcOptions = `NETHACKOPTIONS=@${rcPath}`;
         let nethack = `${fs.existsSync(rcPath) ? rcOptions + ' ' : ''}${gameInfo.gamePath} -u ${sessionInfo.username}`;

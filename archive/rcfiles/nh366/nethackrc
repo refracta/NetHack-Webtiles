@@ -1,0 +1,123 @@
+## This is an example nethackrc file. You should edit this to suit your needs
+
+## Also see https://nethackwiki.com/wiki/Options
+
+# Enable the curses interface
+#OPTIONS=windowtype:curses
+
+## Automatics
+## Automatically dig if you are wielding a digging tool and moving
+## into a place that can be dug
+#OPTIONS=autodig
+## Walking into a door attempts to open it
+OPTIONS=autoopen
+## Pickup some specified items without spending turns
+OPTIONS=autopickup, pickup_types:$"?!=/
+## Automatically quiver if your quiver empties when firing
+OPTIONS=autoquiver
+
+## Allow saving and loading bones files
+OPTIONS=bones
+
+## Highlights
+## Show out-of-sight areas of lit rooms
+OPTIONS=dark_room
+## Use inverse for pets
+OPTIONS=hilite_pet
+## Use inverse for piles of items
+OPTIONS=hilite_pile
+## Show visual effect on corridor whether lit or unlit
+OPTIONS=lit_corridor
+
+## How recalled messages (ctrl-p) are displayed
+OPTIONS=msg_window:reversed
+# Respond when you try to walk through the wall
+OPTIONS=mention_walls
+# Show object symbols in menu headings in menus
+OPTIONS=menu_objsyms
+# Display experience points and turns, recommended
+OPTIONS=showexp, time
+# Show highscores
+OPTIONS=toptenwin
+
+## Sort items by name. One of "none", "loot", or "full"
+#OPTIONS=sortloot:full
+## Require explicit yes for some prompts
+#OPTIONS=paranoid_confirmation:Confirm quit attack pray wand Remove
+
+## use IBMgraphics or DECgraphics
+#OPTIONS=symset:DECgraphics
+#OPTIONS=symset:IBMgraphics
+
+## Change symbols
+OPTIONS=boulder:0
+SYMBOLS=S_ghost:X
+## Fruit name
+OPTIONS=fruit:Kimchi of Yendor
+
+## Conducts
+#OPTIONS=nudist
+#OPTIONS=blind
+
+
+## Colored menus. Regular expressions allowed.
+#
+OPTIONS=menucolors
+MENUCOLOR=" blessed "=green
+MENUCOLOR=" holy "=green
+MENUCOLOR=" cursed "=red
+MENUCOLOR=" unholy "=red
+MENUCOLOR=" cursed .* (being worn)"=orange&underline
+
+
+## Messagetypes
+#
+## displacing pets. hide the message.
+#MSGTYPE=hide "You swap places with your .*"
+## items on floor. don't repeat the message.
+#MSGTYPE=norep "You see here a .*"
+#MSGTYPE=norep "You see here an .*"
+## delayed instadeaths. always prompt for -more-
+#MSGTYPE=stop "You are slowing down."
+#MSGTYPE=stop "You find it hard to breathe."
+#MSGTYPE=stop "You are turning a little .*"
+## moving up or down stairs
+#MSGTYPE=hide "You descend .*"
+#MSGTYPE=hide "You (climb|fly) (up|down) .*"
+
+## Use status hilites
+#
+OPTIONS=statushilites
+# HP
+OPTIONS=hitpointbar
+OPTIONS=hilite_status:hitpoints/100%/grey&normal
+OPTIONS=hilite_status:hitpoints/<100%/green&normal
+OPTIONS=hilite_status:hitpoints/<66%/yellow&normal
+OPTIONS=hilite_status:hitpoints/<50%/orange&normal
+OPTIONS=hilite_status:hitpoints/<33%/red&bold
+OPTIONS=hilite_status:hitpoints/<15%/red&inverse
+## Pw
+OPTIONS=hilite_status:power/100%/grey&normal
+OPTIONS=hilite_status:power/<100%/green&normal
+OPTIONS=hilite_status:power/<66%/yellow&normal
+OPTIONS=hilite_status:power/<50%/orange&normal
+OPTIONS=hilite_status:power/<33%/red&bold
+## Carry
+OPTIONS=hilite_status:cap/burdened/yellow/stressed/orange/strained/red&bold/overtaxed/red&inverse/overloaded/red&inverse&blink
+## Hunger
+OPTIONS=hilite_status:hunger/satiated/yellow/hungry/orange/weak/red&bold/fainting/red&inverse/fainted/red&inverse&blink
+## Mental
+OPTIONS=hilite_status:condition/hallu/yellow
+OPTIONS=hilite_status:condition/conf/orange
+OPTIONS=hilite_status:condition/stun/red&bold
+## Health
+OPTIONS=hilite_status:condition/termill/red&inverse
+OPTIONS=hilite_status:condition/foodpois/red&inverse
+OPTIONS=hilite_status:condition/slime/red&inverse
+# Str, Con, Dex, Int, Wis, Cha
+OPTIONS=hilite_status:characteristics/up/green/down/red
+# gold
+OPTIONS=hilite_status: gold/up/yellow/down/brown
+## Dog Name & Cat Name
+OPTIONS=dogname:Dangdangee
+OPTIONS=catname:Tekaaluk

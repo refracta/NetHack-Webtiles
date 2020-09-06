@@ -1,23 +1,9 @@
 {
-  "nh360": {
-    "name": "NetHack 3.6.0",
-    "id": "nh360",
-    "rcPath": "/usr/rcfiles/nh360/",
-    "ttyrecPath": "/usr/ttyrec/",
-    "gamePath": "/root/nh/install/games/nethack"
-  },
-  "unh": {
-    "name": "UnNetHack",
-    "id": "unh",
-    "rcPath": "/usr/rcfiles/unh/",
-    "ttyrecPath": "/usr/ttyrec/",
-    "gamePath": "/root/nh/install/games/nethack"
-  },
-  "sem": {
-    "name": "Slash'EM",
-    "id": "sem",
-    "rcPath": "/usr/rcfiles/unh/",
-    "ttyrecPath": "/usr/ttyrec/",
-    "gamePath": "/root/nh/install/games/nethack"
+  "nh366": {
+    "name": "NetHack 3.6.6",
+    "id": "nh366",
+    "rcPath": "/usr/src/NetHack-Webtiles/archive/rcfiles/nh366/",
+    "ttyrecPath": "/usr/src/NetHack-Webtiles/archive/ttyrec/nh366/",
+    "gamePath": "/usr/src/NetHack-Webtiles/games/nh366/games/nethack"
   }
 }
