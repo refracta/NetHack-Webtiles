@@ -1,6 +1,6 @@
 #!/bin/bash
 
-git clone https://github.com/NetHack/NetHack -b NetHack-3.6 ./sources/nh360
+git clone https://github.com/NetHack/NetHack -b NetHack-3.6 ./sources/nh366
 cp ./webtiles/nh366/* ./sources/nh366 -r
 
 xhost +local:docker
