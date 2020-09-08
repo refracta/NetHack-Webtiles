@@ -138,10 +138,8 @@ int addSendQueue(json_object *obj) {
 
 // sendto wrapper
 void sendMsg(char *msg) {
-    char buffer[STRING_BUFFER_SIZE];
-    sprintf(buffer, "%s", msg);
     while (true) {
-        int status = sendto(sockfd, (void *) &buffer, sizeof(buffer), 0, (struct sockaddr *) &serverAddress,
+        int status = sendto(sockfd, (void *) msg, strlen(msg) + 1, 0, (struct sockaddr *) &serverAddress,
                             sizeof(serverAddress));
         if (status != -1) {
             break;
