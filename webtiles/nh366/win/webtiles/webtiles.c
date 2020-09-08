@@ -18,7 +18,7 @@
 
 #include "hack.h"
 
-#define STRING_BUFFER_SIZE 65536
+#define STRING_BUFFER_SIZE 131072
 
 /* GAME PATH */
 #define DEFAULT_GAME_UDS_PATH "/tmp/nethack-webtiles-game"
@@ -138,10 +138,8 @@ int addSendQueue(json_object *obj) {
 
 // sendto wrapper
 void sendMsg(char *msg) {
-    char buffer[STRING_BUFFER_SIZE];
-    sprintf(buffer, "%s", msg);
     while (true) {
-        int status = sendto(sockfd, (void *) &buffer, sizeof(buffer), 0, (struct sockaddr *) &serverAddress,
+        int status = sendto(sockfd, (void *) msg, strlen(msg) + 1, 0, (struct sockaddr *) &serverAddress,
                             sizeof(serverAddress));
         if (status != -1) {
             break;

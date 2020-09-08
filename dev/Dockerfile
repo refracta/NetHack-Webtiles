@@ -3,7 +3,9 @@ FROM ubuntu:bionic
 WORKDIR /usr/src
 RUN apt-get -y update && \
         apt-get install -y \
-        gcc git cmake bison flex gdb libxaw7-dev xfonts-utils libncurses5-dev nodejs npm ttyrec nginx tmux nano && \
+        gcc git cmake bison flex gdb curl g++ libncurses5-dev ttyrec nginx tmux nano && \
+        curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+        apt-get install -y nodejs && \
         git clone https://github.com/json-c/json-c.git && \
         mkdir jsonc-build
 WORKDIR /usr/src/jsonc-build

@@ -120,13 +120,12 @@ class GameUIHandler {
             } else if (e.keyCode === 32) {
                 $('#item-content').hide();
                 $('.more').remove();
+            } else if (e.keyCode === 8) {
+                this.sender.key(e.keyCode);
+                return;
             }
-            // console.log(e.keyCode);
-            if (!e.ctrlKey)
-                return; // key events without ctrl is handled in `keypress` events
-            if (e.keyCode == 17)
-                return; // ctrl is pressed down
-            e.preventDefault();
+            
+           
             var code = e.charCode || e.keyCode;
             // some browsers do not `apply` the control key to charCode
             if ((code >= 65) && (code <= 90)) { // A~Z
@@ -134,6 +133,22 @@ class GameUIHandler {
             } else if ((code >= 97) && (code <= 122)) {
                 code = code - 96;
             }
+            
+            if(e.keyCode == 18){
+                return; 
+            }
+
+            if(e.altKey){
+                code += 96;
+                this.sender.key(code | 0x80);
+                return;
+            }        
+
+            if (!e.ctrlKey)
+                return; // key events without ctrl is handled in `keypress` events
+            if (e.keyCode == 17)
+                return; // ctrl is pressed down
+            e.preventDefault();
             // console.log(code);
             if (code == 39) {
                 $('#chat_input').focus();
