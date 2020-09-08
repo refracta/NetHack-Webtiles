@@ -117,6 +117,9 @@ class GameUIHandler {
 
                 this.sender.key(e.keyCode);
                 return;
+            } else if (e.keyCode === 8) {
+                this.sender.key(e.keyCode);
+                return;
             } else if (e.keyCode === 32) {
                 $('#item-content').hide();
                 $('.more').remove();
