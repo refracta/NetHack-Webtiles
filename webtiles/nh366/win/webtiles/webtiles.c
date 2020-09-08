@@ -18,7 +18,7 @@
 
 #include "hack.h"
 
-#define STRING_BUFFER_SIZE 65536
+#define STRING_BUFFER_SIZE 131072
 
 /* GAME PATH */
 #define DEFAULT_GAME_UDS_PATH "/tmp/nethack-webtiles-game"
