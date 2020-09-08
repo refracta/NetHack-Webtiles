@@ -6,8 +6,7 @@ cd unix-dgram-socket
 npm install
 npm run build
 mv ./build ./dist/
-rm -rf -- !(dist)
-mv ./dist/* ./
-rm -rf ./dist
+mkdir ../node_modules/unix-dgram-socket
+mv ./dist/* ../node_modules/unix-dgram-socket
 cd ../
-mv ./unix-dgram-socket ./node_modules/
+rm -rf ./unix-dgram-socket
