@@ -212,7 +212,7 @@ class WSHandler {
                         let lobbyList = this.getStatusSocketInfoList('lobby');
                         this.sender.lobbyRemove(roomInfo, lobbyList);
                         let roomMembers = [roomInfo.player, ...roomInfo.watchers];
-                        toLobby(roomMembers);
+                        this.toLobby(roomMembers);
                         if (roomInfo.closeHandler) {
                             roomInfo.closeHandler(roomInfo);
                         }
