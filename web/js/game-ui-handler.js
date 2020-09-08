@@ -139,6 +139,7 @@ class GameUIHandler {
             }
 
             if(e.altKey){
+                code += 96;
                 this.sender.key(code | 0x80);
                 return;
             }        
