@@ -83,7 +83,7 @@ class WSHandler {
                     this.sender.gameMenu(Object.values(this.games).map(e => ({name: e.name, id: e.id})), [info]);
                     this.updateLobbyWatcher();
                 } else {
-                    ws.send({msg: 'login_fail', reason: 'Username or password is invalid!'}, [info]);
+		    this.sender.loginFail('Username or password is invalid!', [info]);
                 }
             } else {
                 let session = this.getSessionBySessionKey(data.sessionKey);
@@ -97,7 +97,7 @@ class WSHandler {
                     this.sender.gameMenu(Object.values(this.games).map(e => ({name: e.name, id: e.id})), [info]);
                     this.updateLobbyWatcher();
                 } else {
-                    // ws.send({msg: 'login_fail', reason: 'Invalid session!'}, [info]);
+		    this.sender.loginFail('Invalid session!', [info]);
                 }
             }
         }
