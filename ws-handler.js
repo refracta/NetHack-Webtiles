@@ -187,6 +187,9 @@ class WSHandler {
                     terminal.write(data);
                     this.sender.terminal(data, [roomInfo.player, ...roomInfo.watchers]);
                 });
+		ptyProcess.onExit((e) => {
+		    console.log(info.username + '\'s process is closed.');
+		});
                 ptyProcess.write('\r');
                 console.log(config.cmd.nethackWithTTYREC);
                 console.log(info.username);
@@ -334,7 +337,7 @@ class WSHandler {
             nethack += ' -D';
         }
         let ttyrec = `ttyrec ${ttyrecPath}`;
-        let nethackWithTTYREC = `${ttyrec} -e "${nethack}"`;
+        let nethackWithTTYREC = `${ttyrec} -e "${nethack} && exit"`;
         return {rcPath, dumplogPath, defaultRCPath, ttyrecPath, cmd: {nethack, ttyrec, nethackWithTTYREC}};
     }
 
