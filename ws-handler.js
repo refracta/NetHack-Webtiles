@@ -97,7 +97,7 @@ class WSHandler {
                     this.sender.gameMenu(Object.values(this.games).map(e => ({name: e.name, id: e.id})), [info]);
                     this.updateLobbyWatcher();
                 } else {
-		    this.sender.loginFail('Invalid session!', [info]);
+		    // this.sender.loginFail('Invalid session!', [info]);
                 }
             }
         }
