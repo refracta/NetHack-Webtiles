@@ -201,7 +201,8 @@ class WSHandler {
                     watchers: new Set(),
                     playData: {},
                     terminalSerializer,
-                    gameInfo
+                    gameInfo,
+		    ptyProcess
                 };
                 this.setGameRoomByUsername(info.username, roomInfo);
                 info.playRoom = roomInfo;
