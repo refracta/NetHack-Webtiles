@@ -3,36 +3,36 @@ class GameUIHandler {
         this.sender = sender;
         this.config = config;
     }
-applyFontPath() {
-	if (typeof fontStyle === 'undefined') {
-		WebFontConfig = {
-			custom : {
-				families : ['Nanum Gothic Coding'],
-				urls : ['http://fonts.googleapis.com/earlyaccess/nanumgothiccoding.css']
-			}
-		};
-		(function () {
-			var wf = document.createElement('script');
-			wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
-			'://ajax.googleapis.com/ajax/libs/webfont/1.4.10/webfont.js';
-			wf.type = 'text/javascript';
-			wf.async = 'true';
-			var s = document.getElementsByTagName('script')[0];
-			s.parentNode.insertBefore(wf, s);
-		})();
-		var fontStyle = document.createElement("style");
-		fontStyle.setAttribute("id", "font_style_apply");
-		fontStyle.appendChild(document.createTextNode(
-				'* {font-family: "Nanum Gothic Coding", monospace;}'));
-		document.getElementsByTagName("head")[0].appendChild(fontStyle);
+	applyFontPatch() {
+		if (typeof fontStyle === 'undefined') {
+			WebFontConfig = {
+				custom : {
+					families : ['Nanum Gothic Coding'],
+					urls : ['http://fonts.googleapis.com/earlyaccess/nanumgothiccoding.css']
+				}
+			};
+			(function () {
+				var wf = document.createElement('script');
+				wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+				'://ajax.googleapis.com/ajax/libs/webfont/1.4.10/webfont.js';
+				wf.type = 'text/javascript';
+				wf.async = 'true';
+				var s = document.getElementsByTagName('script')[0];
+				s.parentNode.insertBefore(wf, s);
+			})();
+			var fontStyle = document.createElement("style");
+			fontStyle.setAttribute("id", "font_style_apply");
+			fontStyle.appendChild(document.createTextNode(
+					'* {font-family: "Nanum Gothic Coding", monospace;}'));
+			document.getElementsByTagName("head")[0].appendChild(fontStyle);
+		}
 	}
-}
-disapplyFontPath() {
-	var font_tag = $('#font_style_apply');
-	if (font_tag) {
-		font_tag.remove();
+	disapplyFontPatch() {
+		var font_tag = $('#font_style_apply');
+		if (font_tag) {
+			font_tag.remove();
+		}
 	}
-}
     clearTerminal() {
         if (this.terminal) {
             this.terminal.dispose();
