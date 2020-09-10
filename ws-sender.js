@@ -20,8 +20,8 @@ class WSSender {
     lobby(roomInfoList, socketInfoList) {
         this.server.sendToList({msg: 'lobby', gameList: roomInfoList.map(r => this.roomInfoToLobbyInfo(r))}, socketInfoList);
     }
-    initGame(socketInfoList) {
-        this.server.sendToList({msg: 'init_game'}, socketInfoList);
+    initGame(webRC, socketInfoList) {
+        this.server.sendToList({msg: 'init_game', webRC}, socketInfoList);
     }
     updateWatcher(userList, numberOfWatchers, socketInfoList) {
         this.server.sendToList({msg: 'update_watcher', userList, numberOfWatchers}, socketInfoList);
@@ -76,8 +76,8 @@ class WSSender {
         this.server.sendToList({msg: 'watch', username}, socketInfoList);
     }
 
-    setTile(filePath, dataPath, socketInfoList) {
-        this.server.sendToList({msg: 'set_tile', filePath, dataPath}, socketInfoList);
+    setTile(filePath, dataPath, tileData, socketInfoList) {
+        this.server.sendToList({msg: 'set_tile', filePath, dataPath, tileData}, socketInfoList);
     }
 
     lobbyAdd(roomInfo, socketInfoList) {
@@ -96,8 +96,8 @@ class WSSender {
         this.server.sendToList({msg: 'terminal', data}, socketInfoList);
     }
 
-    initWatch(playData, terminalData, socketInfoList) {
-        this.server.sendToList({msg: 'init_watch', playData, terminalData}, socketInfoList);
+    initWatch(playData, terminalData, webRC, socketInfoList) {
+        this.server.sendToList({msg: 'init_watch', playData, terminalData, webRC}, socketInfoList);
     }
 }
 

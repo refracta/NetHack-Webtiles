@@ -6,11 +6,12 @@ const {
     UnixDgramSocket
 } = require('unix-dgram-socket');
 
-
 const DEFAULT_GAME_UDS_PATH = '/tmp/nethack-webtiles-game';
 const DEFAULT_SERVER_UDS_PATH = '/tmp/nethack-webtiles-server';
 const CLIENT_ENDPOINT_PATH = 'default';
 const DEFAULT_PING_TIMEOUT = 10000;
+const DEFAULT_RETRY_DELAY = 100;
+const DEFAULT_RETRY_LIMIT = 100;
 
 class UDSServer {
     constructor() {
@@ -18,7 +19,10 @@ class UDSServer {
         this.gameUDSPath = DEFAULT_GAME_UDS_PATH;
         this.pingTimeout = DEFAULT_PING_TIMEOUT;
         this.debugMode = false;
-        this.debugOption = {disableTimeoutDisconnect: false, disableSendFunction: false};
+        this.debugOption = {
+            disableTimeoutDisconnect: false,
+            disableSendFunction: false
+        };
 
         this.socket = new UnixDgramSocket();
         this.connectionInfoMap = {};
@@ -29,7 +33,7 @@ class UDSServer {
             try {
                 data = JSON.parse(message);
             } catch (e) {
-                console.error('Error JSON Parsing:', message);
+                console.error('Error JSON Parsing:', message.length, message);
                 return;
             }
             let path = socketInfo.remoteSocket;
@@ -78,13 +82,13 @@ class UDSServer {
                     //console.log(`Pong from ${path}`);
                 } else if (data.msg === 'queued_msg') {
                     if (this.handler) {
-                        if(this.preHandler){
+                        if (this.preHandler) {
                             this.preHandler(data);
                         }
                         data.list.forEach(d => {
-                            try{
+                            try {
                                 this.handler(d, info)
-                            }catch(e){
+                            } catch (e) {
                                 console.error('UDSHandling Error!');
                                 console.error(e);
                                 console.error(data);
@@ -93,7 +97,7 @@ class UDSServer {
                     }
                 } else {
                     if (this.handler) {
-                        if(this.preHandler){
+                        if (this.preHandler) {
                             this.preHandler(data);
                         }
                         this.handler(data, info);
@@ -103,12 +107,32 @@ class UDSServer {
         });
 
         this.socket.on('error', (error) => {
-            console.log('UDSSocketError:\n', error);
+            if(error.errorNumber !== 11){
+                console.log('UDSSocketError:\n', error);   
+            }
+            let info = this.connectionInfoMap[error.path];
+            if (info) {
+                info.error = error;
+            }
         });
 
         this.socket.on('listening', (path) => {
             console.log(`UDSSocketListening: ${path}`);
         });
+    }
+
+    clear(info) {
+        clearInterval(info.pingTimeoutCheckIntervalId);
+        clearInterval(info.sendPingIntervalId);
+        if (info.closeHandler) {
+            info.closeHandler(info);
+        }
+        delete this.connectionInfoMap[info.path];
+    }
+    
+    clearError(info) {
+        info.errorCount = 0;
+        delete info.error;
     }
 
     getServerUDSPath() {
@@ -129,21 +153,60 @@ class UDSServer {
             path = pathInfo.path;
         } else {
             path = pathInfo;
+            pathInfo = this.connectionInfoMap[path];
         }
+
+        if (pathInfo.deferQueue) {
+            pathInfo.deferQueue.push(data);
+            return true;
+        }
+
         if (!this.socket.send(JSON.stringify(data) + '\0', path)) {
             console.error(`UDSSocketSendError(${path}): ${JSON.stringify(data)}`);
-            let info = this.connectionInfoMap[path];
-            if (info) {
-                clearInterval(info.pingTimeoutCheckIntervalId);
-                clearInterval(info.sendPingIntervalId);
-                if (info.closeHandler) {
-                    info.closeHandler(info);
-                }
-                delete this.connectionInfoMap[path];
+            if (pathInfo.error.errorNumber === 11) {
+                // console.error(`Retry Error!`);
+                pathInfo.deferQueue = [data];
+                this.clearError(pathInfo);
+                pathInfo.errorCount++;
+
+                let retryInterval = setInterval(_ => {
+                    if (pathInfo.errorCount > DEFAULT_RETRY_LIMIT) {
+                        console.error(`Out of Retry Limit!`);
+                        this.clear(pathInfo);
+                        clearInterval(retryInterval);
+                        return;
+                    }
+                    while (pathInfo.deferQueue.length > 0) {
+                        let currentData = pathInfo.deferQueue.shift();
+                        if (!this.socket.send(JSON.stringify(currentData) + '\0', path)) {
+                            if (pathInfo.error.errorNumber === 11) {
+                                // console.error(`R-Retry Error!`);
+                                pathInfo.deferQueue.unshift(currentData);
+                                pathInfo.errorCount++;
+                            } else {
+                                console.error(`R-Mode Error!`);
+                                this.clear(pathInfo);
+                                clearInterval(retryInterval);
+                            }
+                            return;
+                        } else {
+                            // console.log(`R-Send Success!`, pathInfo.deferQueue.length, 'left!');
+                            this.clearError(pathInfo);
+                        }
+                    }
+                    console.log(`R-Mode Finished!`);
+                    delete pathInfo.deferQueue;
+                    this.clearError(pathInfo);
+                    clearInterval(retryInterval);
+                }, DEFAULT_RETRY_DELAY);
+            } else {
+                this.clear(pathInfo);
             }
-            return false;
+        } else {
+            this.clearError(pathInfo);
+            return true;
         }
-        return true;
+        return false;
     }
 
     sendToList(data, pathInfoList) {

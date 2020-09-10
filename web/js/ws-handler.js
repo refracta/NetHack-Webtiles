@@ -58,12 +58,13 @@ class WSHandler {
             this.siteUIHandler.extendMode(false);
             this.siteUIHandler.clearMainContent();
             this.siteUIHandler.clearLoading();
+           
 
             this.gameUIHandler.showTileContent(false);
             this.gameUIHandler.clearTerminal();
             this.gameUIHandler.clearTileContent();
             this.gameUIHandler.showGameContent(false);
-
+            this.gameUIHandler.disapplyFontPatch();
             this.siteUIHandler.showGameList(true);
 
             data.gameList.forEach(g => this.siteUIHandler.appendGameTr(g));
@@ -82,7 +83,7 @@ class WSHandler {
         this.callback['set_tile'] = async (data) => {
             this.gameUIHandler.showTileContent(false);
             let tileData;
-            if (data.dataPath) {
+            if (!data.tileData && data.dataPath) {
                 tileData = await fetch(data.dataPath).then(r => r.json());
             } else {
                 tileData = data.tileData;
@@ -135,6 +136,10 @@ class WSHandler {
                 // console.log('status', data.playData.status);
                 this.gameUIHandler.update_status(data.playData.status);
 
+                if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
+                    this.gameUIHandler.applyFontPatch();
+                }
+                
                 queue = [{msg: 'text', list: data.playData.text}, ...queue];
                 queue.forEach(d => this.handle(d));
             }, 1000);
@@ -154,6 +159,10 @@ class WSHandler {
                 this.gameUIHandler.showTileContent(true);
                 this.gameUIHandler.showGameContent(true);
                 this.gameUIHandler.openTerminal();
+                
+                if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
+                    this.gameUIHandler.applyFontPatch();
+                }
 
                 queue.forEach(d => this.handle(d));
                 this.gameUIHandler.initKeyHandler();

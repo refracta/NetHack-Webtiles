@@ -291,6 +291,7 @@ char *argv[];
         char initGame[8192];
         sprintf(initGame, "{\"msg\":\"init_game\",\"username\":\"%s\"}", plname);
         sendMsg(initGame);
+        
         getlock();
         program_state.preserve_locks = 0; /* after getlock() */
     }else{
