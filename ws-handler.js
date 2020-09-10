@@ -252,7 +252,7 @@ class WSHandler {
 		let tileDataPath = webRC.CUSTOM_TILE_DATA_PATH ? webRC.CUSTOM_TILE_DATA_PATH : (defaultTilePath + tileName + '.json');
 	        let tileData;
 		try{
-			tileData = JSON.parse(webRC.TILE_DATA);
+			tileData = JSON.parse(webRC.CUSTOM_TILE_DATA);
 		} catch (e){	
 			
 		}    
