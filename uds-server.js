@@ -107,7 +107,9 @@ class UDSServer {
         });
 
         this.socket.on('error', (error) => {
-            console.log('UDSSocketError:\n', error);
+            if(error.errorNumber !== 11){
+                console.log('UDSSocketError:\n', error);   
+            }
             let info = this.connectionInfoMap[error.path];
             if (info) {
                 info.error = error;
@@ -178,7 +180,7 @@ class UDSServer {
                         let currentData = pathInfo.deferQueue.shift();
                         if (!this.socket.send(JSON.stringify(currentData) + '\0', path)) {
                             if (pathInfo.error.errorNumber === 11) {
-                                console.error(`R-Retry Error!`);
+                                // console.error(`R-Retry Error!`);
                                 pathInfo.deferQueue.unshift(currentData);
                                 pathInfo.errorCount++;
                             } else {
@@ -188,7 +190,7 @@ class UDSServer {
                             }
                             return;
                         } else {
-                            console.log(`R-Send Success!`, pathInfo.deferQueue.length, 'left!');
+                            // console.log(`R-Send Success!`, pathInfo.deferQueue.length, 'left!');
                             this.clearError(pathInfo);
                         }
                     }
