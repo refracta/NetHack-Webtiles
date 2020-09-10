@@ -172,6 +172,8 @@ class WSHandler {
                 // TODO 현재 플레이 중이면 해당 게임 종료 요청 보내야함
                 let sessionInfo = this.getSessionBySessionKey(info.sessionKey);
                 let config = this.getUserGameConfigWithInit(gameInfo, sessionInfo);
+		let rcText = getRCText(config.rcPath, config.defaultRCPath);
+		let webRC = parseWebRCData(rcText);
                 let ptyProcess = pty.spawn('/bin/bash', [], {
                     name: 'xterm-color',
                     cols: config.terminalCols,
@@ -193,6 +195,7 @@ class WSHandler {
                 ptyProcess.write('\r');
                 console.log(config.cmd.nethackWithTTYREC);
                 console.log(info.username);
+		
                 let roomInfo = {
                     id: gameInfo.id,
                     name: gameInfo.name,
@@ -202,7 +205,8 @@ class WSHandler {
                     playData: {},
                     terminalSerializer,
                     gameInfo,
-		    ptyProcess
+		    ptyProcess,
+	            webRC
                 };
                 this.setGameRoomByUsername(info.username, roomInfo);
                 info.playRoom = roomInfo;
@@ -341,7 +345,18 @@ class WSHandler {
         let nethackWithTTYREC = `${ttyrec} -e "${nethack} && exit"`;
         return {rcPath, dumplogPath, defaultRCPath, ttyrecPath, cmd: {nethack, ttyrec, nethackWithTTYREC}};
     }
-
+	
+	parseWebRCData(rcText){
+		let rcData = {};
+		rcText.split('\n').forEach(l => {
+			l = l.trim();
+			if(l.match(/^#\$.+=.+$/)){
+				let s = l.split('=');
+				rcData[s.shift().replace(/^#\$/, '').trim()] = s.join('=').trim();
+			}
+		});
+		return rcData;
+	}
 
     init(initHandle) {
         this.sender = initHandle.sender;
