@@ -287,14 +287,14 @@ char *argv[];
      * clock, &c not currently in use in the playground directory
      * (for locknum > 0).
      */
+    char initGame[8192];
     if (*plname) {
-        char initGame[8192];
         sprintf(initGame, "{\"msg\":\"init_game\",\"username\":\"%s\"}", plname);
         sendMsg(initGame);
+        
         getlock();
         program_state.preserve_locks = 0; /* after getlock() */
     }else{
-        char initGame[8192];
         sprintf(initGame, "{\"msg\":\"init_game\",\"username\":\"%s\"}", plname);
         sendMsg(initGame);
     }
