@@ -172,7 +172,7 @@ class WSHandler {
                 let config = this.getUserGameConfigWithInit(gameInfo, sessionInfo);
 		let rcText = this.getRCText(config.rcPath, config.defaultRCPath);
 		let webRC = this.parseWebRCData(rcText);
-		this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
+		this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, webRC, info);
 		    
                 let ptyProcess = pty.spawn('/bin/bash', [], {
                     name: 'xterm-color',
