@@ -154,9 +154,7 @@ class WSHandler {
                 if (!info.forcePlayHandle) {
                     info.status = 'play';
                     info.playGameInfo = gameInfo;
-                    this.sender.play(gameInfo.id, gameInfo.name, [info])
-                    let tilePath = `/tileset/${gameInfo.id}/`;
-                    this.sender.setTile(tilePath + 'default.png', tilePath + 'default.json', [info]);
+                    this.sender.play(gameInfo.id, gameInfo.name, [info]);
                 } else {
                     info.forcePlayHandle = false;
                 }
@@ -174,6 +172,8 @@ class WSHandler {
                 let config = this.getUserGameConfigWithInit(gameInfo, sessionInfo);
 		let rcText = getRCText(config.rcPath, config.defaultRCPath);
 		let webRC = parseWebRCData(rcText);
+		this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
+		    
                 let ptyProcess = pty.spawn('/bin/bash', [], {
                     name: 'xterm-color',
                     cols: config.terminalCols,
@@ -236,9 +236,8 @@ class WSHandler {
                 info.watchRoom = roomInfo;
                 roomInfo.watchers.add(info);
                 this.sender.watch(data.username, [info]);
-                let tilePath = `/tileset/${gameInfo.id}/`;
-                this.sender.setTile(tilePath + 'default.png', tilePath + 'default.json', [info]);
-                this.sender.initWatch(roomInfo.playData, roomInfo.terminalSerializer.serialize(), [info]);
+		this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
+                this.sender.initWatch(roomInfo.playData, roomInfo.terminalSerializer.serialize(), roomInfo.webRC, [info]);
                 let watcherData = this.roomToWatcherData(roomInfo);
                 this.sender.updateWatcher(watcherData.userList, watcherData.numberOfWatchers, [roomInfo.player, ...roomInfo.watchers])
                 let lobbyList = this.getStatusSocketInfoList('lobby');
@@ -246,6 +245,18 @@ class WSHandler {
             }
         }
 
+    }
+    setTileWithWebRC(defaultTilePath, webRC, info){
+	    	let tileName = webRC.DEFAULT_TILE_NAME ? webRC.DEFAULT_TILE_NAME : 'default';
+		let tileFilePath = webRC.CUSTOM_TILE_FILE_PATH ? webRC.CUSTOM_TILE_FILE_PATH : (defaultTilePath + tileName + '.png');
+		let tileDataPath = webRC.CUSTOM_TILE_DATA_PATH ? webRC.CUSTOM_TILE_DATA_PATH : (defaultTilePath + tileName + 'default.json');
+	        let tileData;
+		try{
+			tileData = JSON.parse(webRC.TILE_DATA);
+		} catch (e){	
+			
+		}    
+                this.sender.setTile(tileFilePath, tileDataPath, tileData, [info]);    
     }
 
     handle(data, info) {
