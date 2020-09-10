@@ -5,7 +5,7 @@ class GameUIHandler {
     }
 	applyFontPatch() {
 		if (typeof fontStyle === 'undefined') {
-			WebFontConfig = {
+			let WebFontConfig = {
 				custom : {
 					families : ['Nanum Gothic Coding'],
 					urls : ['http://fonts.googleapis.com/earlyaccess/nanumgothiccoding.css']
