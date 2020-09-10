@@ -20,8 +20,8 @@ class WSSender {
     lobby(roomInfoList, socketInfoList) {
         this.server.sendToList({msg: 'lobby', gameList: roomInfoList.map(r => this.roomInfoToLobbyInfo(r))}, socketInfoList);
     }
-    initGame(socketInfoList) {
-        this.server.sendToList({msg: 'init_game'}, socketInfoList);
+    initGame(webRC, socketInfoList) {
+        this.server.sendToList({msg: 'init_game', webRC}, socketInfoList);
     }
     updateWatcher(userList, numberOfWatchers, socketInfoList) {
         this.server.sendToList({msg: 'update_watcher', userList, numberOfWatchers}, socketInfoList);
