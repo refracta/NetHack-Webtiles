@@ -82,7 +82,7 @@ class WSHandler {
         this.callback['set_tile'] = async (data) => {
             this.gameUIHandler.showTileContent(false);
             let tileData;
-            if (data.dataPath) {
+            if (!data.tileData && data.dataPath) {
                 tileData = await fetch(data.dataPath).then(r => r.json());
             } else {
                 tileData = data.tileData;
