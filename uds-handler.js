@@ -13,6 +13,7 @@ class UDSHandler {
                     let lobbyList = this.wsHandler.getStatusSocketInfoList('lobby');
                     this.wsSender.lobbyRemove(roomInfo, lobbyList);
                     this.wsHandler.toLobby(roomMembersInfo);
+                    roomInfo.ptyProcess.kill();
                     if (roomInfo.closeHandler) {
                         roomInfo.closeHandler(roomInfo);
                     }
