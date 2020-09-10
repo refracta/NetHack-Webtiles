@@ -170,8 +170,8 @@ class WSHandler {
                 // TODO 현재 플레이 중이면 해당 게임 종료 요청 보내야함
                 let sessionInfo = this.getSessionBySessionKey(info.sessionKey);
                 let config = this.getUserGameConfigWithInit(gameInfo, sessionInfo);
-		let rcText = getRCText(config.rcPath, config.defaultRCPath);
-		let webRC = parseWebRCData(rcText);
+		let rcText = this.getRCText(config.rcPath, config.defaultRCPath);
+		let webRC = this.parseWebRCData(rcText);
 		this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
 		    
                 let ptyProcess = pty.spawn('/bin/bash', [], {
