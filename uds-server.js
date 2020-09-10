@@ -144,7 +144,7 @@ class UDSServer {
     // pathinfo = info Object or path String
     send(data, pathInfo) {
         if (this.debugMode && this.debugOption.disableSendFunction) {
-            return;
+            return true;
         }
         let path;
         if (typeof pathInfo === "object") {
@@ -156,7 +156,7 @@ class UDSServer {
 
         if (pathInfo.deferQueue) {
             pathInfo.deferQueue.push(data);
-            return;
+            return true;
         }
 
         if (!this.socket.send(JSON.stringify(data) + '\0', path)) {
@@ -193,8 +193,8 @@ class UDSServer {
                         }
                     }
                     console.log(`R-Mode Disabled!`);
-                    this.clearError(pathInfo);
                     delete pathInfo.deferQueue;
+                    this.clearError(pathInfo);
                     clearInterval(retryInterval);
                 }, DEFAULT_RETRY_DELAY);
             } else {
@@ -202,7 +202,9 @@ class UDSServer {
             }
         } else {
             this.clearError(pathInfo);
+            return true;
         }
+        return false;
     }
 
     sendToList(data, pathInfoList) {
