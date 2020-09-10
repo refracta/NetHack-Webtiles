@@ -76,8 +76,8 @@ class WSSender {
         this.server.sendToList({msg: 'watch', username}, socketInfoList);
     }
 
-    setTile(filePath, dataPath, socketInfoList) {
-        this.server.sendToList({msg: 'set_tile', filePath, dataPath}, socketInfoList);
+    setTile(filePath, dataPath, tileData, socketInfoList) {
+        this.server.sendToList({msg: 'set_tile', filePath, dataPath, tileData}, socketInfoList);
     }
 
     lobbyAdd(roomInfo, socketInfoList) {
