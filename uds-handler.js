@@ -6,7 +6,7 @@ class UDSHandler {
         this.callback['init_game'] = (data, info) => {
             let roomInfo = this.wsHandler.getGameRoomByUsername(data.username);
             if (roomInfo) {
-                this.wsSender.initGame([roomInfo.player]);
+                this.wsSender.initGame(roomInfo.webRC, [roomInfo.player]);
                 info.closeHandler = (info) => {
                     this.wsHandler.removeGameRoomByUsername(data.username);
                     let roomMembersInfo = [roomInfo.player, ...roomInfo.watchers];
