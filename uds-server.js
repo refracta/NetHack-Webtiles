@@ -164,7 +164,7 @@ class UDSServer {
         if (!this.socket.send(JSON.stringify(data) + '\0', path)) {
             console.error(`UDSSocketSendError(${path}): ${JSON.stringify(data)}`);
             if (pathInfo.error.errorNumber === 11) {
-                console.error(`Retry Error!`);
+                // console.error(`Retry Error!`);
                 pathInfo.deferQueue = [data];
                 this.clearError(pathInfo);
                 pathInfo.errorCount++;
@@ -184,7 +184,7 @@ class UDSServer {
                                 pathInfo.deferQueue.unshift(currentData);
                                 pathInfo.errorCount++;
                             } else {
-                                console.error(`R-Fatal Error!`);
+                                console.error(`R-Mode Error!`);
                                 this.clear(pathInfo);
                                 clearInterval(retryInterval);
                             }
@@ -194,7 +194,7 @@ class UDSServer {
                             this.clearError(pathInfo);
                         }
                     }
-                    console.log(`R-Mode Disabled!`);
+                    console.log(`R-Mode Finished!`);
                     delete pathInfo.deferQueue;
                     this.clearError(pathInfo);
                     clearInterval(retryInterval);
