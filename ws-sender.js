@@ -96,8 +96,8 @@ class WSSender {
         this.server.sendToList({msg: 'terminal', data}, socketInfoList);
     }
 
-    initWatch(playData, terminalData, socketInfoList) {
-        this.server.sendToList({msg: 'init_watch', playData, terminalData}, socketInfoList);
+    initWatch(playData, terminalData, webRC, socketInfoList) {
+        this.server.sendToList({msg: 'init_watch', playData, terminalData, webRC}, socketInfoList);
     }
 }
 
