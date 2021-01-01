@@ -21,10 +21,17 @@
 
 void initSocket();
 
-int addSendQueue(json_object*) ;
+
+int addSendQueueRaw(json_object*);
+
+void setCursor(int, int);
+
+void preprocessSendQueuedMsg();
+void preprocessAddSendQueue(json_object*);
+int addSendQueue(json_object*);
+
 void sendMsg(char *);
 void sendQueuedMsg();
-void sendDebugMsg(int i);
 
 int getch_by_webtiles();
 int getch_nb_by_webtiles();
@@ -35,6 +42,9 @@ char *make_json_msg(json_object *, json_object *);
 
 void sendText(char *);
 void sendTile(int, int, int);
+void sendTileFlag(int, int, char *);
 void sendStatus(int, int, char * );
 void sendClearTile();
 void sendMore(char *);
+void sendDebug(char *, ...);
+char * stringify(char *);

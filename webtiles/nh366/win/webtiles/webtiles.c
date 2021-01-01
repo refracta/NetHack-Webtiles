@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <stdbool.h>
+
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -19,6 +21,7 @@
 #include "hack.h"
 
 #define STRING_BUFFER_SIZE 131072
+#define STRING_BUFFER_SIZE_HALF 65536
 
 /* GAME PATH */
 #define DEFAULT_GAME_UDS_PATH "/tmp/nethack-webtiles-game"
@@ -124,16 +127,70 @@ void initSocket() {
 #endif
 }
 
+
 // queued send support
 json_object *sendQueue[BUFSIZ];
 int sendQueueIndex = 0;
 
-int addSendQueue(json_object *obj) {
+int addSendQueueRaw(json_object *obj) {
     if (sendQueueIndex < BUFSIZ) {
         sendQueue[sendQueueIndex++] = obj;
     } else {
         die('sendQueueOverflowError');
     }
+}
+
+int isPreprocessing = 0;
+
+struct Cursor {
+    int x;
+    int y;
+    int isChanged
+};
+struct Cursor cursor = {-1, -1, false};
+
+void preprocessSendQueuedMsg() {
+    if(!isPreprocessing){
+        isPreprocessing = 1;
+        if (0 < sendQueueIndex && sendQueueIndex < BUFSIZ) {
+            json_object *last_obj = json_object_object_get(sendQueue[sendQueueIndex - 1], "msg");
+            char *last_msg = json_object_get_string(last_obj);
+
+            if (last_msg != NULL && strcmp(last_msg, "tile") == 0) {
+                sendCharacterPos(u.ux, u.uy);
+            }
+        } else if (sendQueueIndex == 0) {
+            if (cursor.isChanged) {
+                sendCursor();
+                cursor.isChanged = false;
+            }
+        }
+        isPreprocessing = 0;
+    }
+
+}
+
+void preprocessAddSendQueue(json_object *obj) {
+    if(!isPreprocessing){
+        isPreprocessing = 1;
+        if (sendQueueIndex < BUFSIZ && !isPreprocessing) {
+            json_object *last_obj = json_object_object_get(sendQueue[sendQueueIndex - 1], "msg");
+            json_object *curr_obj = json_object_object_get(obj, "msg");
+            char *last_msg = json_object_get_string(last_obj);
+            char *curr_msg = json_object_get_string(curr_obj);
+
+            if (!(strcmp(curr_msg, "tile") == 0) && last_msg != NULL && strcmp(last_msg, "tile") == 0) {
+                sendCharacterPos(u.ux, u.uy);
+            }
+        }
+        isPreprocessing = 0;
+    }
+
+}
+
+int addSendQueue(json_object *obj) {
+    preprocessAddSendQueue(obj);
+    addSendQueueRaw(obj);
 }
 
 // sendto wrapper
@@ -150,6 +207,7 @@ void sendMsg(char *msg) {
 
 // send queued msg
 char *sendQueuedMsg() {
+    preprocessSendQueuedMsg();
     if (sendQueueIndex > 0) {
         json_object *request = json_object_new_object();
         json_object *array = json_object_new_array();
@@ -159,6 +217,7 @@ char *sendQueuedMsg() {
         for (int i = 0; i < sendQueueIndex; i++) {
             json_object *current_obj = sendQueue[i];
             json_object_array_add(array, current_obj);
+            sendQueue[i] = NULL;
         }
 
         json_object_object_add(request, "list", array);
@@ -169,13 +228,6 @@ char *sendQueuedMsg() {
         sendQueueIndex = 0;
         json_object_put(request);
     }
-}
-
-// for debug
-void sendDebugMsg(int i) {
-    char debugMsg[STRING_BUFFER_SIZE];
-    sprintf(debugMsg, "{\"msg\":\"debug\",\"debugStatus\":\"%d\"}", i);
-    sendMsg(debugMsg);
 }
 
 // blocking socket support
@@ -335,24 +387,46 @@ char *make_json_msg(json_object *obj, json_object *arr) {
 }
 
 /* SEND LOGIC */
-void sendText(char * text){
+void sendText(char *text) {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("text"));
     json_object_object_add(obj, "text", json_object_new_string(text));
     addSendQueue(obj);
 }
+
 #define MATRIX_COL 256
+
 int to2DIndex(x, y) {
     return y * MATRIX_COL + x;
 }
+
 int to2DY(index) {
     return index / MATRIX_COL;
 }
+
 int to2DX(index) {
-    return index - to2DY(MATRIX_COL, index) * MATRIX_COL;
+    return index - to2DY(index) * MATRIX_COL;
 }
 
-void sendTile(int x, int y, int t){
+void setCursor(int x, int y) {
+    if (x != cursor.x || y != cursor.y) {
+        cursor.x = x;
+        cursor.y = y;
+        cursor.isChanged = true;
+    }
+}
+
+
+void sendCharacterPos(int x, int y) {
+    json_object *obj = json_object_new_object();
+    int i = to2DIndex(x, y);
+    json_object_object_add(obj, "msg", json_object_new_string("tile"));
+    json_object_object_add(obj, "i", json_object_new_int(i));
+    json_object_object_add(obj, "u", json_object_new_boolean(1));
+    addSendQueue(obj);
+}
+
+void sendTile(int x, int y, int t) {
     json_object *obj = json_object_new_object();
     int i = to2DIndex(x, y);
     json_object_object_add(obj, "msg", json_object_new_string("tile"));
@@ -361,28 +435,63 @@ void sendTile(int x, int y, int t){
     addSendQueue(obj);
 }
 
-void sendStatus(int fldidx, int percent, char * text){
+void sendTileFlag(int x, int y, char *f) {
+    json_object *obj = json_object_new_object();
+    int i = to2DIndex(x, y);
+    json_object_object_add(obj, "msg", json_object_new_string("tile"));
+    json_object_object_add(obj, "i", json_object_new_int(i));
+    json_object_object_add(obj, "f", json_object_new_string(f));
+    addSendQueue(obj);
+}
+
+void sendStatus(int fldidx, int percent, char *text) {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("status"));
     json_object_object_add(obj, "fldidx", json_object_new_int(fldidx));
     json_object_object_add(obj, "percent", json_object_new_int(percent));
-    if(text != NULL){
+    if (text != NULL) {
         json_object_object_add(obj, "text", json_object_new_string(text));
-    }else{
+    } else {
         json_object_object_add(obj, "text", json_object_new_string(""));
     }
     addSendQueue(obj);
 }
 
-void sendClearTile(){
+void sendClearTile() {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("clear_tile"));
     addSendQueue(obj);
 }
 
-void sendMore(char * prompt){
+void sendMore(char *prompt) {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("more"));
     json_object_object_add(obj, "prompt", json_object_new_string(prompt));
     addSendQueue(obj);
+}
+
+void sendCursor() {
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("cursor"));
+    json_object_object_add(obj, "x", json_object_new_int(cursor.x));
+    json_object_object_add(obj, "y", json_object_new_int(cursor.y));
+    addSendQueue(obj);
+}sendDebug
+
+void sendDebug(char *format, ...) {
+    char debug[STRING_BUFFER_SIZE_HALF];
+    va_list arg_ptr;
+
+    va_start(arg_ptr, format);
+    vsnprintf(debug, STRING_BUFFER_SIZE_HALF, format, arg_ptr);
+    va_end(arg_ptr);
+
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("debug"));
+    json_object_object_add(obj, "debug", json_object_new_string(debug));
+    addSendQueue(obj);
+}
+
+char *stringify(char *str) {
+    return json_object_to_json_string(json_object_new_string(str));
 }

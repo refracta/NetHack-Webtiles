@@ -1864,6 +1864,11 @@ struct WinDesc *cw;
     reset_count = TRUE;
     finished = FALSE;
 
+    tty_menu_item *currentItem;
+    for(currentItem = cw->mlist; currentItem; currentItem = currentItem->next){
+        sendDebug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, text:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), currentItem->a_string);
+    }
+
     /* collect group accelerators; for PICK_NONE, they're ignored;
        for PICK_ONE, only those which match exactly one entry will be
        accepted; for PICK_ANY, those which match any entry are okay */
@@ -2336,6 +2341,10 @@ boolean blocking; /* with ttys, all windows are blocking */
         (void) fflush(stdout);
         break;
     case NHW_TEXT:
+        for(int i = 0; i < cw->maxrow; i++){
+            sendDebug("{type:\"nhtext\", i:%d, s:%s}", i, stringify(cw->data[i]));
+        }
+
         cw->maxcol = ttyDisplay->cols; /* force full-screen mode */
         /*FALLTHRU*/
     case NHW_MENU:
@@ -2461,6 +2470,11 @@ winid window;
 register int x, y; /* not xchar: perhaps xchar is unsigned and
                       curx-x would be unsigned as well */
 {
+
+    if(window == NHW_MAP){
+       setCursor(x, y);
+    }
+
     struct WinDesc *cw = 0;
     int cx = ttyDisplay->curx;
     int cy = ttyDisplay->cury;
@@ -2633,7 +2647,7 @@ const char *str;
     register const char *nb;
     register long j;
 #endif
-	sendText(str);
+
 	
     HUPSKIP();
     /* Assume there's a real problem if the window is missing --
@@ -2656,6 +2670,7 @@ const char *str;
 
     switch (cw->type) {
     case NHW_MESSAGE: {
+
         int suppress_history = (attr & ATR_NOHISTORY);
 
         /* in case we ever support display attributes for topline
@@ -2676,6 +2691,8 @@ const char *str;
             /* write to top line without remembering what we're writing */
             show_topl(str);
         }
+
+        sendText(str);
         break;
     }
 #ifndef STATUS_HILITES
@@ -2794,6 +2811,10 @@ const char *str;
                 tty_putstr(window, attr, &str[i]);
             }
         }
+
+        sendDebug("{type:\"nhtextFromRaw\", s:%s}", str);
+
+
         break;
     }
 }
@@ -2869,6 +2890,23 @@ boolean complain;
                 if ((int) wins[datawin]->offy + 12 > (int) ttyDisplay->rows)
                     wins[datawin]->offy = 0;
             }
+
+            char * textBuffer;
+            int size;
+            int count;
+            //dlb *textFile = dlb_fopen(fname, "r");
+            dlb *textFile = f;
+            dlb_fseek(textFile, 0, SEEK_END);
+            size = dlb_ftell(textFile);
+            textBuffer = malloc(size + 1);
+            memset(textBuffer, 0, size + 1);
+            dlb_fseek(textFile, 0, SEEK_SET);
+            count = dlb_fread(textBuffer, size, 1, textFile);
+            sendDebug("{type:\"startText\", size:%d, count:%d, text:%s}", size, count, stringify(textBuffer));
+            //dlb_fclose(textFile);
+            free(textBuffer);
+            dlb_fseek(textFile, 0, SEEK_SET);
+
             while (dlb_fgets(buf, BUFSZ, f)) {
                 if ((cr = index(buf, '\n')) != 0)
                     *cr = 0;
@@ -2883,6 +2921,7 @@ boolean complain;
                 if (wins[datawin]->flags & WIN_CANCELLED)
                     break;
             }
+            sendDebug("{type:\"endText\"}", f);
             if (!empty)
                 tty_display_nhwindow(datawin, FALSE);
             tty_destroy_nhwindow(datawin);
@@ -3097,6 +3136,8 @@ const char *prompt; /* prompt to for menu */
     else
         cw->maxrow = cw->rows = cw->nitems + 1;
 
+
+    /*
     int jesi;
     json_object *array = json_object_new_array();
     json_object *result = json_object_new_object();
@@ -3107,6 +3148,7 @@ const char *prompt; /* prompt to for menu */
     sendMsg(msg);
     free(array);
     free(result);
+     */
 }
 
 int
@@ -3454,9 +3496,19 @@ int bkglyph UNUSED;
         || ((special & MG_OBJPILE) && iflags.hilite_pile)
         || ((special & MG_DETECT) && iflags.use_inverse)
         || ((special & MG_BW_LAVA) && iflags.use_inverse)) {
+
         term_start_attr(ATR_INVERSE);
         reverse_on = TRUE;
     }
+
+    #if defined(WEBTILES_GRAPHICS)
+    if((special & MG_PET) && iflags.hilite_pet){
+        sendTileFlag(x, y, "hilite_pet");
+    }else if((special & MG_OBJPILE) && iflags.hilite_pile){
+        sendTileFlag(x, y, "hilite_pile");
+    }
+
+    #endif
 
 #if defined(USE_TILES) && defined(MSDOS)
     if (iflags.grmode && iflags.tile_view)
