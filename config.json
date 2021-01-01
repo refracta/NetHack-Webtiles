@@ -1,0 +1,6 @@
+{
+  "masChatLength": 500,
+  "maxRCTextLength": 999999,
+  "terminalCols": 80,
+  "terminalRows": 25
+}
