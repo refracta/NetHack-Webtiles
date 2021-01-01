@@ -17,6 +17,5 @@
     "start": "node index.js"
   },
   "author": "refracta",
-  "license": "ISC",
-  "type": "module"
+  "license": "ISC"
 }
