@@ -168,7 +168,7 @@ class GameUIHandler {
             }
 
             if(e.altKey){
-                if(e.ketCode == 16){ // ignore duplicated input 'alt +shift'
+                if(e.keyCode == 16){ // ignore duplicated input 'alt +shift'
                     return;
                 }
 
