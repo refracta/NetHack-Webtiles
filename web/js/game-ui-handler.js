@@ -168,10 +168,11 @@ class GameUIHandler {
             }
 
             if(e.altKey){
+                if(e.ketCode == 16){ // ignore duplicated input 'alt +shift'
+                    return;
+                }
+
                 if(e.shiftKey){
-                    if(e.ketCode == 16){ //ignore duplicated input 'alt +shift'
-                        return;
-                    }
                     code -= 32; // to uppercase
                 }
 
