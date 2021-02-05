@@ -19,32 +19,17 @@
 #include "hack.h"
 
 
-void initSocket();
-
-
-int addSendQueueRaw(json_object*);
+void init_socket();
 
 void setCursor(int, int);
 
-void preprocessSendQueuedMsg();
-void preprocessAddSendQueue(json_object*);
-int addSendQueue(json_object*);
+int add_send_queue(json_object*);
 
-void sendMsg(char *);
-void sendQueuedMsg();
+void send_msg(char *);
+void send_queued_msg();
 
 int getch_by_webtiles();
 int getch_nb_by_webtiles();
 
-void menu_test();
-void append_json_array(json_object *, char *);
-char *make_json_msg(json_object *, json_object *);
-
-void sendText(char *);
-void sendTile(int, int, int);
-void sendTileFlag(int, int, char *);
-void sendStatus(int, int, char * );
-void sendClearTile();
-void sendMore(char *);
-void sendDebug(char *, ...);
+void send_debug(char *, ...);
 char * stringify(char *);

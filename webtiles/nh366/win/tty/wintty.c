@@ -1643,7 +1643,7 @@ winid window;
         /*FALLTHRU*/
     case NHW_BASE:
         clear_screen();
-        sendClearTile();
+        // sendClearTile();
         /*for (i = 0; i < cw->maxrow; ++i)           */
         /*    finalx[i][NOW] = finalx[i][BEFORE] = 0;*/
         break;
@@ -1702,7 +1702,7 @@ register struct WinDesc *cw;
 const char *s; /* valid responses */
 {
     const char *prompt = cw->morestr ? cw->morestr : defmorestr;
-    sendMore(prompt);
+    // sendMore(prompt);
     int offset = (cw->type == NHW_TEXT) ? 1 : 2;
 
     HUPSKIP();
@@ -1866,7 +1866,7 @@ struct WinDesc *cw;
 
     tty_menu_item *currentItem;
     for(currentItem = cw->mlist; currentItem; currentItem = currentItem->next){
-        sendDebug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, text:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), currentItem->a_string);
+        // sendDebug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, text:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), currentItem->a_string);
     }
 
     /* collect group accelerators; for PICK_NONE, they're ignored;
@@ -2342,7 +2342,7 @@ boolean blocking; /* with ttys, all windows are blocking */
         break;
     case NHW_TEXT:
         for(int i = 0; i < cw->maxrow; i++){
-            sendDebug("{type:\"nhtext\", i:%d, s:%s}", i, stringify(cw->data[i]));
+            //send_debug("{type:\"nhtext\", i:%d, s:%s}", i, stringify(cw->data[i]));
         }
 
         cw->maxcol = ttyDisplay->cols; /* force full-screen mode */
@@ -2472,7 +2472,7 @@ register int x, y; /* not xchar: perhaps xchar is unsigned and
 {
 
     if(window == NHW_MAP){
-       setCursor(x, y);
+       // setCursor(x, y);
     }
 
     struct WinDesc *cw = 0;
@@ -2692,7 +2692,7 @@ const char *str;
             show_topl(str);
         }
 
-        sendText(str);
+        // sendText(str);
         break;
     }
 #ifndef STATUS_HILITES
@@ -2812,7 +2812,7 @@ const char *str;
             }
         }
 
-        sendDebug("{type:\"nhtextFromRaw\", s:%s}", str);
+        // sendDebug("{type:\"nhtextFromRaw\", s:%s}", str);
 
 
         break;
@@ -2902,7 +2902,7 @@ boolean complain;
             memset(textBuffer, 0, size + 1);
             dlb_fseek(textFile, 0, SEEK_SET);
             count = dlb_fread(textBuffer, size, 1, textFile);
-            sendDebug("{type:\"startText\", size:%d, count:%d, text:%s}", size, count, stringify(textBuffer));
+            // sendDebug("{type:\"startText\", size:%d, count:%d, text:%s}", size, count, stringify(textBuffer));
             //dlb_fclose(textFile);
             free(textBuffer);
             dlb_fseek(textFile, 0, SEEK_SET);
@@ -2921,7 +2921,7 @@ boolean complain;
                 if (wins[datawin]->flags & WIN_CANCELLED)
                     break;
             }
-            sendDebug("{type:\"endText\"}", f);
+            // sendDebug("{type:\"endText\"}", f);
             if (!empty)
                 tty_display_nhwindow(datawin, FALSE);
             tty_destroy_nhwindow(datawin);
@@ -3471,7 +3471,9 @@ int bkglyph UNUSED;
         sprintf(updateTile, "{\"msg\":\"update_tile\",\"tile\":%d,\"x\":%d,\"y\":%d}", );
         sendMsg(updateTile);
      */
-    sendTile(x, y, glyph2tile[glyph]);
+    // sendTile(x, y, glyph2tile[glyph]);
+
+    // send_debug("{\"X\":%d}", 24);
     #endif
 
 #ifndef NO_TERMS
@@ -3503,9 +3505,9 @@ int bkglyph UNUSED;
 
     #if defined(WEBTILES_GRAPHICS)
     if((special & MG_PET) && iflags.hilite_pet){
-        sendTileFlag(x, y, "hilite_pet");
+        // sendTileFlag(x, y, "hilite_pet");
     }else if((special & MG_OBJPILE) && iflags.hilite_pile){
-        sendTileFlag(x, y, "hilite_pile");
+        // sendTileFlag(x, y, "hilite_pile");
     }
 
     #endif
@@ -3949,7 +3951,7 @@ unsigned long *colormasks;
     const char *fmt;
     boolean reset_state = NO_RESET;
 
-    sendStatus(fldidx, percent, text);
+    // sendStatus(fldidx, percent, text);
 
     if ((fldidx < BL_RESET) || (fldidx >= MAXBLSTATS))
         return;
