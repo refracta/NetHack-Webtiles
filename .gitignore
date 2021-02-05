@@ -1,6 +1,9 @@
-./node_modules
-./package-lock.json
-./json-c
-./jsonc-build
-./games.json
-./sources
+json-c/
+jsonc-build/
+node_modules/
+games/
+sources/
+archive/
+package-lock.json
+games.json
+db.json
