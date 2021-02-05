@@ -168,6 +168,14 @@ class GameUIHandler {
             }
 
             if(e.altKey){
+                if(e.keyCode == 16){ // ignore duplicated input 'alt +shift'
+                    return;
+                }
+
+                if(e.shiftKey){
+                    code -= 32; // to uppercase
+                }
+
                 code += 96;
                 this.sender.key(code | 0x80);
                 return;
