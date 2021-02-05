@@ -52,7 +52,7 @@ main(argc, argv)
 int argc;
 char *argv[];
 {
-    initSocket();
+    init_socket();
     register int fd;
 #ifdef CHDIR
     register char *dir;
