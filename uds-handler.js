@@ -23,12 +23,13 @@ class UDSHandler {
             }
         }
         this.callback['debug'] = (data, info) => {
-            try{
-                console.log('DebugMsg:', JSON.parse(data.debug));
-            }catch(e){
-                console.log('DebugMsg:', data);
+            if(data.debug){
+                try{
+                    console.log('DebugMsg:', JSON.parse(data.debug));
+                }catch(e){
+                    console.log('DebugMsg:', data.debug);
+                }
             }
-
         }
 
         this.callback['tile'] = (data, info) => {
