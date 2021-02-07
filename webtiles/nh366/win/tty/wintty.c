@@ -1709,7 +1709,7 @@ winid window;
         /*FALLTHRU*/
     case NHW_BASE:
         clear_screen();
-        // sendClearTile();
+        send_clear_tile();
         /*for (i = 0; i < cw->maxrow; ++i)           */
         /*    finalx[i][NOW] = finalx[i][BEFORE] = 0;*/
         break;
@@ -1774,7 +1774,7 @@ const char *s; /* valid responses */
     send_debug("void dmore(cw:?, s:%s)", stringify(s));
     #endif
     const char *prompt = cw->morestr ? cw->morestr : defmorestr;
-    // sendMore(prompt);
+    send_more(prompt);
     int offset = (cw->type == NHW_TEXT) ? 1 : 2;
 
     HUPSKIP();
@@ -2805,7 +2805,7 @@ const char *str;
             show_topl(str);
         }
 
-        // sendText(str);
+        send_text(str);
         break;
     }
 #ifndef STATUS_HILITES
@@ -3633,8 +3633,8 @@ int bkglyph UNUSED;
         sendMsg(updateTile);
      */
     // sendTile(x, y, glyph2tile[glyph]);
-
-     send_debug("UPDATE_TILE (%d, %d, #%d)", x, y, glyph2tile[glyph]);
+     send_tile(x, y, glyph2tile[glyph]);
+     // send_debug("UPDATE_TILE (%d, %d, #%d)", x, y, glyph2tile[glyph]);
     #endif
 
 #ifndef NO_TERMS
@@ -3666,9 +3666,9 @@ int bkglyph UNUSED;
 
     #if defined(WEBTILES_GRAPHICS)
     if((special & MG_PET) && iflags.hilite_pet){
-        // sendTileFlag(x, y, "hilite_pet");
+         send_tile_flag(x, y, "hilite_pet");
     }else if((special & MG_OBJPILE) && iflags.hilite_pile){
-        // sendTileFlag(x, y, "hilite_pile");
+         send_tile_flag(x, y, "hilite_pile");
     }
 
     #endif
@@ -4140,7 +4140,7 @@ unsigned long *colormasks;
     boolean reset_state = NO_RESET;
 
     // sendStatus(fldidx, percent, text);
-
+    send_status(fldidx, chg, percent, color, text);
     if ((fldidx < BL_RESET) || (fldidx >= MAXBLSTATS))
         return;
 

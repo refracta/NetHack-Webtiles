@@ -243,7 +243,6 @@ void handle_msg(json_object *obj) {
 bool is_key_triggered = false;
 int key_code = -1;
 
-// TODO FREE 말고 put으로 해제
 void handle_core(char *msg, json_object *obj) {
     if (strcmp(msg, "key") == 0) {
         json_object *key_obj = json_object_object_get(obj, "keyCode");
@@ -256,11 +255,14 @@ void handle_core(char *msg, json_object *obj) {
         // printf("Unknown Request!");
     }
 }
+bool clear_current_data();
+bool init_current_data(char * type);
 
 /* KEY EMULATION */
 int getch_by_webtiles() {
     while (true) {
         usleep(1);
+        clear_current_data();
         send_queued_msg();
         handle_socket();
         if (is_key_triggered) {
@@ -271,6 +273,27 @@ int getch_by_webtiles() {
 }
 
 #define MATRIX_COL 256
+json_object *current_data;
+
+bool clear_current_data(){
+    if(current_data != NULL){
+        add_send_queue(current_data);
+        current_data = NULL;
+    }
+}
+
+bool init_current_data(char * type){
+    if(current_data != NULL){
+        if(strcmp(type, json_object_get_string(json_object_object_get(current_data, "msg"))) == 0){
+            return false;
+        }else{
+            add_send_queue(current_data);
+        }
+    }
+    current_data = json_object_new_object();
+    json_object_object_add(current_data, "msg", json_object_new_string(type));
+    return true;
+}
 
 int to_2d_index(x, y) {
     return y * MATRIX_COL + x;
@@ -292,6 +315,19 @@ void set_cursor(int x, int y) {
     }*/
 }
 
+void send_text(char * text){
+    bool is_inited = init_current_data("text");
+
+    json_object * data = json_object_object_get(current_data, "list");
+    if(data == NULL) {
+        data = json_object_new_array();
+        json_object_object_add(current_data, "list", data);
+    }
+
+    json_object_array_add(data, json_object_new_string(text));
+}
+
+
 void send_character_pos(int x, int y) {
     json_object *obj = json_object_new_object();
     int i = to_2d_index(x, y);
@@ -302,54 +338,94 @@ void send_character_pos(int x, int y) {
 }
 
 void send_tile(int x, int y, int t) {
-    json_object *obj = json_object_new_object();
+    bool is_inited = init_current_data("tile");
+
     int i = to_2d_index(x, y);
-    json_object_object_add(obj, "msg", json_object_new_string("tile"));
-    json_object_object_add(obj, "i", json_object_new_int(i));
-    json_object_object_add(obj, "t", json_object_new_int(t));
-    // addsend_queue(obj);
+    char i_string[5];
+    // ceil(log(79 * 21)) + 1
+    sprintf(i_string, "%d", i);
+
+    json_object * data = json_object_object_get(current_data, "data");
+    if(data == NULL) {
+        data = json_object_new_object();
+        json_object_object_add(current_data, "data", data);
+    }
+
+    json_object * tile_data = json_object_object_get(data, i_string);
+    if(tile_data == NULL) {
+        tile_data = json_object_new_object();
+        json_object_object_add(data, i_string, tile_data);
+    }
+
+    json_object_object_add(tile_data, "t", json_object_new_int(t));
 }
 
 void send_tile_flag(int x, int y, char *f) {
-    json_object *obj = json_object_new_object();
+    bool is_inited = init_current_data("tile");
+
     int i = to_2d_index(x, y);
-    json_object_object_add(obj, "msg", json_object_new_string("tile"));
-    json_object_object_add(obj, "i", json_object_new_int(i));
-    json_object_object_add(obj, "f", json_object_new_string(f));
-    // addsend_queue(obj);
+    char i_string[5];
+    // ceil(log(79 * 21)) + 1
+    sprintf(i_string, "%d", i);
+
+    json_object * data = json_object_object_get(current_data, "data");
+    if(data == NULL) {
+        data = json_object_new_object();
+        json_object_object_add(current_data, "data", data);
+    }
+
+    json_object * tile_data = json_object_object_get(data, i_string);
+    if(tile_data == NULL) {
+        tile_data = json_object_new_object();
+        json_object_object_add(data, i_string, tile_data);
+    }
+
+    json_object_object_add(tile_data, "f", json_object_new_string(f));
 }
 
-void send_status(int fldidx, int percent, char *text) {
-    json_object *obj = json_object_new_object();
-    json_object_object_add(obj, "msg", json_object_new_string("status"));
-    json_object_object_add(obj, "fldidx", json_object_new_int(fldidx));
-    json_object_object_add(obj, "percent", json_object_new_int(percent));
-    if (text != NULL) {
-        json_object_object_add(obj, "text", json_object_new_string(text));
-    } else {
-        json_object_object_add(obj, "text", json_object_new_string(""));
+void send_status(int fldidx, int chg, int percent, int color, char *text) {
+    bool is_inited = init_current_data("status");
+
+    char fldidx_string[3];
+    sprintf(fldidx_string, "%d", fldidx);
+
+    json_object * data = json_object_object_get(current_data, "data");
+    if(data == NULL) {
+        data = json_object_new_object();
+        json_object_object_add(current_data, "data", data);
     }
-    // addsend_queue(obj);
+
+    json_object * status_data = json_object_object_get(data, fldidx_string);
+    if(status_data == NULL) {
+        status_data = json_object_new_object();
+        json_object_object_add(data, fldidx_string, status_data);
+    }
+
+    // json_object_object_add(status_data, "fldidx", json_object_new_int(fldidx));
+    json_object_object_add(status_data, "chg", json_object_new_int(chg));
+    json_object_object_add(status_data, "percent", json_object_new_int(percent));
+    json_object_object_add(status_data, "color", json_object_new_int(color));
+    if (text != NULL) {
+        json_object_object_add(status_data, "text", json_object_new_string(text));
+    } else {
+        json_object_object_add(status_data, "text", json_object_new_string(""));
+    }
 }
 
 void send_clear_tile() {
-    json_object *obj = json_object_new_object();
-    json_object_object_add(obj, "msg", json_object_new_string("clear_tile"));
-    // addsend_queue(obj);
+    bool is_inited = init_current_data("clear_tile");
 }
 
 void send_more(char *prompt) {
-    json_object *obj = json_object_new_object();
-    json_object_object_add(obj, "msg", json_object_new_string("more"));
-    json_object_object_add(obj, "prompt", json_object_new_string(prompt));
-    // send_queue(obj);
+    bool is_inited = init_current_data("more");
+    json_object_object_add(current_data, "prompt", json_object_new_string(prompt));
 }
 
 void send_cursor() {
-    json_object *obj = json_object_new_object();
-    json_object_object_add(obj, "msg", json_object_new_string("cursor"));
-    //json_object_object_add(obj, "x", json_object_new_int(cursor.x));
-    //json_object_object_add(obj, "y", json_object_new_int(cursor.y));
+    // json_object *obj = json_object_new_object();
+    // json_object_object_add(obj, "msg", json_object_new_string("cursor"));
+    // json_object_object_add(obj, "x", json_object_new_int(cursor.x));
+    // json_object_object_add(obj, "y", json_object_new_int(cursor.y));
     // addsend_queue(obj);
 }
 
