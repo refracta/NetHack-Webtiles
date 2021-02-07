@@ -21,8 +21,6 @@
 
 void init_socket();
 
-void setCursor(int, int);
-
 int add_send_queue(json_object*);
 
 void send_msg(char *);
@@ -33,7 +31,7 @@ void send_tile_flag(int, int, char *);
 void send_clear_tile();
 void send_status(int, int, int, int, char *);
 void send_tile(int, int, int);
-void send_more(char *)
+void send_more(char *);
 
 int getch_by_webtiles();
 int getch_nb_by_webtiles();
