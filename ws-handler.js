@@ -21,12 +21,14 @@ class WSHandler {
                 return;
             }
             let roomInfo = this.getGameRoomByUsername(info.username);
-            if (roomInfo) {
+            if (roomInfo && roomInfo.udsInfo) {
                 if (data.keyCode == 3) {
                     console.log('Okay Close Message');
                     this.udsSender.close([roomInfo.udsInfo]);
                 } else {
-                    this.udsSender.data(data, [roomInfo.udsInfo]);
+                    if(typeof data.keyCode === 'number'){
+                        this.udsSender.data({msg:'key', keyCode:data.keyCode}, [roomInfo.udsInfo]);
+                    }
                 }
             }
         }
@@ -236,7 +238,7 @@ class WSHandler {
                 info.watchRoom = roomInfo;
                 roomInfo.watchers.add(info);
                 this.sender.watch(data.username, [info]);
-		this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
+		        this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
                 this.sender.initWatch(roomInfo.playData, roomInfo.terminalSerializer.serialize(), roomInfo.webRC, [info]);
                 let watcherData = this.roomToWatcherData(roomInfo);
                 this.sender.updateWatcher(watcherData.userList, watcherData.numberOfWatchers, [roomInfo.player, ...roomInfo.watchers])
@@ -383,7 +385,9 @@ class WSHandler {
         this.server.closeHandler = this.server.errorHandler = ((info) => {
             if (info.status === 'play') {
                 let roomInfo = this.getGameRoomByUsername(info.username);
-                this.udsSender.close([roomInfo.udsInfo]);
+                if(roomInfo.udsInfo){
+                    this.udsSender.close([roomInfo.udsInfo]);
+                }
             } else if (info.status === 'watch') {
                 let roomInfo = info.watchRoom;
                 roomInfo.watchers.delete(info);

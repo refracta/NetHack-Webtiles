@@ -82,9 +82,6 @@ class UDSServer {
                     //console.log(`Pong from ${path}`);
                 } else if (data.msg === 'queued_msg') {
                     if (this.handler) {
-                        if (this.preHandler) {
-                            this.preHandler(data);
-                        }
                         data.list.forEach(d => {
                             try {
                                 this.handler(d, info)
@@ -97,9 +94,6 @@ class UDSServer {
                     }
                 } else {
                     if (this.handler) {
-                        if (this.preHandler) {
-                            this.preHandler(data);
-                        }
                         this.handler(data, info);
                     }
                 }

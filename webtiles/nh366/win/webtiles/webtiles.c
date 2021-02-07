@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <stdbool.h>
+
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -19,6 +21,7 @@
 #include "hack.h"
 
 #define STRING_BUFFER_SIZE 131072
+#define STRING_BUFFER_SIZE_HALF 65536
 
 /* GAME PATH */
 #define DEFAULT_GAME_UDS_PATH "/tmp/nethack-webtiles-game"
@@ -26,25 +29,25 @@
 #define CLIENT_ENDPOINT_PATH "default"
 
 char *GAME_UDS_PATH() {
-    char pidArray[BUFSIZ];
-    sprintf(pidArray, "%d", getpid());
-    int pidLength = strlen(pidArray);
-    int dgpLength = strlen(DEFAULT_GAME_UDS_PATH);
-    char *gameUDSPath = (char *) malloc(pidLength + dgpLength + 1 + 1);
-    strcat(gameUDSPath, DEFAULT_GAME_UDS_PATH);
-    strcat(gameUDSPath, "-");
-    strcat(gameUDSPath, pidArray);
-    return gameUDSPath;
+    char pid_array[BUFSIZ];
+    sprintf(pid_array, "%d", getpid());
+    int pid_length = strlen(pid_array);
+    int dgp_length = strlen(DEFAULT_GAME_UDS_PATH);
+    char *game_uds_path = (char *) malloc(pid_length + dgp_length + 1 + 1);
+    strcat(game_uds_path, DEFAULT_GAME_UDS_PATH);
+    strcat(game_uds_path, "-");
+    strcat(game_uds_path, pid_array);
+    return game_uds_path;
 }
 
 char *SERVER_UDS_PATH() {
-    int dspLength = strlen(DEFAULT_SERVER_UDS_PATH);
-    int cepLength = strlen(CLIENT_ENDPOINT_PATH);
-    char *serverUDSPath = (char *) malloc(dspLength + cepLength + 1 + 1);
-    strcat(serverUDSPath, DEFAULT_SERVER_UDS_PATH);
-    strcat(serverUDSPath, "-");
-    strcat(serverUDSPath, CLIENT_ENDPOINT_PATH);
-    return serverUDSPath;
+    int dsp_length = strlen(DEFAULT_SERVER_UDS_PATH);
+    int cep_length = strlen(CLIENT_ENDPOINT_PATH);
+    char *server_uds_path = (char *) malloc(dsp_length + cep_length + 1 + 1);
+    strcat(server_uds_path, DEFAULT_SERVER_UDS_PATH);
+    strcat(server_uds_path, "-");
+    strcat(server_uds_path, CLIENT_ENDPOINT_PATH);
+    return server_uds_path;
 }
 
 /* CORE UTIL */
@@ -53,13 +56,13 @@ void die(char *errmsg) {
     exit(1);
 }
 
-void exitWithSave() {
+void exit_with_save() {
     dosave0();
     nh_terminate(EXIT_SUCCESS);
 }
 
 /* RAW UDS SOCKET */
-int createSocket(bool blocking) {
+int create_socket(bool blocking) {
     int sockfd;
     sockfd = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (!blocking) {
@@ -69,12 +72,12 @@ int createSocket(bool blocking) {
     return sockfd;
 }
 
-int bindSocket(int sockfd, struct sockaddr_un address) {
+int bind_socket(int sockfd, struct sockaddr_un address) {
     unlink(address.sun_path);
     return bind(sockfd, (struct sockaddr *) &address, sizeof(address));
 }
 
-struct sockaddr_un getPathAddress(char *path) {
+struct sockaddr_un get_path_address(char *path) {
     struct sockaddr_un address;
     memset(&address, '\0', sizeof(address));
     address.sun_family = AF_UNIX;
@@ -82,65 +85,62 @@ struct sockaddr_un getPathAddress(char *path) {
     return address;
 }
 
-int getConnectStatus(struct sockaddr_un address) {
+int get_connect_status(struct sockaddr_un address) {
     int sockfd = socket(AF_UNIX, SOCK_DGRAM, 0);
-    int connectStatus = connect(sockfd, (struct sockaddr *) &address, sizeof(address));
+    int connect_status = connect(sockfd, (struct sockaddr *) &address, sizeof(address));
     close(sockfd);
-    return connectStatus;
+    return connect_status;
 }
 
 /* SOCKET INIT */
 int sockfd;
-struct sockaddr_un gameAddress;
-struct sockaddr_un serverAddress;
+struct sockaddr_un game_address;
+struct sockaddr_un server_address;
 
-void sendMsg(char *);
+void send_msg(char *);
 
-void startHandleSocketRunner();
+void start_handle_socket_runner();
 
-void initSocket() {
-    char *gamePath = GAME_UDS_PATH();
-    gameAddress = getPathAddress(gamePath);
-    free(gamePath);
+void init_socket() {
+    char *game_path = GAME_UDS_PATH();
+    game_address = get_path_address(game_path);
+    free(game_path);
 
     char *serverPath = SERVER_UDS_PATH();
-    serverAddress = getPathAddress(serverPath);
+    server_address = get_path_address(serverPath);
     free(serverPath);
 
-    sockfd = createSocket(false);
+    sockfd = create_socket(false);
     sockfd < 0 ? die("createSocketError") : 0;
-    int bindStatus = bindSocket(sockfd, gameAddress);
-    bindStatus < 0 ? die("bindSocketError") : 0;
+    int bind_status = bind_socket(sockfd, game_address);
+    bind_status < 0 ? die("bindSocketError") : 0;
 
-    int connectStatus = getConnectStatus(serverAddress);
-    connectStatus < 0 ? die("getConnectStatusError") : 0;
+    int connect_status = get_connect_status(server_address);
+    connect_status < 0 ? die("getConnectStatusError") : 0;
 
-    char initSocketMsg[STRING_BUFFER_SIZE];
-    sprintf(initSocketMsg, "{\"msg\":\"init_socket\", \"pid\":%d}", getpid());
-    sendMsg(initSocketMsg);
-
-#if defined(X11_GRAPHICS)
-    startHandleSocketRunner();
-#endif
+    char init_socket_msg[STRING_BUFFER_SIZE];
+    sprintf(init_socket_msg, "{\"msg\":\"init_socket\", \"pid\":%d}", getpid());
+    send_msg(init_socket_msg);
 }
 
-// queued send support
-json_object *sendQueue[BUFSIZ];
-int sendQueueIndex = 0;
 
-int addSendQueue(json_object *obj) {
-    if (sendQueueIndex < BUFSIZ) {
-        sendQueue[sendQueueIndex++] = obj;
+// queued send support
+json_object *send_queue[BUFSIZ];
+int send_queue_index = 0;
+
+int add_send_queue(json_object *obj) {
+    if (send_queue_index < BUFSIZ) {
+        send_queue[send_queue_index++] = obj;
     } else {
-        die('sendQueueOverflowError');
+        die('add_send_queue OverflowError');
     }
 }
 
 // sendto wrapper
-void sendMsg(char *msg) {
+void send_msg(char *msg) {
     while (true) {
-        int status = sendto(sockfd, (void *) msg, strlen(msg) + 1, 0, (struct sockaddr *) &serverAddress,
-                            sizeof(serverAddress));
+        int status = sendto(sockfd, (void *) msg, strlen(msg) + 1, 0, (struct sockaddr *) &server_address,
+                            sizeof(server_address));
         if (status != -1) {
             break;
         }
@@ -149,56 +149,27 @@ void sendMsg(char *msg) {
 }
 
 // send queued msg
-char *sendQueuedMsg() {
-    if (sendQueueIndex > 0) {
+char *send_queued_msg() {
+    if (send_queue_index > 0) {
         json_object *request = json_object_new_object();
         json_object *array = json_object_new_array();
 
         json_object_object_add(request, "msg", json_object_new_string("queued_msg"));
 
-        for (int i = 0; i < sendQueueIndex; i++) {
-            json_object *current_obj = sendQueue[i];
+        for (int i = 0; i < send_queue_index; i++) {
+            json_object *current_obj = send_queue[i];
             json_object_array_add(array, current_obj);
+            send_queue[i] = NULL;
         }
 
         json_object_object_add(request, "list", array);
         char *json = json_object_to_json_string(request);
 
-        sendMsg(json);
+        send_msg(json);
 
-        sendQueueIndex = 0;
+        send_queue_index = 0;
         json_object_put(request);
     }
-}
-
-// for debug
-void sendDebugMsg(int i) {
-    char debugMsg[STRING_BUFFER_SIZE];
-    sprintf(debugMsg, "{\"msg\":\"debug\",\"debugStatus\":\"%d\"}", i);
-    sendMsg(debugMsg);
-}
-
-// blocking socket support
-bool threadExit = false;
-int threadId;
-pthread_t thread;
-void *threadReturn;
-
-void handleSocketRunner(void *arg) {
-    while (!threadExit) {
-        handleSocket();
-    }
-    pthread_exit((void *) 0);
-}
-
-void startHandleSocketRunner() {
-    threadExit = false;
-    threadId = pthread_create(&thread, NULL, handleSocketRunner, NULL);
-}
-
-void stopHandleSocketRunner() {
-    threadExit = true;
-    threadId = pthread_join(thread, &threadReturn);
 }
 
 /* HANDLE SOCKET */
@@ -206,78 +177,77 @@ void stopHandleSocketRunner() {
 const char PING_MSG[] = "{\"msg\":\"ping\"}";
 const char PONG_MSG[] = "{\"msg\":\"pong\"}";
 
-#define millisecondDiff(begin, end) (((double) (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec) * 1.0e-9) * 1000)
-struct timespec lastReceivePingTime;
-struct timespec lastSendPingTime;
+#define MILLISECOND_DIFF(begin, end) (((double) (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec) * 1.0e-9) * 1000)
+struct timespec last_receive_ping_time;
+struct timespec last_send_ping_time;
 
-void handleSocket();
+void handle_socket();
 
-void handleMsg(json_object *);
+void handle_msg(json_object *obj);
 
-void handleCore(char *, json_object *);
+void handle_core(char *, json_object *);
 
-// <handleSocket> -> handleMsg -> handleCore
-void handleSocket() {
-    char receiveBuffer[STRING_BUFFER_SIZE];
-    int serverAddressSize = sizeof(serverAddress);
-    int recv = recvfrom(sockfd, (void *) &receiveBuffer, sizeof(receiveBuffer), 0, (struct sockaddr *) &serverAddress,
-                        &serverAddressSize);
+// <handleSocket> -> handleMsg -> handle_core
+void handle_socket() {
+    char receive_buffer[STRING_BUFFER_SIZE];
+    int server_address_size = sizeof(server_address);
+    int recv = recvfrom(sockfd, (void *) &receive_buffer, sizeof(receive_buffer), 0, (struct sockaddr *) &server_address,
+                        &server_address_size);
     if (recv != -1) {
-        json_object *obj = json_tokener_parse(receiveBuffer);
+        json_object *obj = json_tokener_parse(receive_buffer);
         if (obj != NULL) {
-            handleMsg(obj);
+            handle_msg(obj);
             json_object_put(obj);
         } else {
             perror("json_tokener_parse-Error");
         }
     }
-    struct timespec currentTime;
-    clock_gettime(CLOCK_MONOTONIC, &currentTime);
+    struct timespec current_time;
+    clock_gettime(CLOCK_MONOTONIC, &current_time);
 
-    if (lastSendPingTime.tv_sec != 0 && millisecondDiff(lastSendPingTime, currentTime) >= PING_TIMEOUT / 3) {
-        int status = sendto(sockfd, (void *) &PING_MSG, sizeof(PING_MSG), 0, (struct sockaddr *) &serverAddress,
-                            serverAddressSize);
+    if (last_send_ping_time.tv_sec != 0 && MILLISECOND_DIFF(last_send_ping_time, current_time) >= PING_TIMEOUT / 3) {
+        int status = sendto(sockfd, (void *) &PING_MSG, sizeof(PING_MSG), 0, (struct sockaddr *) &server_address,
+                            server_address_size);
         if (status != -1) {
-            clock_gettime(CLOCK_MONOTONIC, &lastSendPingTime);
+            clock_gettime(CLOCK_MONOTONIC, &last_send_ping_time);
         }
     }
 
-    if (lastReceivePingTime.tv_sec != 0 && millisecondDiff(lastReceivePingTime, currentTime) >= PING_TIMEOUT) {
-        exitWithSave();
+    if (last_receive_ping_time.tv_sec != 0 && MILLISECOND_DIFF(last_receive_ping_time, current_time) >= PING_TIMEOUT) {
+        exit_with_save();
     }
 }
 
-// handleSocket -> <handleMsg> -> handleCore
-void handleMsg(json_object *obj) {
+// handleSocket -> <handleMsg> -> handle_core
+void handle_msg(json_object *obj) {
     json_object *msg_obj = json_object_object_get(obj, "msg");
     if (msg_obj != NULL) {
         char *msg = json_object_get_string(msg_obj);
         if (strcmp(msg, "init_socket_end") == 0) {
-            clock_gettime(CLOCK_MONOTONIC, &lastReceivePingTime);
-            clock_gettime(CLOCK_MONOTONIC, &lastSendPingTime);
+            clock_gettime(CLOCK_MONOTONIC, &last_receive_ping_time);
+            clock_gettime(CLOCK_MONOTONIC, &last_send_ping_time);
         } else if (strcmp(msg, "ping") == 0) {
-            clock_gettime(CLOCK_MONOTONIC, &lastReceivePingTime);
-            sendto(sockfd, (void *) &PONG_MSG, sizeof(PONG_MSG), 0, (struct sockaddr *) &serverAddress,
-                   sizeof(serverAddress));
+            clock_gettime(CLOCK_MONOTONIC, &last_receive_ping_time);
+            sendto(sockfd, (void *) &PONG_MSG, sizeof(PONG_MSG), 0, (struct sockaddr *) &server_address,
+                   sizeof(server_address));
         } else if (strcmp(msg, "pong") == 0) {
         } else if (strcmp(msg, "close") == 0) {
-            exitWithSave();
+            exit_with_save();
         } else {
-            handleCore(msg, obj);
+            handle_core(msg, obj);
         }
     }
 }
 
-// handleSocket -> handleMsg -> <handleCore>
-bool isKeyTriggered = false;
-int keyCode = -1;
+// handleSocket -> handleMsg -> <handle_core>
+bool is_key_triggered = false;
+int key_code = -1;
 
-// TODO FREE 말고 put으로 해제
-void handleCore(char *msg, json_object *obj) {
+void handle_core(char *msg, json_object *obj) {
     if (strcmp(msg, "key") == 0) {
-        json_object *keyObj = json_object_object_get(obj, "keyCode");
-        keyCode = json_object_get_int(keyObj);
-        isKeyTriggered = true;
+        json_object *key_obj = json_object_object_get(obj, "keyCode");
+        key_code = json_object_get_int(key_obj);
+        is_key_triggered = true;
     }
     if (strcmp(msg, "debug") == 0) {
 
@@ -285,104 +255,197 @@ void handleCore(char *msg, json_object *obj) {
         // printf("Unknown Request!");
     }
 }
+bool clear_current_data();
+bool init_current_data(char * type);
 
 /* KEY EMULATION */
 int getch_by_webtiles() {
     while (true) {
         usleep(1);
-        sendQueuedMsg();
-        handleSocket();
-        if (isKeyTriggered) {
-            isKeyTriggered = false;
-            return keyCode;
+        clear_current_data();
+        send_queued_msg();
+        handle_socket();
+        if (is_key_triggered) {
+            is_key_triggered = false;
+            return key_code;
         }
     }
 }
 
-int getch_nb_by_webtiles() {
-    if (isKeyTriggered) {
-        isKeyTriggered = false;
-        return keyCode;
-    }
-    return -1;
-}
-
-/* MENU TEST */
-void menu_test() {
-    winid win;
-    anything any;
-    menu_item *pick_list = 0;
-
-    win = create_nhwindow(NHW_MENU);
-    any = zeroany;
-    any.a_int = 0;
-    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, "[TEST] menu #1", MENU_UNSELECTED);
-    end_menu(win, "Jes's New MENU");
-    select_menu(win, PICK_NONE, &pick_list);
-}
-
-void append_json_array(json_object *arr, char *str) {
-    json_object *jitem = json_object_new_string(str);
-    json_object *new_object = json_object_new_object();
-    json_object_object_add(new_object, "item", jitem);
-    json_object_array_add(arr, new_object);
-}
-
-char *make_json_msg(json_object *obj, json_object *arr) {
-    json_object_object_add(obj, "msg", json_object_new_string("inventory"));
-    json_object_object_add(obj, "items", arr);
-    return json_object_to_json_string(obj);
-}
-
-/* SEND LOGIC */
-void sendText(char * text){
-    json_object *obj = json_object_new_object();
-    json_object_object_add(obj, "msg", json_object_new_string("text"));
-    json_object_object_add(obj, "text", json_object_new_string(text));
-    addSendQueue(obj);
-}
 #define MATRIX_COL 256
-int to2DIndex(x, y) {
+json_object *current_data;
+
+bool clear_current_data(){
+    if(current_data != NULL){
+        add_send_queue(current_data);
+        current_data = NULL;
+    }
+}
+
+bool init_current_data(char * type){
+    if(current_data != NULL){
+        if(strcmp(type, json_object_get_string(json_object_object_get(current_data, "msg"))) == 0){
+            return false;
+        }else{
+            add_send_queue(current_data);
+        }
+    }
+    current_data = json_object_new_object();
+    json_object_object_add(current_data, "msg", json_object_new_string(type));
+    return true;
+}
+
+int to_2d_index(x, y) {
     return y * MATRIX_COL + x;
 }
-int to2DY(index) {
+
+int to_2d_y(index) {
     return index / MATRIX_COL;
 }
-int to2DX(index) {
-    return index - to2DY(MATRIX_COL, index) * MATRIX_COL;
+
+int to_2d_x(index) {
+    return index - to_2d_y(index) * MATRIX_COL;
 }
 
-void sendTile(int x, int y, int t){
+void set_cursor(int x, int y) {
+/*    if (x != cursor.x || y != cursor.y) {
+        cursor.x = x;
+        cursor.y = y;
+        cursor.is_changed = true;
+    }*/
+}
+
+void send_text(char * text){
+    bool is_inited = init_current_data("text");
+
+    json_object * data = json_object_object_get(current_data, "list");
+    if(data == NULL) {
+        data = json_object_new_array();
+        json_object_object_add(current_data, "list", data);
+    }
+
+    json_object_array_add(data, json_object_new_string(text));
+}
+
+
+void send_character_pos(int x, int y) {
     json_object *obj = json_object_new_object();
-    int i = to2DIndex(x, y);
+    int i = to_2d_index(x, y);
     json_object_object_add(obj, "msg", json_object_new_string("tile"));
     json_object_object_add(obj, "i", json_object_new_int(i));
-    json_object_object_add(obj, "t", json_object_new_int(t));
-    addSendQueue(obj);
+    json_object_object_add(obj, "u", json_object_new_boolean(1));
+    // addsend_queue(obj);
 }
 
-void sendStatus(int fldidx, int percent, char * text){
-    json_object *obj = json_object_new_object();
-    json_object_object_add(obj, "msg", json_object_new_string("status"));
-    json_object_object_add(obj, "fldidx", json_object_new_int(fldidx));
-    json_object_object_add(obj, "percent", json_object_new_int(percent));
-    if(text != NULL){
-        json_object_object_add(obj, "text", json_object_new_string(text));
-    }else{
-        json_object_object_add(obj, "text", json_object_new_string(""));
+void send_tile(int x, int y, int t) {
+    bool is_inited = init_current_data("tile");
+
+    int i = to_2d_index(x, y);
+    char i_string[5];
+    // ceil(log(79 * 21)) + 1
+    sprintf(i_string, "%d", i);
+
+    json_object * data = json_object_object_get(current_data, "data");
+    if(data == NULL) {
+        data = json_object_new_object();
+        json_object_object_add(current_data, "data", data);
     }
-    addSendQueue(obj);
+
+    json_object * tile_data = json_object_object_get(data, i_string);
+    if(tile_data == NULL) {
+        tile_data = json_object_new_object();
+        json_object_object_add(data, i_string, tile_data);
+    }
+
+    json_object_object_add(tile_data, "t", json_object_new_int(t));
 }
 
-void sendClearTile(){
-    json_object *obj = json_object_new_object();
-    json_object_object_add(obj, "msg", json_object_new_string("clear_tile"));
-    addSendQueue(obj);
+void send_tile_flag(int x, int y, char *f) {
+    bool is_inited = init_current_data("tile");
+
+    int i = to_2d_index(x, y);
+    char i_string[5];
+    // ceil(log(79 * 21)) + 1
+    sprintf(i_string, "%d", i);
+
+    json_object * data = json_object_object_get(current_data, "data");
+    if(data == NULL) {
+        data = json_object_new_object();
+        json_object_object_add(current_data, "data", data);
+    }
+
+    json_object * tile_data = json_object_object_get(data, i_string);
+    if(tile_data == NULL) {
+        tile_data = json_object_new_object();
+        json_object_object_add(data, i_string, tile_data);
+    }
+
+    json_object_object_add(tile_data, "f", json_object_new_string(f));
 }
 
-void sendMore(char * prompt){
+void send_status(int fldidx, int chg, int percent, int color, char *text) {
+    bool is_inited = init_current_data("status");
+
+    char fldidx_string[3];
+    sprintf(fldidx_string, "%d", fldidx);
+
+    json_object * data = json_object_object_get(current_data, "data");
+    if(data == NULL) {
+        data = json_object_new_object();
+        json_object_object_add(current_data, "data", data);
+    }
+
+    json_object * status_data = json_object_object_get(data, fldidx_string);
+    if(status_data == NULL) {
+        status_data = json_object_new_object();
+        json_object_object_add(data, fldidx_string, status_data);
+    }
+
+    // json_object_object_add(status_data, "fldidx", json_object_new_int(fldidx));
+    json_object_object_add(status_data, "chg", json_object_new_int(chg));
+    json_object_object_add(status_data, "percent", json_object_new_int(percent));
+    json_object_object_add(status_data, "color", json_object_new_int(color));
+    if (text != NULL) {
+        json_object_object_add(status_data, "text", json_object_new_string(text));
+    } else {
+        json_object_object_add(status_data, "text", json_object_new_string(""));
+    }
+}
+
+void send_clear_tile() {
+    bool is_inited = init_current_data("clear_tile");
+}
+
+void send_more(char *prompt) {
+    bool is_inited = init_current_data("more");
+    json_object_object_add(current_data, "prompt", json_object_new_string(prompt));
+}
+
+void send_cursor() {
+    // json_object *obj = json_object_new_object();
+    // json_object_object_add(obj, "msg", json_object_new_string("cursor"));
+    // json_object_object_add(obj, "x", json_object_new_int(cursor.x));
+    // json_object_object_add(obj, "y", json_object_new_int(cursor.y));
+    // addsend_queue(obj);
+}
+
+void send_debug(char *format, ...) {
+    char debug[STRING_BUFFER_SIZE_HALF];
+    va_list arg_ptr;
+
+    va_start(arg_ptr, format);
+    vsnprintf(debug, STRING_BUFFER_SIZE_HALF, format, arg_ptr);
+    va_end(arg_ptr);
+
     json_object *obj = json_object_new_object();
-    json_object_object_add(obj, "msg", json_object_new_string("more"));
-    json_object_object_add(obj, "prompt", json_object_new_string(prompt));
-    addSendQueue(obj);
+    json_object_object_add(obj, "msg", json_object_new_string("debug"));
+    json_object_object_add(obj, "debug", json_object_new_string(debug));
+
+    char *json = json_object_to_json_string(obj);
+    send_msg(json);
+    json_object_put(obj);
+}
+
+char *stringify(char *str) {
+    return json_object_to_json_string(json_object_new_string(str));
 }

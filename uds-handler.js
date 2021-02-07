@@ -23,7 +23,13 @@ class UDSHandler {
             }
         }
         this.callback['debug'] = (data, info) => {
-            console.log('DebugMsg:', data);
+            if(data.debug){
+                try{
+                    console.log('DebugMsg:', JSON.parse(data.debug));
+                }catch(e){
+                    console.log('DebugMsg:', data.debug);
+                }
+            }
         }
 
         this.callback['tile'] = (data, info) => {
@@ -60,59 +66,6 @@ class UDSHandler {
     init(initHandle) {
         this.wsHandler = initHandle.wsHandler;
         this.wsSender = initHandle.wsSender;
-        this.server.preHandler =
-            (data) => {
-                if (data.list) {
-                    let newList = [];
-                    let lastElement = data.list.reduce((a, d) => {
-                        if (d.msg === a.msg) {
-                            if (d.msg === 'tile') {
-                                let i = d.i;
-                                delete d.i;
-                                delete d.msg;
-                                return {msg: 'tile', data: {...a.data, ...{[i]: {...a.data[i], ...d}}}};
-                            } else if (d.msg === 'text') {
-                                a.list.push(d.text);
-                                return a;
-                            } else if (d.msg === 'status') {
-                                let fldidx = d.fldidx;
-                                if (d.text) {
-                                    d.text = d.text.trim();
-                                }
-                                delete d.fldidx;
-                                delete d.msg;
-                                return {msg: 'status', data: {...a.data, ...{[fldidx]: {...a.data[fldidx], ...d}}}};
-                            } else {
-                                newList.push(d);
-                                return d;
-                            }
-                        } else {
-                            if (a.msg) {
-                                newList.push(a);
-                            }
-                            if (d.msg === 'tile') {
-                                let i = d.i;
-                                delete d.i;
-                                delete d.msg;
-                                return {msg: 'tile', data: {[i]: d}};
-                            } else if (d.msg === 'text') {
-                                return {msg: 'text', list: [d.text]};
-                            } else if (d.msg === 'status') {
-                                let fldidx = d.fldidx;
-                                if (d.text) {
-                                    d.text = d.text.trim();
-                                }
-                                delete d.fldidx;
-                                delete d.msg;
-                                return {msg: 'status', data: {[fldidx]: d}};
-                            }
-                            return d;
-                        }
-                    }, {});
-                    newList.push(lastElement);
-                    data.list = newList;
-                }
-            }
         this.server.handler = this.handle.bind(this);
     }
 }

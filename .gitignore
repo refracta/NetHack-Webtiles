@@ -1,2 +1,10 @@
-./node_modules
-./package-lock.json
+.idea/
+json-c/
+jsonc-build/
+node_modules/
+games/
+sources/
+archive/
+package-lock.json
+games.json
+db.json
