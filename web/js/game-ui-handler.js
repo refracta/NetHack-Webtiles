@@ -65,12 +65,14 @@ class GameUIHandler {
             textSpan.text(t);
             $('#message-content').append(textSpan);
         });
+        let messages = $('#message-content .ingame-text:not(.more)').toArray().reverse().slice(100).forEach(e=>$(e).remove());
+        $('#message-content').scrollTop($('#message-content').prop('scrollHeight'));
     }
 
     initResizeMessageHandler() {
-        $(window).resize(_ => {
+        /*$(window).resize(_ => {
             this.resizeMessageContent();
-        })
+        })*/
     }
 
     more(prompt) {
@@ -80,7 +82,7 @@ class GameUIHandler {
         textSpan.css('background-color', 'maroon');
         textSpan.text(prompt);
         $('#message-content').append(textSpan);
-        this.resizeMessageContent();
+        $('#message-content').scrollTop($('#message-content').prop('scrollHeight'));
     }
 
     renderInventory(items) {
@@ -95,7 +97,9 @@ class GameUIHandler {
 
     // TODO FIX CALC
     resizeMessageContent() {
-        let leftHeight = $('body').height() - $('#browserhack-status').height() - $('#tile-content').height();
+
+
+/*        let leftHeight = $('body').height() - $('#browserhack-status').height() - $('#tile-content').height();
         while ($('#message-content span:hidden').length > 20) {
             $($('#message-content span:hidden').get(0)).remove();
         }
@@ -106,7 +110,7 @@ class GameUIHandler {
             }
         } else {
             $('#message-content span:visible').hide();
-        }
+        }*/
     }
 
     initKeyHandler() {
@@ -216,7 +220,7 @@ class GameUIHandler {
     initTerminal() {
         this.clearTerminal();
         this.terminal = new Terminal({
-            fontSize: 15,
+            fontSize: 14,
             fontFamily: 'Courier New'
         });
 
@@ -370,6 +374,7 @@ class GameUIHandler {
         // clear status bar
         win.innerHTML = '';
 
+
         var table;
         var tr;
         var td;
@@ -378,6 +383,8 @@ class GameUIHandler {
         // and level, alignment, and status effects on the second
         table = document.createElement('table');
         table.className = 'status-table';
+        table.style.marginLeft = '5px';
+        table.style.marginRight = '5px';
         // player name and rank
         tr = table.insertRow();
         td = tr.insertCell();
@@ -402,10 +409,10 @@ class GameUIHandler {
         // next table contains health and power bars
         table = document.createElement('table');
         table.className = 'status-table';
-        table.style.width = '200px';
-        table.style.marginLeft = '20px';
-        table.style.marginRight = '10px';
-        table.style.marginTop = '6px';
+        table.style.width = '390px';
+        table.style.marginLeft = '5px';
+        table.style.marginRight = '5px';
+        table.style.marginTop = '5px';
         // HP
         tr = table.insertRow();
         td = tr.insertCell();
@@ -416,13 +423,15 @@ class GameUIHandler {
         td.appendChild(getProgressBar(status2[11], status2[9], 'info', 'PW: '));
         win.appendChild(table);
 
+        var statDiv =  document.createElement('div');
         // list of stats in order, for hexagon
         var stats = [];
 
         // next table contains stats on two rows
         table = document.createElement('table');
         table.className = 'status-table';
-        table.style.marginLeft = '10px';
+        table.style.marginTop = '5px';
+        table.style.width = '310px';
         tr = table.insertRow();
         for (var i = 2; i < 14; i += 2) {
             if (i == 8)
@@ -449,7 +458,7 @@ class GameUIHandler {
             stats.push(parseInt(statValue));
 
         }
-        win.appendChild(table);
+        statDiv.appendChild(table);
 
         // canvas for stat hexagon
         var canvas = document.createElement('canvas');
@@ -459,7 +468,8 @@ class GameUIHandler {
         canvas.width = w;
         canvas.height = w;
         var ctx = canvas.getContext('2d');
-        win.appendChild(canvas);
+        statDiv.appendChild(canvas);
+        win.appendChild(statDiv);
         // draw full hexagon
         ctx.beginPath();
         drawHexagon(ctx, r, r, [r - 1, r - 1, r - 1, r - 1, r - 1, r - 1]);
@@ -504,10 +514,12 @@ class GameUIHandler {
 
         // last status: Dlvl, AC, Cash
         // TODO: turns
+        var lastStatus =  document.createElement('div');
+        lastStatus.style.textAlign = 'center';
         var dlvl = document.createElement('i');
         dlvl.classList.add('fa', 'fa-compass', 'status-misc');
         dlvl.innerHTML = ' ' + status2[1].split(':')[1].split(' ')[0];
-        win.appendChild(dlvl);
+        lastStatus.appendChild(dlvl);
         // No turn in current status lines?
         /*
         var turn = document.createElement('i');
@@ -518,12 +530,12 @@ class GameUIHandler {
         var ac = document.createElement('i');
         ac.classList.add('fa', 'fa-shield', 'status-misc');
         ac.innerHTML = ' ' + outerHTML(this.create_highlight_element(old_status[1][14], status2[14], true));
-        win.appendChild(ac);
+        lastStatus.appendChild(ac);
         var gold = document.createElement('i');
         gold.classList.add('fa', 'fa-usd', 'status-misc');
         gold.innerHTML = ' ' + outerHTML(this.create_highlight_element(this.statusData[10].text.split(':').pop(), this.statusData[10].text.split(':').pop()));
-        win.appendChild(gold);
-
+        lastStatus.appendChild(gold);
+        win.appendChild(lastStatus);
         // update old status to current
         //old_status = [status1, status2];
     }
