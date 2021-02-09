@@ -443,3 +443,86 @@ body {
     width: 388px;
     font: small monospace;
 }
+
+.ui-popup-overlay {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.ui-popup {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+
+padding-left: 30%;
+padding-right: 30%;
+
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: start;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* progressively indent nested popups: four levels deel is probably enough */
+.ui-popup + .ui-popup { padding-top: 20px; }
+.ui-popup + .ui-popup + .ui-popup { padding-top: 40px; }
+.ui-popup + .ui-popup + .ui-popup + .ui-popup { padding-top: 60px; }
+
+.ui-popup.centred {
+  padding-top: 0;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.ui-popup-outer {
+  overflow-y: scroll !important;
+  overflow-x: hidden;
+  /* overflow-y: hidden !im?portant; */
+  margin-top: 200px !important;
+  margin: 50px;
+  max-height: calc(100vh - 100px);
+
+  padding: 20px;
+  background-color: #040204;
+  border: 1px solid black;
+  outline: 2px solid #7d623c;
+
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  z-index: 0;
+  position: relative;
+
+  height: 70%;
+
+}
+
+.ui-popup-inner {
+  position: relative; /* positioned so that it renders on top of bg */
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  max-height: calc(100vh - 100px - 46px); /* for IE11 */
+}
+.ui-popup-inner:after {
+  display: block;
+  content: "";
+  clear:both;
+}
+
+#game .ui-popup-inner .bg0 {
+  background-color: transparent;
+}
