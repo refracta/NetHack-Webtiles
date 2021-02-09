@@ -257,12 +257,13 @@ void handle_core(char *msg, json_object *obj) {
 }
 bool clear_current_data();
 bool init_current_data(char * type);
-
+void send_delayed_msg();
 /* KEY EMULATION */
 int getch_by_webtiles() {
     while (true) {
         usleep(1);
         clear_current_data();
+        send_delayed_msg();
         send_queued_msg();
         handle_socket();
         if (is_key_triggered) {
@@ -295,6 +296,8 @@ bool init_current_data(char * type){
     return true;
 }
 
+
+
 int to_2d_index(x, y) {
     return y * MATRIX_COL + x;
 }
@@ -305,14 +308,6 @@ int to_2d_y(index) {
 
 int to_2d_x(index) {
     return index - to_2d_y(index) * MATRIX_COL;
-}
-
-void set_cursor(int x, int y) {
-/*    if (x != cursor.x || y != cursor.y) {
-        cursor.x = x;
-        cursor.y = y;
-        cursor.is_changed = true;
-    }*/
 }
 
 void send_text(char * text){
@@ -421,12 +416,25 @@ void send_more(char *prompt) {
     json_object_object_add(current_data, "prompt", json_object_new_string(prompt));
 }
 
+int cursor = -1;
+int last_send_cursor = -1;
+
+void set_cursor(int x, int y){
+    cursor = to_2d_index(x, y);
+}
+
 void send_cursor() {
-    // json_object *obj = json_object_new_object();
-    // json_object_object_add(obj, "msg", json_object_new_string("cursor"));
-    // json_object_object_add(obj, "x", json_object_new_int(cursor.x));
-    // json_object_object_add(obj, "y", json_object_new_int(cursor.y));
-    // addsend_queue(obj);
+    if(last_send_cursor != cursor){
+        json_object *obj = json_object_new_object();
+        json_object_object_add(obj, "msg", json_object_new_string("cursor"));
+        json_object_object_add(obj, "i", json_object_new_int(cursor));
+        add_send_queue(obj);
+        last_send_cursor = cursor;
+    }
+}
+
+void send_delayed_msg(){
+    send_cursor();
 }
 
 void send_debug(char *format, ...) {

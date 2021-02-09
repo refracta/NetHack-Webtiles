@@ -12,7 +12,7 @@
  * to back out the changes. */
 #include "hack.h"
 #include "webtiles.h"
-#define tgetch() getch_by_webtiles() 
+#define tgetch() getch_by_webtiles()
 
 #define H2344_BROKEN
 
@@ -2576,7 +2576,7 @@ register int x, y; /* not xchar: perhaps xchar is unsigned and
     send_debug("void tty_curs(window:%d, x:%d, y:%d)", window, x, y);
     #endif
     if(window == NHW_MAP){
-       // setCursor(x, y);
+        set_cursor(x, y);
     }
 
     struct WinDesc *cw = 0;
@@ -2761,7 +2761,7 @@ const char *str;
     register long j;
 #endif
 
-	
+
     HUPSKIP();
     /* Assume there's a real problem if the window is missing --
      * probably a panic message
@@ -3603,7 +3603,7 @@ int bkglyph UNUSED;
     sendMsg(msg);
     */
 
-	
+
     int ch;
     boolean reverse_on = FALSE;
     int color;
@@ -4439,7 +4439,7 @@ status_sanity_check(VOID_ARGS)
         "BL_TIME", "BL_HUNGER", "BL_HP", "BL_HPMAX",           /* 16.. 19 */
         "BL_LEVELDESC", "BL_EXP", "BL_CONDITION"              /* 20.. 22 */
     };
-   
+
     if (in_sanity_check)
         return;
     in_sanity_check = TRUE;
