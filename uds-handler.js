@@ -47,6 +47,11 @@ class UDSHandler {
             info.room.playData.status = statusData ? {...info.room.playData.status, ...data.data} : data.data;
             info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
         }
+        this.callback['cursor'] = (data, info) => {
+            info.room.playData.cursor = data.i;
+            info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
+        }
+
         this.callback['clear_tile'] = (data, info) => {
             info.room ? info.room.playData.tile = {} : void 0;
             info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;

@@ -115,6 +115,7 @@ class GameUIHandler {
 
     initKeyHandler() {
         this.clearKeyHandler();
+        $('#tile-content, #terminal-content').click(e=>{document.activeElement.blur();});
         $('body').keypress(e => {
             if ($('#chat_input:focus').length > 0) {
                 //e.preventDefault();
@@ -122,11 +123,7 @@ class GameUIHandler {
             }
             var code = e.charCode || e.keyCode;
             // console.log(code);
-            if (code == 39) {
-                $('#chat_input').focus();
-                e.preventDefault();
-                return;
-            }
+
             // S-space: toggle zoom
             if ((code == 32) && (e.shiftKey) && !(e.ctrlKey || e.altKey || e.metaKey)) {
                 //nethack.btn_toggle_zoom.click();
@@ -138,7 +135,43 @@ class GameUIHandler {
                 this.sender.key(code);
             }
         });
+        let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 0.3, 0.5, 0.6, 0.8];
         $('body').keydown(e => {
+            if(e.key === 'F8' || e.key === 'F9' || e.key === 'F10' || e.key === 'F12'){
+                if(!this.zoomStatusIndex){
+                    this.zoomStatusIndex = 0;
+                }
+                if(!this.terminalStatus){
+                    this.terminalStatus = 'on';
+                }
+                if(e.key == 'F8'){
+                    if(this.terminalStatus == 'on'){
+                        $('#terminal-content').css('opacity', 0.7);
+                        this.terminalStatus = 'alpha';
+                    }else if(this.terminalStatus == 'alpha'){
+                        $('#terminal-content').hide();
+                        this.terminalStatus = 'off';
+                    }else if(this.terminalStatus == 'off'){
+                        $('#terminal-content').css('opacity', 1);
+                        $('#terminal-content').show();
+                        this.terminalStatus = 'on';
+                    }
+                }else if(e.key == 'F9'){
+                    this.zoomStatusIndex--;
+                    if(this.zoomStatusIndex % zoomArray.length < 0){
+                        this.zoomStatusIndex += zoomArray.length;
+                    }
+                    this.tileRenderer.setZoom(zoomArray[this.zoomStatusIndex]);
+                }else if(e.key == 'F10'){
+                    this.zoomStatusIndex++;
+                    this.zoomStatusIndex %= zoomArray.length;
+                    this.tileRenderer.setZoom(zoomArray[this.zoomStatusIndex]);
+                }else if(e.key == 'F12'){
+                    $('#chat_input').focus();
+                }
+                e.preventDefault();
+                return;
+            }
             if ($('#chat_input:focus').length > 0) {
                 //e.preventDefault();
                 return;
@@ -207,6 +240,10 @@ class GameUIHandler {
             i = parseInt(i);
             this.tileRenderer.drawTileByData({i, t: tData[i].t});
         }
+    }
+
+    setCursor(i) {
+        this.tileRenderer.setCursor(i);
     }
 
     clearTile() {

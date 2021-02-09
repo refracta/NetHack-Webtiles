@@ -39,14 +39,26 @@
     margin-top: -53px;
 }
 
+#left-content {
+    height: 100%;
+    flex-grow: 1;
+    display:flex;
+    flex-direction: column;
+    min-width: 400px;
+}
+#left-content-wrapper {
+
+}
+
 #game-content {
     height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: row;
 }
 
 #status-content {
-    width: 400px;
-    float: right;
-    height: 100%;
+    min-width: 400px;
     background-color: #283654;
 }
 
@@ -56,8 +68,20 @@
 }
 
 #tile-content {
-    display: grid;
+    flex-grow: 1;
 }
+
+#message-content {
+    /*position: fixed;*/
+    /*bottom: 0;*/
+    padding-left: 0.8em;
+    background: #111111;
+    overflow-y:auto;
+    height: 105px;
+    top: 0;
+    /*padding-bottom: 5px;*/
+}
+
 
 .item-description .cursed,
 #browserhack-status .red {
@@ -105,10 +129,7 @@
     display: block;
 }
 
-#message-content {
-    opacity: 0.85;
-    padding-left: 0.8em;
-}
+
 
 .ui-darkblue {
     background-color: #283654;
@@ -271,14 +292,6 @@
     }
 }
 
-#message-content {
-    /*position: fixed;*/
-    /*bottom: 0;*/
-    overflow-y:auto;
-    height: 100px;
-    top: 0;
-    padding-bottom: 5px;
-}
 
 body {
     position: absolute;
@@ -351,9 +364,7 @@ body {
     }
 }
 
-#terminal-content {
-    float: right;
-}
+
 
 /*CHAT*/
 #chat {
@@ -414,7 +425,9 @@ body {
 }
 
 #terminal-content {
-    left: 0;
+    position: fixed;
+    bottom: 0;
+    right: 400px;
 }
 
 #chat_history_container {
