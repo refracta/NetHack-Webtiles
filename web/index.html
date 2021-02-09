@@ -213,17 +213,17 @@
         <img src="/decoration/tourist.png" style="display: none; max-width: 700px;">
         <img src="/decoration/jackal.png" style="display: none; max-width: 500px;">
         <img src="/decoration/homunculus.png" style="display: none; max-width: 500px;">
-        <img src="/decoration/gompami-tourist.png" style="display: none; max-width: 900px;"> 
+        <img src="/decoration/gompami-tourist.png" style="display: none; max-width: 700px;">
     </div>
 </div>
 </body>
 
 
 <div id="game-content">
-    <div id="tile-content"></div>
-    <div id="browserhack-status"></div>
-    <div id="terminal-content"></div>
+    <div id="status-content"><div id="browserhack-status"></div></div>
     <div id="message-content"></div>
+    <div id="tile-content"></div>
+    <div id="terminal-content"></div>
     <div id="item-content" class="alert alert-info" role="alert"></div>
 </div>
 <div id="chat" style="" class="focus-trap">
@@ -247,4 +247,146 @@
             </div>
 </div>
 
+
+
+
+<!-- ui-popup div 시작 -->
+<div class="ui-popup" id="ui-popup" style="display: none;" data-generation-id="4">
+  <div class="ui-popup-overlay"></div>
+  <div class="ui-popup-outer" >
+     <div class="ui-popup-inner">
+        <div class="formatted-scroller" data-tag="help">
+           <div class="body fg7" data-simplebar="init">
+              <div class="simplebar-track vertical" style="visibility: hidden;">
+                 <div class="simplebar-scrollbar visible"></div>
+              </div>
+              <div class="simplebar-track horizontal" style="visibility: visible;">
+                 <div class="simplebar-scrollbar visible" style="width: 25px; transform: translate3d(0px, 0px, 0px);"></div>
+              </div>
+              <div class="simplebar-scroll-content" style="padding-right: 35px; padding-bottom: 100px;">
+                      <div id="popup-content">
+                        <!-- 본문내용 -->
+                       </div>
+                     </div>
+                 </div>
+              </div>
+              <div class="scroller-shade top" style="opacity: 0;"></div>
+              <div class="scroller-shade bot" style="opacity: 0.0375;"></div>
+              <span class="scroller-lhd"></span>
+           </div>
+           <div class="more"></div>
+        </div>
+     </div>
+     <!-- ui-popup div 끝 -->
+  
 </html>
+<script>
+  // 정확한 용도를 몰라 임시로 ? 누를경우 팝업. 추후변경
+function togglePopup(text){
+  return function (e){
+    if(e.key === "?") {
+    const popup = document.getElementById('ui-popup');
+    document.getElementById('popup-content').innerHTML = text;
+    if(popup.style.display === "none") popup.style.display = "block";
+    else popup.style.display = "none";
+    }
+  }
+}
+
+// popup에 들어갈 본문내용
+const popupHTML = 'find me search me asdfasdfasdf asdfjlasjdfkl;asjdflk;jasdklfjasdlkfjaslkdjfl;jad;ksljfaslk;djf';
+const showText = togglePopup(popupHTML);
+
+// popup용 eventlistener
+document.addEventListener('keypress', showText);
+</script>
+
+
+<!-- 스타일 시작 -->
+<style>
+/* 임시. 추후 통합 */
+.ui-popup-overlay {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-color: rgba(0,0,0,0.7);
+}
+
+.ui-popup {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+
+padding-left: 30%;
+padding-right: 30%;
+
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: start;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* progressively indent nested popups: four levels deel is probably enough */
+.ui-popup + .ui-popup { padding-top: 20px; }
+.ui-popup + .ui-popup + .ui-popup { padding-top: 40px; }
+.ui-popup + .ui-popup + .ui-popup + .ui-popup { padding-top: 60px; }
+
+.ui-popup.centred {
+    padding-top: 0;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.ui-popup-outer {
+    overflow-y: scroll !important;
+    overflow-x: hidden;
+    /* overflow-y: hidden !im?portant; */
+    margin-top: 200px !important;
+    margin: 50px;
+    max-height: calc(100vh - 100px);
+
+    padding: 20px;
+    background-color: #040204;
+    border: 1px solid black;
+    outline: 2px solid #7d623c;
+
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    z-index: 0;
+    position: relative;
+
+    height: 70%;
+
+}
+
+.ui-popup-inner {
+    position: relative; /* positioned so that it renders on top of bg */
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    max-height: calc(100vh - 100px - 46px); /* for IE11 */
+}
+.ui-popup-inner:after {
+    display: block;
+    content: "";
+    clear:both;
+}
+
+#game .ui-popup-inner .bg0 {
+    background-color: transparent;
+}
+
+</style>
+<!-- 스타일 끝 -->
