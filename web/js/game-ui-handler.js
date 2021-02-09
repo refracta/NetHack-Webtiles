@@ -577,6 +577,16 @@ class GameUIHandler {
         //old_status = [status1, status2];
     }
 
+    launchLargeTextPopup(text) {
+      document.getElementById('popup-content').innerHTML = text;
+      document.getElementById('ui-popup').style.display = "block";
+    }
+
+    closePopup(){
+      const popup = document.getElementById('ui-popup');
+      document.getElementById('ui-popup').style.display = "none";
+    }
+
 
 }
 
