@@ -133,6 +133,11 @@ class WSHandler {
 
                 let tData = data.playData.tile;
                 this.gameUIHandler.drawTile(tData);
+                if(data.playData.cursor){
+                    this.gameUIHandler.setCursor(data.playData.cursor);
+                } else {
+                    this.gameUIHandler.setCursor(0);
+                }
                 // console.log('status', data.playData.status);
                 this.gameUIHandler.update_status(data.playData.status);
 
@@ -158,7 +163,8 @@ class WSHandler {
                 // this.sender.key(32);
                 this.gameUIHandler.showTileContent(true);
                 this.gameUIHandler.showGameContent(true);
-                this.gameUIHandler.openTerminal();
+                // FOR DEBUG
+                 this.gameUIHandler.openTerminal();
                 
                 if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
                     this.gameUIHandler.applyFontPatch();
@@ -173,6 +179,10 @@ class WSHandler {
             // 임시
             this.gameUIHandler.clearTempUI();
             this.gameUIHandler.drawTile(data.data);
+        }
+
+        this.callback['cursor'] = (data) => {
+            this.gameUIHandler.setCursor(data.i);
         }
 
         this.callback['clear_tile'] = (data) => {

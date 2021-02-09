@@ -220,31 +220,36 @@
 
 
 <div id="game-content">
+    <div id="left-content">
+        <div id="message-content"></div>
+
+        <div id="tile-content">
+
+        </div>
+    </div>
     <div id="status-content"><div id="browserhack-status"></div></div>
-    <div id="message-content"></div>
-    <div id="tile-content"></div>
     <div id="terminal-content"></div>
     <div id="item-content" class="alert alert-info" role="alert"></div>
 </div>
 <div id="chat" style="" class="focus-trap">
     <a href="javascript:" id="chat_caption">
         <span id="spectator_count">0 spectators</span>
-        <span id="message_count">(Esc: back to game, Quotes('): go to chat)</span>
+        <span id="message_count">(Esc: back to game)</span>
     </a>
     <br>
     <span id="spectator_list"></span>
-            <div id="chat_history_container">
+    <div id="chat_history_container">
                 <span id="chat_history">
                 </span>
-            </div>
-            <input class="text" type="text" name="chat_input" id="chat_input" style="">
-            <div id="chat_login_text" style="display: none;">
-                <a id="chat_login_link" href="javascript:">Login</a> to chat
-            </div>
+    </div>
+    <input class="text" type="text" name="chat_input" id="chat_input" style="">
+    <div id="chat_login_text" style="display: none;">
+        <a id="chat_login_link" href="javascript:">Login</a> to chat
+    </div>
 
-            <div id="chat_public" class="hidden">
+    <div id="chat_public" class="hidden">
 
-            </div>
+    </div>
 </div>
 
 </html>

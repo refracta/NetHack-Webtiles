@@ -315,7 +315,7 @@ char *argv[];
             iflags.news = FALSE; /* in case dorecover() fails */
         }
 #endif
-        pline("Restoring save file...");
+        // pline("Restoring save file...");
         mark_synch(); /* flush output */
         if (dorecover(fd)) {
             resuming = TRUE; /* not starting new game */

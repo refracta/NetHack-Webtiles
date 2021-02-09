@@ -9,7 +9,9 @@ class WSSender {
 
     saveRC(id, rcText) {
         this.client.send({msg: 'save_rc', id, rcText});
-    }getRC(id) {
+    }
+
+    getRC(id) {
         this.client.send({msg: 'get_rc', id});
     }
 
@@ -24,9 +26,11 @@ class WSSender {
     login(username, password) {
         this.client.send({msg: 'login', username, password});
     }
+
     register(username, password, email) {
         this.client.send({msg: 'register', username, password, email});
     }
+
     watch(username) {
         this.client.send({msg: 'watch', username});
     }

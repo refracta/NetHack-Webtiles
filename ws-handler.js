@@ -207,8 +207,8 @@ class WSHandler {
                     playData: {},
                     terminalSerializer,
                     gameInfo,
-		    ptyProcess,
-	            webRC
+		            ptyProcess,
+                    webRC
                 };
                 this.setGameRoomByUsername(info.username, roomInfo);
                 info.playRoom = roomInfo;
@@ -249,7 +249,7 @@ class WSHandler {
 
     }
     setTileWithWebRC(defaultTilePath, webRC, info){
-	    	let tileName = webRC.DEFAULT_TILE_NAME ? webRC.DEFAULT_TILE_NAME : 'default';
+	    let tileName = webRC.DEFAULT_TILE_NAME ? webRC.DEFAULT_TILE_NAME : 'default';
 		let tileFilePath = webRC.CUSTOM_TILE_FILE_PATH ? webRC.CUSTOM_TILE_FILE_PATH : (defaultTilePath + tileName + '.png');
 		let tileDataPath = webRC.CUSTOM_TILE_DATA_PATH ? webRC.CUSTOM_TILE_DATA_PATH : (defaultTilePath + tileName + '.json');
 	        let tileData;

@@ -1,4 +1,5 @@
 .idea/
+cmake-build-debug/
 json-c/
 jsonc-build/
 node_modules/
