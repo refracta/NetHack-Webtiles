@@ -10,3 +10,4 @@ mkdir ../node_modules/unix-dgram-socket
 mv ./dist/* ../node_modules/unix-dgram-socket
 cd ../
 rm -rf ./unix-dgram-socket
+mv ./node_modules/unix-dgram-socket ./
