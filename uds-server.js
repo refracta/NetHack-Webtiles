@@ -4,7 +4,7 @@ const {
 
 const {
     UnixDgramSocket
-} = require('unix-dgram-socket');
+} = require('./unix-dgram-socket');
 
 const DEFAULT_GAME_UDS_PATH = '/tmp/nethack-webtiles-game';
 const DEFAULT_SERVER_UDS_PATH = '/tmp/nethack-webtiles-server';
