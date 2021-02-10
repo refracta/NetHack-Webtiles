@@ -1,11 +1,13 @@
 .idea/
 cmake-build-debug/
+unix-dgram-socket/
 json-c/
 jsonc-build/
 node_modules/
 games/
 sources/
 archive/
+dev/chromedriver.exe
 package-lock.json
 games.json
 db.json
