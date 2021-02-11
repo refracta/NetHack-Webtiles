@@ -176,8 +176,6 @@ class WSHandler {
         }
 
         this.callback['tile'] = (data) => {
-            // 임시
-            this.gameUIHandler.clearTempUI();
             this.gameUIHandler.drawTile(data.data);
         }
 
@@ -194,7 +192,6 @@ class WSHandler {
         }
 
         this.callback['text'] = (data) => {
-            this.gameUIHandler.clearTempUI();
             /*if (data.list.length > 10 && status == 'play') {
                 alert(data.list.join('\n'));
                 break;
@@ -210,6 +207,18 @@ class WSHandler {
 
         this.callback['more'] = (data) => {
             this.gameUIHandler.more(data.prompt);
+        }
+
+        this.callback['close_more'] = (data) => {
+            this.gameUIHandler.close_more();
+        }
+
+        this.callback['large_text'] = (data) => {
+            this.gameUIHandler.launchLargeTextPopup(data.text);
+        }
+
+        this.callback['close_large_text'] = (data) => {
+            this.gameUIHandler.closePopup();
         }
 
         this.callback['inventory'] = (data) => {

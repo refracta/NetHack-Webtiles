@@ -53,7 +53,7 @@ class GameUIHandler {
         $('body').off('keydown');
     }
 
-    clearTempUI() {
+    close_more() {
         $('.more').remove();
         $('#item-content').hide();
     }
@@ -578,7 +578,9 @@ class GameUIHandler {
     }
 
     launchLargeTextPopup(text) {
-      document.getElementById('popup-content').innerHTML = text;
+      $('#popup-content').text(text);
+      $('#popup-content').scrollTop(0);
+      // document.getElementById('popup-content').innerHTML = text;
       document.getElementById('ui-popup').style.display = "block";
     }
 
