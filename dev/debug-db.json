@@ -4,6 +4,11 @@
       "username": "debug",
       "password": "debug",
       "email": ""
+    },
+    "wizard": {
+      "username": "wizard",
+      "password": "wizard",
+      "email": ""
     }
   }
 }
