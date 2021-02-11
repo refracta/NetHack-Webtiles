@@ -322,6 +322,18 @@ void send_text(char * text){
     json_object_array_add(data, json_object_new_string(text));
 }
 
+void send_close_large_text(){
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("close_large_text"));
+    add_send_queue(obj);
+}
+
+void send_large_text(char * text){
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("large_text"));
+    json_object_object_add(obj, "text", json_object_new_string(text));
+    add_send_queue(obj);
+}
 
 void send_character_pos(int x, int y) {
     json_object *obj = json_object_new_object();
@@ -415,6 +427,11 @@ void send_more(char *prompt) {
     bool is_inited = init_current_data("more");
     json_object_object_add(current_data, "prompt", json_object_new_string(prompt));
 }
+
+void send_close_more() {
+    bool is_inited = init_current_data("close_more");
+}
+
 
 int cursor = -1;
 int last_send_cursor = -1;

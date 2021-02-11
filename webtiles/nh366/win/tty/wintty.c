@@ -1774,7 +1774,7 @@ const char *s; /* valid responses */
     send_debug("void dmore(cw:?, s:%s)", stringify(s));
     #endif
     const char *prompt = cw->morestr ? cw->morestr : defmorestr;
-    send_more(prompt);
+
     int offset = (cw->type == NHW_TEXT) ? 1 : 2;
 
     HUPSKIP();
@@ -1787,7 +1787,9 @@ const char *s; /* valid responses */
     if (flags.standout)
         standoutend();
 
+    send_more(prompt);
     xwaitforspace(s);
+    send_close_more();
 }
 
 STATIC_OVL void
@@ -2438,7 +2440,7 @@ boolean blocking; /* with ttys, all windows are blocking */
         break;
     case NHW_TEXT:
         for(int i = 0; i < cw->maxrow; i++){
-            //send_debug("{type:\"nhtext\", i:%d, s:%s}", i, stringify(cw->data[i]));
+            send_debug("{type:\"nhtext\", i:%d, s:%s}", i, stringify(cw->data[i]));
         }
 
         cw->maxcol = ttyDisplay->cols; /* force full-screen mode */
@@ -2761,7 +2763,6 @@ const char *str;
     register long j;
 #endif
 
-
     HUPSKIP();
     /* Assume there's a real problem if the window is missing --
      * probably a panic message
@@ -2922,10 +2923,11 @@ const char *str;
             if (i) {
                 cw->data[cw->cury - 1][++i] = '\0';
                 tty_putstr(window, attr, &str[i]);
+                // send_debug("{type:\"nhtextFromRawData1\", s:%s}", stringify(str));
             }
         }
 
-        // sendDebug("{type:\"nhtextFromRaw\", s:%s}", str);
+         send_debug("{type:\"nhtextFromRaw2\", s:%s}", stringify(str));
 
 
         break;
@@ -2980,7 +2982,7 @@ boolean complain;
         char buf[BUFSZ];
         char *cr;
 
-        tty_clear_nhwindow(WIN_MESSAGE);
+//        tty_clear_nhwindow(WIN_MESSAGE);
         f = dlb_fopen(fname, "r");
         if (!f) {
             if (complain) {
@@ -2993,19 +2995,26 @@ boolean complain;
             } else if (u.ux)
                 docrt();
         } else {
-            winid datawin = tty_create_nhwindow(NHW_TEXT);
-            boolean empty = TRUE;
 
-            if (complain
+        //    winid datawin = tty_create_nhwindow(NHW_MESSAGE);
+           // tty_destroy_nhwindow(datawin);
+          //  datawin = tty_create_nhwindow(NHW_MESSAGE);
+//            boolean empty = TRUE;
+
+
+/*            if (complain
 #ifndef NO_TERMS
                 && nh_CD
 #endif
                 ) {
-                /* attempt to scroll text below map window if there's room */
+
+*//* attempt to scroll text below map window if there's room *//*
+
                 wins[datawin]->offy = wins[WIN_STATUS]->offy + 3;
                 if ((int) wins[datawin]->offy + 12 > (int) ttyDisplay->rows)
                     wins[datawin]->offy = 0;
-            }
+            }*/
+
 
             char * textBuffer;
             int size;
@@ -3018,12 +3027,32 @@ boolean complain;
             memset(textBuffer, 0, size + 1);
             dlb_fseek(textFile, 0, SEEK_SET);
             count = dlb_fread(textBuffer, size, 1, textFile);
-            // sendDebug("{type:\"startText\", size:%d, count:%d, text:%s}", size, count, stringify(textBuffer));
-            //dlb_fclose(textFile);
+            //send_debug("{type:\"startText\", size:%d, count:%d, text:%s}", size, count, stringify(textBuffer));
+            send_large_text(textBuffer);
+            dlb_fclose(textFile);
             free(textBuffer);
-            dlb_fseek(textFile, 0, SEEK_SET);
+//            dlb_fseek(textFile, 0, SEEK_SET);
+   // dmore(wins[datawin], "\033 ");
+    //tty_destroy_nhwindow(datawin);
+   // tty_curs(BASE_WINDOW, 0, 0);
+    //putsyms("TEST_MORE");
+     pline("Displaying in webtiles <Large text file>");
+     send_more("--MORE--");
+     xwaitforspace("\033 ");
+     send_close_more();
+     send_close_large_text();
+//     tty_putstr(datawin, 0, "Displaying in webtiles <Large text file>");
+     //tty_display_nhwindow(datawin, FALSE);
+     //tty_destroy_nhwindow(datawin);
+     //tty_clear_nhwindow(datawin);
+     // send_more("Displaying in webtiles <Large text file> ");
 
-            while (dlb_fgets(buf, BUFSZ, f)) {
+    //xwaitforspace("\033 ");
+    // send_close_more();
+    //erase_menu_or_text(datawin, wins[datawin], TRUE);
+    //send_debug("OKAY %d", WIN_MESSAGE);
+   // tty_destroy_nhwindow(datawin);
+/*            while (dlb_fgets(buf, BUFSZ, f)) {
                 if ((cr = index(buf, '\n')) != 0)
                     *cr = 0;
 #ifdef MSDOS
@@ -3033,15 +3062,15 @@ boolean complain;
                 if (index(buf, '\t') != 0)
                     (void) tabexpand(buf);
                 empty = FALSE;
-                tty_putstr(datawin, 0, buf);
+                // tty_putstr(datawin, 0, buf);
                 if (wins[datawin]->flags & WIN_CANCELLED)
                     break;
             }
-            // sendDebug("{type:\"endText\"}", f);
+             send_debug("{type:\"endText\"}", f);
             if (!empty)
                 tty_display_nhwindow(datawin, FALSE);
-            tty_destroy_nhwindow(datawin);
-            (void) dlb_fclose(f);
+            tty_destroy_nhwindow(datawin);*/
+//            (void) dlb_fclose(f);
         }
     }
 #endif /* DEF_PAGER */
