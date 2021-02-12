@@ -6,7 +6,7 @@ class WSClient {
     }
 
     getWebSocketPath() {
-        return `${location.protocol === 'https:' ? 'wss:' : 'ws'}://${location.host}${this.endpoint}`;
+        return `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}${this.endpoint}`;
     }
 
     init() {
