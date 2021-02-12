@@ -1,11 +1,43 @@
 function getDefaultTileConfig(tileImage, tileData) {
     const maxWidth = 79 + 1;
     const maxHeight = 21;
-    const startX = tileData.tileWidth / 2;
-    const startY = tileData.tileHeight / 2;
-    // const tileImage;
+    const tileRows = Math.ceil(tileData.imageWidth / (tileData.tileWidth + (tileData.extruded ? 2 : 0)));
+    const tileColumns = Math.ceil(tileData.imageHeight / (tileData.tileHeight + (tileData.extruded ? 2 : 0)));
+    const maxTile = tileRows * tileColumns;
+    return {...tileData, maxWidth, maxHeight, tileImage, tileRows, tileColumns, maxTile};
+}
 
-    return {...tileData, maxWidth, maxHeight, startX, startY, tileImage};
+function getDefaultTilemapConfig(tileConfig, width, height, data){
+    return {
+        "nextobjectid": 1,
+        "type": "map",
+        "tilewidth": tileConfig.tileWidth,
+        "tileheight": tileConfig.tileHeight,
+        "orientation": "orthogonal",
+        "renderorder": "right-down",
+        "layers": [{
+            "name": "default",
+            "type": "tilelayer",
+            "x": 0,
+            "y": 0,
+            "width": width,
+            "height": height,
+            "data": data,
+            "visible": true,
+            "opacity": 1,
+        }],
+        "tilesets": [{
+            "firstgid": 1,
+            "name": tileConfig.tileName,
+            "image": tileConfig.tileName,
+            "imagewidth": tileConfig.imageWidth,
+            "imageheight": tileConfig.imageHeight,
+            "tilewidth": tileConfig.tileWidth,
+            "tileheight": tileConfig.tileHeight,
+        }],
+        "version": 1,
+        "tiledversion": "1.0.3",
+    };
 }
 
 const MATRIX_COL = 256;
@@ -32,20 +64,17 @@ function to2DXY(index) {
 class TileRenderer {
     constructor(tileImage, tileData) {
         this.tileConfig = getDefaultTileConfig(tileImage, tileData);
-        this.imageArray = Array.from(Array(this.tileConfig.maxX), () => new Array(this.tileConfig.maxY));
     }
 
     getPhaserConfig() {
         let tileThis = this;
         return {
-            // 자원 회수를 안해서 WEBGL이 느렸던 것으로 추정, 재사용 검토
             type: this.tileConfig.extruded ? Phaser.WEBGL : Phaser.CANVAS,
             scale: {
                 mode: Phaser.Scale.RESIZE,
-                width: '100%',
+                width: `100%`,
                 height: '100%',
                 parent: 'tile-content',
-
             },
             pixelArt: this.tileConfig.extruded ? false : true,
             scene: {
@@ -53,14 +82,17 @@ class TileRenderer {
                     tileThis.preload(this);
                 },
                 create: function () {
-                    tileThis.create();
+                    tileThis.create(this);
                 },
                 update: function () {
-                    tileThis.update();
+                    tileThis.update(this);
                 }
             }
         };
     }
+
+
+
 
     preload(phaser) {
         this.phaser = phaser;
@@ -72,41 +104,12 @@ class TileRenderer {
 
         this.phaser.load.image('tiles', this.tileConfig.tileImage);
 
-        this.phaser.load.tilemapTiledJSON('map', {
-            "nextobjectid": 1,
-            "type": "map",
-            "tilewidth": this.tileConfig.tileWidth,
-            "tileheight": this.tileConfig.tileHeight,
-            "orientation": "orthogonal",
-            "renderorder": "right-down",
-            "layers": [{
-                "name": "default",
-                "type": "tilelayer",
-                "x": 0,
-                "y": 0,
-                "width": this.tileConfig.maxWidth,
-                "height": this.tileConfig.maxHeight,
-                "data": Array(this.tileConfig.maxWidth * this.tileConfig.maxHeight).fill(0),
-                "visible": true,
-                "opacity": 1,
-            }],
-            "tilesets": [{
-                "firstgid": 1,
-                "name": this.tileConfig.tileName,
-                "image": this.tileConfig.tileName,
-                "imagewidth": this.tileConfig.imageWidth,
-                "imageheight": this.tileConfig.imageHeight,
-                "tilewidth": this.tileConfig.tileWidth,
-                "tileheight": this.tileConfig.tileHeight,
-            }],
-            "version": 1,
-            "tiledversion": "1.0.3",
-        });
+        this.phaser.load.tilemapTiledJSON('map', getDefaultTilemapConfig(this.tileConfig, this.tileConfig.maxWidth, this.tileConfig.maxHeight, Array(this.tileConfig.maxWidth * this.tileConfig.maxHeight).fill(0)));
 
-        this.initEnd = true;
+
     }
 
-    create() {
+    create(phaser) {
         // FOR DEBUG
         this.map = this.phaser.make.tilemap({key: 'map'});
         if(this.tileConfig.extruded){
@@ -127,11 +130,13 @@ class TileRenderer {
         this.cursorMarker.lineStyle(1, 0xd10029, 1);
         this.cursorMarker.strokeRect(0, 0, this.tileConfig.tileWidth, this.tileConfig.tileHeight);
         window.R = this;
+
+        this.initEnd = true;
     }
 
-    update() {
+    update(phaser) {
         this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
-            this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
+        this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
         this.marker.x = this.map.tileToWorldX(this.cursorX);
         this.marker.y = this.map.tileToWorldY(this.cursorY);
 
@@ -145,6 +150,54 @@ class TileRenderer {
         this.cursorMarker.y = this.map.tileToWorldY(pointerTileY);
     }
 
+    getCropPhaserConfig() {
+        let tileThis = this;
+        return {
+            type: this.tileConfig.extruded ? Phaser.WEBGL : Phaser.CANVAS,
+            width: this.tileConfig.tileRows * this.tileConfig.tileWidth,
+            height: this.tileConfig.tileColumns * this.tileConfig.tileHeight,
+            pixelArt: this.tileConfig.extruded ? false : true,
+            scale: {
+                parent: 'crop-content',
+            },
+            scene: {
+                preload: function () {
+                    tileThis.cropPreload(this);
+                },
+                create: function () {
+                    tileThis.cropCreate(this);
+                }
+            }
+        };
+    }
+
+    cropPreload(phaser){
+        phaser.load.image('tiles', this.tileConfig.tileImage);
+        phaser.load.tilemapTiledJSON('map', getDefaultTilemapConfig(this.tileConfig, this.tileConfig.tileRows, this.tileConfig.tileColumns, Array(this.tileConfig.maxTile).fill().map((e,i)=>i+1)));
+    }
+
+    cropCreate(phaser){
+        this.cropMap = phaser.make.tilemap({key: 'map'});
+        if(this.tileConfig.extruded){
+            this.cropTiles = this.cropMap.addTilesetImage(this.tileConfig.tileName, 'tiles', this.tileConfig.tileWidth, this.tileConfig.tileHeight, 1, 2);
+        }else{
+            this.cropTiles = this.cropMap.addTilesetImage(this.tileConfig.tileName, 'tiles', this.tileConfig.tileWidth, this.tileConfig.tileHeight);
+        };
+        this.croplayer = this.cropMap.createDynamicLayer(0, this.cropTiles, 0, 0);
+        
+    }
+
+    getTileImage(tile) {
+        // tile--;
+        let y = Math.floor(tile / this.tileConfig.tileRows);
+        let x = tile % this.tileConfig.tileRows;
+        return new Promise((resolve => {
+            this.cropGame.renderer.snapshotArea(x * this.tileConfig.tileWidth, y* this.tileConfig.tileHeight, this.tileConfig.tileWidth, this.tileConfig.tileHeight,function (image) {
+                resolve(image);
+            });
+        }));
+    }
+
     drawTile(x, y, tile) {
         this.map.putTileAt(tile + 1, x, y);
     }
@@ -156,6 +209,7 @@ class TileRenderer {
     setZoom(scale){
         this.camera.setZoom(scale);
     }
+
     getZoom(){
         return this.camera.zoom;
     }
@@ -171,6 +225,7 @@ class TileRenderer {
 
     init() {
         this.game = new Phaser.Game(this.getPhaserConfig());
+        this.cropGame = new Phaser.Game(this.getCropPhaserConfig());
     }
 
 
