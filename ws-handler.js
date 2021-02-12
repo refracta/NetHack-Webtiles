@@ -281,7 +281,7 @@ class WSHandler {
     }
 
     getSessionBySessionKey(sessionKey) {
-	return this.session[sessionKey];
+	return this.sessions[sessionKey];
     }
 
     setSessionBySessionKey(sessionKey, data) {
