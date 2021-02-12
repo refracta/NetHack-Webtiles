@@ -1,11 +1,10 @@
 function getDefaultTileConfig(tileImage, tileData) {
     const maxWidth = 79 + 1;
     const maxHeight = 21;
-    const startX = tileData.tileWidth / 2;
-    const startY = tileData.tileHeight / 2;
-    // const tileImage;
-
-    return {...tileData, maxWidth, maxHeight, startX, startY, tileImage};
+    const tileRows = Math.ceil(tileData.imageWidth / (tileData.tileWidth + (tileData.extruded ? 2 : 0)));
+    const tileColumns = Math.ceil(tileData.imageHeight / (tileData.tileHeight + (tileData.extruded ? 2 : 0)));
+    const maxTile = tileRows * tileColumns;
+    return {...tileData, maxWidth, maxHeight, tileImage, tileRows, tileColumns, maxTile};
 }
 
 const MATRIX_COL = 256;
@@ -126,12 +125,32 @@ class TileRenderer {
         this.cursorMarker = this.phaser.add.graphics();
         this.cursorMarker.lineStyle(1, 0xd10029, 1);
         this.cursorMarker.strokeRect(0, 0, this.tileConfig.tileWidth, this.tileConfig.tileHeight);
+
+        this.tileSourceImage = this.phaser.textures.get('tiles').getSourceImage();
         window.R = this;
+    }
+
+    getTileCanvas(tile) {
+        let canvas = document.createElement('canvas');
+        canvas.width = this.tileConfig.tileWidth;
+        canvas.height = this.tileConfig.tileHeight;
+        const ctx = canvas.getContext('2d');
+
+        let y = Math.floor(tile / this.tileConfig.tileRows);
+        let x = tile % this.tileConfig.tileRows;
+
+        ctx.drawImage(this.tileSourceImage,
+            x * this.tileConfig.tileWidth + (this.tileConfig.extruded ? x * 2 + 1 : 0), y * this.tileConfig.tileHeight + (this.tileConfig.extruded ? y * 2 + 1 : 0),
+            this.tileConfig.tileWidth, this.tileConfig.tileHeight,
+            0, 0,
+            this.tileConfig.tileWidth, this.tileConfig.tileHeight);
+
+        return canvas;
     }
 
     update() {
         this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
-            this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
+        this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
         this.marker.x = this.map.tileToWorldX(this.cursorX);
         this.marker.y = this.map.tileToWorldY(this.cursorY);
 
