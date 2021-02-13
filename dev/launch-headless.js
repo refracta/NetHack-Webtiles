@@ -31,5 +31,5 @@ options.addArguments('--no-sandbox');
         });
     }
 );
-	await driver.exit();
+	await driver.quit();
 })();
