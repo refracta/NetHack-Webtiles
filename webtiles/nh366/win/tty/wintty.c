@@ -2535,7 +2535,10 @@ winid window;
                  * leave the ending window on the screen, we don't want to
                  * erase it anyway.
                  */
+                // 커서 백업
+                set_screen_change(FALSE);
                 erase_menu_or_text(window, cw, FALSE);
+                set_screen_change(TRUE);
             }
             cw->active = 0;
         }
@@ -2577,6 +2580,7 @@ register int x, y; /* not xchar: perhaps xchar is unsigned and
     #if defined(WEBTILES_DEBUG)
     send_debug("void tty_curs(window:%d, x:%d, y:%d)", window, x, y);
     #endif
+
     if(window == NHW_MAP){
         set_cursor(x, y);
     }
