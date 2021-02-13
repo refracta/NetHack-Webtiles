@@ -419,9 +419,7 @@ void send_status(int fldidx, int chg, int percent, int color, char *text) {
     }
 }
 
-void send_clear_tile() {
-    bool is_inited = init_current_data("clear_tile");
-}
+
 
 void send_more(char *prompt) {
     bool is_inited = init_current_data("more");
@@ -435,9 +433,22 @@ void send_close_more() {
 
 int cursor = -1;
 int last_send_cursor = -1;
+boolean screen_change = TRUE;
+
+void set_screen_change(boolean flag){
+    screen_change = flag;
+}
+
+void send_clear_tile() {
+    if(screen_change){
+        bool is_inited = init_current_data("clear_tile");
+    }
+}
 
 void set_cursor(int x, int y){
-    cursor = to_2d_index(x, y);
+    if(screen_change){
+        cursor = to_2d_index(x, y);
+    }
 }
 
 void send_cursor() {
