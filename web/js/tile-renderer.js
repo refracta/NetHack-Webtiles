@@ -1,5 +1,5 @@
 function getDefaultTileConfig(tileImage, tileData) {
-    const maxWidth = 79 + 1;
+    const maxWidth = 79;
     const maxHeight = 21;
     const tileRows = Math.ceil(tileData.imageWidth / (tileData.tileWidth + (tileData.extruded ? 2 : 0)));
     const tileColumns = Math.ceil(tileData.imageHeight / (tileData.tileHeight + (tileData.extruded ? 2 : 0)));
@@ -118,6 +118,12 @@ class TileRenderer {
 
         this.camera = this.phaser.cameras.main;
 
+
+
+        this.mapOutline = this.phaser.add.graphics();
+        this.mapOutline.lineStyle(1, 0x101010, 1);
+        this.mapOutline.strokeRect(this.tileConfig.tileWidth, 0, this.tileConfig.tileWidth * this.tileConfig.maxWidth, this.tileConfig.tileHeight * this.tileConfig.maxHeight);
+
         this.marker = this.phaser.add.graphics();
         this.marker.lineStyle(1, 0x00d129, 1);
         this.marker.strokeRect(0, 0, this.tileConfig.tileWidth, this.tileConfig.tileHeight);
@@ -125,6 +131,8 @@ class TileRenderer {
         this.cursorMarker = this.phaser.add.graphics();
         this.cursorMarker.lineStyle(1, 0xd10029, 1);
         this.cursorMarker.strokeRect(0, 0, this.tileConfig.tileWidth, this.tileConfig.tileHeight);
+        //this.mapOutline.x = this.map.tileToWorldX(this.cursorX);
+        //this.mapOutline.y = this.map.tileToWorldY(this.cursorY);
 
         this.tileSourceImage = this.phaser.textures.get('tiles').getSourceImage();
         window.R = this;
@@ -195,6 +203,7 @@ class TileRenderer {
 
     setCursor(i) {
         let [x, y] = to2DXY(i);
+        console.log(x, y);
         this.cursorX = x;
         this.cursorY = y;
     }
