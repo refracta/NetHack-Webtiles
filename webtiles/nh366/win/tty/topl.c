@@ -410,7 +410,9 @@ char def;
  */
 {
     #if defined(WEBTILES_DEBUG)
-    send_debug("char tty_yn_function(query:%s, resp:%s, def:%c)", stringify(query), stringify(resp), def);
+    if(query != NULL & resp != NULL){
+        send_debug("char tty_yn_function(query:%s, resp:%s, def:%c)", stringify(query), stringify(resp), def);
+    }
     #endif
     register char q;
     char rtmp[40];
