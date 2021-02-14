@@ -543,33 +543,3 @@ padding-right: 30%;
 #game .ui-popup-inner .bg0 {
   background-color: transparent;
 }
-
-
-.menu {
-  color: white;
-  background-color: black;
-  width: fit-content;
-  border: 3px solid gold;
-}
-
-.menu-header {
-  margin-bottom: 20px;
-}
-
-.item-key {
-  color: greenyellow;
-}
-.item-col {
-  margin-right: 20px;
-}
-
-.item-text {
-  color: greenyellow;
-}
-
-.item-header {
-  margin-top: 5px;
-  margin-bottom: 5px;
-  color: #2198e7;
-  background-color: white;
-}
