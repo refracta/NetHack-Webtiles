@@ -2443,9 +2443,9 @@ boolean blocking; /* with ttys, all windows are blocking */
         (void) fflush(stdout);
         break;
     case NHW_TEXT:
-        for(int i = 0; i < cw->maxrow; i++){
+/*        for(int i = 0; i < cw->maxrow; i++){
             send_debug("{type:\"nhtext\", i:%d, s:%s}", i, stringify(cw->data[i]));
-        }
+        }*/
 
         cw->maxcol = ttyDisplay->cols; /* force full-screen mode */
         /*FALLTHRU*/
@@ -2935,7 +2935,7 @@ const char *str;
             }
         }
 
-         send_debug("{type:\"nhtextFromRaw2\", s:%s}", stringify(str));
+//         send_debug("{type:\"nhtextFromRaw2\", s:%s}", stringify(str));
 
 
         break;
