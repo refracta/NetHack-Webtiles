@@ -19,6 +19,10 @@ class WSSender {
         this.client.send({msg: 'key', keyCode});
     }
 
+    travel(i) {
+        this.client.send({msg: 'travel', i});
+    }
+
     loginBySessionKey(sessionKey) {
         this.client.send({msg: 'login', sessionKey: localStorage.sessionKey});
     }

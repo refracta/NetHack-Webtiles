@@ -88,7 +88,7 @@ class WSHandler {
             } else {
                 tileData = data.tileData;
             }
-            this.gameUIHandler.initTileRenderer(data.filePath, tileData);
+            this.gameUIHandler.initTileRenderer(data.filePath, tileData, {travelClick:(i)=>this.sender.travel(i)});
         }
 
         this.callback['lobby_add'] = (data) => {
@@ -189,6 +189,28 @@ class WSHandler {
 
         this.callback['status'] = (data) => {
             this.gameUIHandler.update_status(data.data);
+        }
+
+        this.callback['start_sharp_input'] = (data) => {
+            this.sharp_query = data.query + ' ';
+            this.sharp_input_text = '';
+            this.gameUIHandler.sharp_input(this.sharp_query + this.sharp_input_text);
+        }
+
+        this.callback['sharp_input'] = (data) => {
+            if(data.c == 8){
+                this.sharp_input_text = this.sharp_input_text.slice(0, -1);
+            }else if(data.c == 27){
+                this.sharp_input_text = '';
+            }else{
+                this.sharp_input_text += String.fromCharCode(data.c);
+
+            }
+            this.gameUIHandler.sharp_input(this.sharp_query + this.sharp_input_text);
+        }
+
+        this.callback['close_sharp_input'] = (data) => {
+            this.gameUIHandler.close_sharp_input();
         }
 
         this.callback['text'] = (data) => {

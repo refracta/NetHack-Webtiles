@@ -1406,7 +1406,9 @@ tty_suspend_nhwindows(str)
 const char *str;
 {
     #if defined(WEBTILES_DEBUG)
-    send_debug("void tty_suspend_nhwindows(str:%s)", stringify(str));
+    if(str != NULL){
+        send_debug("void tty_suspend_nhwindows(str:%s)", stringify(str));
+    }
     #endif
     settty(str); /* calls end_screen, perhaps raw_print */
     if (!str)
@@ -1429,7 +1431,9 @@ tty_exit_nhwindows(str)
 const char *str;
 {
     #if defined(WEBTILES_DEBUG)
-    send_debug("void tty_exit_nhwindows(str:%s)", stringify(str));
+    if(str!=NULL){
+        send_debug("void tty_exit_nhwindows(str:%s)", stringify(str));
+    }
     #endif
     winid i;
 
@@ -3864,11 +3868,25 @@ int *x, *y, *mod;
     if (ttyDisplay && ttyDisplay->toplin == 1)
         ttyDisplay->toplin = 2;
 #else /* !WIN32CON */
+    //send_debug("POS_KEY %d %d %d", *x, *y, *mod);
+
     nhUse(x);
     nhUse(y);
     nhUse(mod);
 
     i = tty_nhgetch();
+    // send_debug("POS_KEY %d %d %d %d", *x, *y, *mod, i);
+
+    if(i == '\033'){
+        int i = get_travel_position();
+        if(i > -1){
+            *x = to_2d_x(i);
+            *y = to_2d_y(i);
+            *mod = 1;
+            set_travel_position(-1);
+            return 0;
+        }
+    }
 #endif /* ?WIN32CON */
     return i;
 }
