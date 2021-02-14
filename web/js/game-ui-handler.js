@@ -43,8 +43,8 @@ class GameUIHandler {
         this.terminal.open($('#terminal-content').get(0));
     }
 
-    initTileRenderer(filePath, tileData) {
-        this.tileRenderer = new TileRenderer(filePath, tileData);
+    initTileRenderer(filePath, tileData, eventHandlerMap) {
+        this.tileRenderer = new TileRenderer(filePath, tileData, eventHandlerMap);
         this.tileRenderer.init();
     }
 
@@ -56,6 +56,10 @@ class GameUIHandler {
     close_more() {
         $('.more').remove();
         $('#item-content').hide();
+    }
+
+    close_sharp_input() {
+        $('.sharp_input').remove();
     }
 
     addText(list) {
@@ -83,9 +87,25 @@ class GameUIHandler {
         textSpan.text(prompt);
         $('#message-content').append(textSpan);
         $('#message-content').scrollTop($('#message-content').prop('scrollHeight'));
+        window.G = this;
     }
 
-    renderInventory(items) {
+    sharp_input(text) {
+        let sharpInput = $('.sharp_input');
+        if(sharpInput.length == 0){
+            let textSpan = $('<span>');
+            textSpan.addClass('ingame-text');
+            textSpan.addClass('sharp_input');
+            textSpan.css('background-color', 'rgb(40, 80, 84)');
+            textSpan.text(text);
+            $('#message-content').append(textSpan);
+        }else{
+            sharpInput.text(text);
+        }
+        $('#message-content').scrollTop($('#message-content').prop('scrollHeight'));
+    }
+
+        renderInventory(items) {
         $('#item-content').empty();
         $('#item-content').append(items.map(e => {
             let l = $('<span>');
@@ -238,7 +258,7 @@ class GameUIHandler {
     drawTile(tData) {
         for (let i in tData) {
             i = parseInt(i);
-            this.tileRenderer.drawTileByData({i, t: tData[i].t});
+            this.tileRenderer.drawTileByData({i, t: tData[i].t, f: tData[i].f});
         }
     }
 
@@ -454,6 +474,7 @@ class GameUIHandler {
         tr = table.insertRow();
         td = tr.insertCell();
         td.appendChild(getProgressBar(status2[6], status2[4], 'danger', 'HP: '));
+        this.tileRenderer.setMarkerColor(status2[4]/status2[6]);
         // Pw
         tr = table.insertRow();
         td = tr.insertCell();

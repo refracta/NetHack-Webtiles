@@ -242,14 +242,25 @@ void handle_msg(json_object *obj) {
 // handleSocket -> handleMsg -> <handle_core>
 bool is_key_triggered = false;
 int key_code = -1;
+int travel_position = -1;
+
+int get_travel_position(){
+    return travel_position;
+}
+void set_travel_position(int i){
+    travel_position = i;
+}
 
 void handle_core(char *msg, json_object *obj) {
     if (strcmp(msg, "key") == 0) {
         json_object *key_obj = json_object_object_get(obj, "keyCode");
         key_code = json_object_get_int(key_obj);
         is_key_triggered = true;
-    }
-    if (strcmp(msg, "debug") == 0) {
+    } else if (strcmp(msg, "travel") == 0) {
+        travel_position = json_object_get_int(json_object_object_get(obj, "i"));
+        key_code = 0;
+        is_key_triggered = true;
+    } else if (strcmp(msg, "debug") == 0) {
 
     } else {
         // printf("Unknown Request!");
@@ -310,17 +321,7 @@ int to_2d_x(index) {
     return index - to_2d_y(index) * MATRIX_COL;
 }
 
-void send_text(char * text){
-    bool is_inited = init_current_data("text");
 
-    json_object * data = json_object_object_get(current_data, "list");
-    if(data == NULL) {
-        data = json_object_new_array();
-        json_object_object_add(current_data, "list", data);
-    }
-
-    json_object_array_add(data, json_object_new_string(text));
-}
 
 void send_close_large_text(){
     json_object *obj = json_object_new_object();
@@ -334,6 +335,9 @@ void send_large_text(char * text){
     json_object_object_add(obj, "text", json_object_new_string(text));
     add_send_queue(obj);
 }
+
+
+
 
 void send_character_pos(int x, int y) {
     json_object *obj = json_object_new_object();
@@ -438,6 +442,42 @@ boolean screen_change = TRUE;
 void set_screen_change(boolean flag){
     screen_change = flag;
 }
+
+void send_start_sharp_input(char * query){
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("start_sharp_input"));
+    json_object_object_add(obj, "query", json_object_new_string(query));
+    add_send_queue(obj);
+}
+
+void send_sharp_input(char c){
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("sharp_input"));
+    json_object_object_add(obj, "c", json_object_new_int(c));
+    add_send_queue(obj);
+}
+
+void send_close_sharp_input(){
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("close_sharp_input"));
+    add_send_queue(obj);
+}
+
+void send_text(char * text){
+    if(screen_change){
+    bool is_inited = init_current_data("text");
+
+    json_object * data = json_object_object_get(current_data, "list");
+    if(data == NULL) {
+        data = json_object_new_array();
+        json_object_object_add(current_data, "list", data);
+    }
+
+    json_object_array_add(data, json_object_new_string(text));
+    }
+}
+
+
 
 void send_clear_tile() {
     if(screen_change){

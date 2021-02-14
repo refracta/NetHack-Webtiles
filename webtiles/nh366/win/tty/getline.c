@@ -54,6 +54,8 @@ getlin_hook_proc hook;
     #if defined(WEBTILES_DEBUG)
     send_debug("void hooked_tty_getlin(query:%s, bufp:%s, hook:?)", stringify(query), stringify(bufp));
     #endif
+    set_screen_change(FALSE);
+
     register char *obufp = bufp;
     register int c;
     struct WinDesc *cw = wins[WIN_MESSAGE];
@@ -76,12 +78,12 @@ getlin_hook_proc hook;
     /* !EDIT_GETLIN: bufp is output only; init it to empty */
     *bufp = '\0';
 #endif
-    send_debug("{type:\"startInput\", query:\"%s\"}", stringify(query));
+    send_start_sharp_input(query);
     for (;;) {
         (void) fflush(stdout);
         Strcat(strcat(strcpy(toplines, query), " "), obufp);
         c = pgetchar();
-        send_debug("{type:\"key\", c:\"%c\", d:%d}", c, c);
+        send_sharp_input(c);
         if (c == '\033' || c == EOF) {
             if (c == '\033' && obufp[0] != '\0') {
                 obufp[0] = '\0';
@@ -201,8 +203,8 @@ getlin_hook_proc hook;
         } else
             tty_nhbell();
     }
-
-    send_debug("{type:\"endInput\"}");
+    set_screen_change(TRUE);
+    send_close_sharp_input();
     ttyDisplay->toplin = 2; /* nonempty, no --More-- required */
     ttyDisplay->inread--;
     clear_nhwindow(WIN_MESSAGE); /* clean up after ourselves */

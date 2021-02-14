@@ -32,6 +32,19 @@ class WSHandler {
                 }
             }
         }
+
+        this.callback['travel'] = (data, info) => {
+            if (!info.isLogin) {
+                return;
+            }
+            let roomInfo = this.getGameRoomByUsername(info.username);
+            if (roomInfo && roomInfo.udsInfo) {
+                    if(typeof data.i === 'number'){
+                        this.udsSender.data({msg:'travel', i: data.i}, [roomInfo.udsInfo]);
+                    }
+                }
+        }
+
         this.callback['register'] = (data, info) => {
             console.log('Register request:', data);
             if (this.db.isRegistered(data.username)) {

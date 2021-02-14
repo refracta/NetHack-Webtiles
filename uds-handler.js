@@ -56,7 +56,8 @@ class UDSHandler {
             info.room ? info.room.playData.tile = {} : void 0;
             info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
         }
-        this.callback['inventory'] = this.callback['more'] = this.callback['close_more'] = this.callback['large_text'] = this.callback['close_large_text'] = (data, info) => {
+
+        this.callback['close_sharp_input'] = this.callback['start_sharp_input'] = this.callback['sharp_input'] = this.callback['inventory'] = this.callback['more'] = this.callback['close_more'] = this.callback['large_text'] = this.callback['close_large_text'] = (data, info) => {
             info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
         }
     }
