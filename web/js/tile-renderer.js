@@ -107,8 +107,6 @@ class TileRenderer {
             "version": 1,
             "tiledversion": "1.0.3",
         });
-
-        this.initEnd = true;
     }
 
     create(phaser) {
@@ -156,6 +154,8 @@ class TileRenderer {
 
         }, this);
         this.setMarkerColor(1);
+        this.initEnd = true;
+
         window.R = this;
     }
 
@@ -233,7 +233,7 @@ class TileRenderer {
             hiliteInfo.image.x = this.tileConfig.tileWidth * (x + 0.6);
             hiliteInfo.image.y = this.tileConfig.tileHeight * (y + 0.1);
             hiliteInfo.f = data.f;
-            this.H = hiliteInfo;
+            // this.H = hiliteInfo;
         }
     }
 
@@ -246,12 +246,17 @@ class TileRenderer {
 
     clearTile() {
         this.camera.fadeIn(500);
-        this.hiliteMap = {};
         for (let x = 0; x < this.tileConfig.maxWidth; x++) {
             for (let y = 0; y < this.tileConfig.maxHeight; y++) {
                 this.map.putTileAt(0, x, y);
+                let hiliteInfo = this.hiliteMap[to2DIndex(x, y)];
+                if(hiliteInfo && hiliteInfo.image){
+                    hiliteInfo.image.destroy();
+                    this.hiliteMap[data.i] = {};
+                }
             }
         }
+        this.hiliteMap = {};
     }
 
     init() {
