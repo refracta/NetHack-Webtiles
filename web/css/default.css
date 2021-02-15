@@ -546,10 +546,22 @@ padding-right: 30%;
 
 
 .menu {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 50%;
+  min-width: 50%;
   color: white;
   background-color: black;
-  width: fit-content;
   border: 3px solid gold;
+  padding: 10px;
+}
+
+#ui-menu .ui-popup-inner{
+  width: 100%;
+}
+#ui-menu .body.fg7{
+  width: 100%;
 }
 
 .menu-header {

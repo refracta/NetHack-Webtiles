@@ -602,7 +602,7 @@ class GameUIHandler {
       $('#popup-content').text(text);
       $('#popup-content').scrollTop(0);
       // document.getElementById('popup-content').innerHTML = text;
-      document.getElementById('ui-popup').style.display = "block";
+      $('#ui-popup').show();
     }
 
     closePopup(){
@@ -610,8 +610,8 @@ class GameUIHandler {
       document.getElementById('ui-popup').style.display = "none";
     }
 
-    createMenu(_json) {
-      const groupedByMenuName = _json.reduce((acc, cur) => {
+    createMenu(menuData) {
+      const groupedByMenuName = menuData.reduce((acc, cur) => {
         // menuName이 없으면 스킵
         if (!cur.hasOwnProperty("menuName")) return acc;
         if (!acc.hasOwnProperty(cur.menuName)) acc[cur.menuName] = [];
@@ -619,56 +619,63 @@ class GameUIHandler {
         return acc;
       }, {});
   
-      const menu = document.getElementById("menu");
+      const $menu = $('#menu');
   
       // 메뉴만들기
-      const menuHeader = document.createElement("div");
-      menuHeader.className = "menu-header";
-      menuHeader.innerHTML = _json[_json.map((e) => e.type).indexOf("text")].text;
-      menu.appendChild(menuHeader);
+      const $menuHeader = $("<div/>").attr({
+            "class" : "menu-header"
+          });
+      $menuHeader.text(menuData[menuData.map((e) => e.type).indexOf("text")].text);
+      $menu.append($menuHeader);
   
       // 각 아이템 만들기
       for (let key in groupedByMenuName) {
-        console.log(key);
-        const itemHeader = document.createElement("div");
-        itemHeader.className = "item-header";
-        itemHeader.innerHTML = key;
-  
-        menu.appendChild(itemHeader);
-  
+        const $itemHeader = $("<div/>").attr({
+            "class" : "item-header"
+          }).text(key);
+          $menu.append($itemHeader);
         groupedByMenuName[key].forEach((elem) => {
-          const item = document.createElement("div");
-          item.className = "item";
+
+          const $item = $("<div/>").attr({
+            "class" : "item"
+          });
   
           // 아이템 key
-          const itemKey = document.createElement("span");
-          itemKey.className = "item-key item-col";
-          itemKey.innerHTML = elem.elements[0].key;
+          const $itemKey = $("<span/>").attr({
+            "class" : "item-key item-col"
+          }).html(elem.elements[0].key);
   
+          console.log($itemKey);
+
           // 아이템 타일
-          const itemTile = document.createElement("canvas");
-          itemTile.className = "item-tile item-col";
-          draw(itemTile, 4, 2);
+
+          const $itemTile = $("<canvas/>").attr({
+            "class" : "item-tile item-col"
+          })
+          
+          draw($itemTile[0],4,2);
   
           //아이템 텍스트
-          const itemText = document.createElement("span");
-          itemText.className = "item-text item-col";
-          itemText.innerHTML = elem.elements[0].text;
-  
-          item.insertAdjacentElement("beforeend", itemKey);
-          item.insertAdjacentElement("beforeend", itemTile);
-          item.insertAdjacentElement("beforeend", itemText);
-  
-          menu.appendChild(item);
+          const $itemText = $("<span/>").attr({
+            "class" : "item-text item-col"
+          }).html(elem.elements[0].text);
+          $item.append($itemKey).append($itemTile).append($itemText);
+          $menu.append($item);
         });
       }
+      $('#ui-menu').show();
     }
 
+    closeMenu() {
+      const $menu = $('#menu');
+      $menu.html('');
+      $('#ui-menu').hide();
+    }
 
     draw(canvas, x, y) {
       const image = new Image();
       const ctx = canvas.getContext("2d");
-      image.src = "./default.png";
+      image.src = "./tileset/nh366/Nevanda-32x32-Raw.png";
       const w = 32;
   
       ctx.canvas.width = w;
@@ -678,9 +685,7 @@ class GameUIHandler {
       });
     }
   
-    toggleMenu() {
-      $("#ui-menu").toggle();
-    }
+
 
 }
 
