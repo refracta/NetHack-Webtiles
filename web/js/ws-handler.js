@@ -149,12 +149,14 @@ class WSHandler {
                 queue.forEach(d => this.handle(d));
             }, 1000);
         }
+        this.callback['debug'] = (data) => {
+            console.log('DebugMsg:', data.debug);
+        }
 
         this.callback['init_game'] = (data) => {
             this.deferMode = true;
             setTimeout(async _ => {
                 await this.gameUIHandler.waitTileRendererInit();
-
                 let queue = this.deferQueue;
                 this.deferQueue = [];
                 this.deferMode = false;
@@ -169,7 +171,6 @@ class WSHandler {
                 if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
                     this.gameUIHandler.applyFontPatch();
                 }
-
                 queue.forEach(d => this.handle(d));
                 this.gameUIHandler.initKeyHandler();
             }, 1000);
