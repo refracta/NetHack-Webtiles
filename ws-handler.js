@@ -7,7 +7,7 @@ const Utils = require('./utils.js');
 
 window = {};
 const Terminal = require('xterm').Terminal;
-const SerializeAddon = require('xterm-addon-serialize').SerializeAddon;this.mapOutline.strokeRect
+const SerializeAddon = require('xterm-addon-serialize').SerializeAddon;
 
 
 class WSHandler {
