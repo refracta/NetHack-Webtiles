@@ -10,31 +10,34 @@ jobs:
 
       - name: Install prerequisite
         run: sh dev/install-prerequisite-debian.sh
-        
+
       - name: Install JSON-C
         run: sh dev/install-jsonc.sh
-        
+
       - name: Install NetHack source
         run: sh dev/install-nethack-source.sh
-        
+
       - name: Build NetHack 3.6.6
-        run: cd sources/nh366 && sh build.sh  
-        
+        run: cd sources/nh366 && sh build.sh
+
       - name: Install node dependency
         run: sh dev/install-node-dependency.sh
 
       - name: Set up debug environment
         run: sh dev/setting-debug1.sh
-        
+
       - name: Install Chrome & Selenium
-        run: cd dev/ && sh setting-fast-launch.sh 
-        
+        run: cd dev/ && sh setting-fast-launch.sh
+
       - name: Launch NetHack webtiles
         run: (PORT=8080 npm start&)
 
       - name: Take screenshot
-        run: node dev/launch-headless.js && (if test -f game-launch.png ; then exit 1; fi)
-        
+        run: node dev/launch-headless.js
+
+      - name: Check screenshot
+        run: if test ! -f game-launch.png ; then exit 1; fi
+
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
