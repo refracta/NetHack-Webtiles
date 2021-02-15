@@ -33,7 +33,7 @@ jobs:
         run: (PORT=8080 npm start&)
 
       - name: Take screenshot
-        run: node dev/launch-headless.js
+        run: node dev/launch-headless.js && (if test -f game-launch.png ; then exit 1; fi)
         
       - name: Upload artifact
         uses: actions/upload-artifact@v2
