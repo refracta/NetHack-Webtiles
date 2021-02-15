@@ -5,6 +5,11 @@ class UDSHandler {
 
         this.callback['init_game'] = (data, info) => {
             let roomInfo = this.wsHandler.getGameRoomByUsername(data.username);
+            if(roomInfo && roomInfo.udsInfo){
+                // TODO
+                // if webtiles, this case => close self
+                // if tty, this case => close webtiles, run tty play
+            }
             if (roomInfo) {
                 this.wsSender.initGame(roomInfo.webRC, [roomInfo.player]);
                 info.closeHandler = (info) => {

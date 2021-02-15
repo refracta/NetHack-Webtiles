@@ -1039,6 +1039,7 @@ tty_player_selection()
 
     /* Success! */
     tty_display_nhwindow(BASE_WINDOW, FALSE);
+    set_force_exit(FALSE);
     return;
 
  give_up:
@@ -1047,6 +1048,7 @@ tty_player_selection()
         free((genericptr_t) selected); /* [obsolete] */
     bail((char *) 0);
     /*NOTREACHED*/
+    set_force_exit(FALSE);
     return;
 }
 

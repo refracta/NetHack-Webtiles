@@ -287,6 +287,7 @@ char *argv[];
      * clock, &c not currently in use in the playground directory
      * (for locknum > 0).
      */
+    set_force_exit(TRUE);
     if (*plname) {
         char init_game[8192];
         sprintf(init_game, "{\"msg\":\"init_game\",\"username\":\"%s\"}", plname);
@@ -316,6 +317,7 @@ char *argv[];
         }
 #endif
         // pline("Restoring save file...");
+        set_force_exit(FALSE);
         mark_synch(); /* flush output */
         if (dorecover(fd)) {
             resuming = TRUE; /* not starting new game */

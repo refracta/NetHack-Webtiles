@@ -56,9 +56,36 @@ void die(char *errmsg) {
     exit(1);
 }
 
+boolean exit_mode = FALSE;
+
+int get_exit_mode(){
+    return exit_mode;
+}
+
+void send_debug(char *format, ...);
+
+boolean force_exit = FALSE;
+
+int get_force_exit(){
+    return force_exit;
+}
+
+void set_force_exit(boolean exit){
+    force_exit = exit;
+}
+
 void exit_with_save() {
-    dosave0();
-    nh_terminate(EXIT_SUCCESS);
+    if(force_exit){
+        clearlocks();
+        nh_terminate(EXIT_SUCCESS);
+    }else{
+        exit_mode = TRUE;
+        for(int i = 0; i < 10; i++){
+            if(dosave0()){
+                nh_terminate(EXIT_SUCCESS);
+            }
+        }
+    }
 }
 
 /* RAW UDS SOCKET */
