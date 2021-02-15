@@ -192,13 +192,11 @@ class WSHandler {
                     return;
                 }
                 // TODO 현재 플레이 중이면 해당 게임 종료 요청 보내야함
-
-                this.sender.debug(`You are over It`,[info]);
                 let sessionInfo = this.getSessionBySessionKey(info.sessionKey);
                 let config = this.getUserGameConfigWithInit(gameInfo, sessionInfo);
-		let rcText = this.getRCText(config.rcPath, config.defaultRCPath);
-		let webRC = this.parseWebRCData(rcText);
-		this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, webRC, info);
+                let rcText = this.getRCText(config.rcPath, config.defaultRCPath);
+                let webRC = this.parseWebRCData(rcText);
+                this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, webRC, info);
 		    
                 let ptyProcess = pty.spawn('/bin/bash', [], {
                     name: 'xterm-color',
@@ -215,9 +213,9 @@ class WSHandler {
                     terminal.write(data);
                     this.sender.terminal(data, [roomInfo.player, ...roomInfo.watchers]);
                 });
-		ptyProcess.onExit((e) => {
-		    console.log(info.username + '\'s process is closed.');
-		});
+                ptyProcess.onExit((e) => {
+                    console.log(info.username + '\'s process is closed.');
+                });
                 ptyProcess.write('\r');
                 console.log(config.cmd.nethackWithTTYREC);
                 console.log(info.username);
@@ -282,7 +280,7 @@ class WSHandler {
 		} catch (e){	
 			
 		}    
-                this.sender.setTile(tileFilePath, tileDataPath, tileData, [info]);    
+        this.sender.setTile(tileFilePath, tileDataPath, tileData, [info]);
     }
 
     handle(data, info) {
