@@ -249,10 +249,11 @@ class TileRenderer {
         for (let x = 0; x < this.tileConfig.maxWidth; x++) {
             for (let y = 0; y < this.tileConfig.maxHeight; y++) {
                 this.map.putTileAt(0, x, y);
-                let hiliteInfo = this.hiliteMap[to2DIndex(x, y)];
+                let i = to2DIndex(x, y);
+                let hiliteInfo = this.hiliteMap[i];
                 if(hiliteInfo && hiliteInfo.image){
                     hiliteInfo.image.destroy();
-                    this.hiliteMap[data.i] = {};
+                    this.hiliteMap[i] = {};
                 }
             }
         }
