@@ -615,7 +615,9 @@ xputs(s)
 const char *s;
 {
     #if defined(WEBTILES_DEBUG)
-    send_debug("void xputs(s:%s)", stringify(s));
+        if(s!=NULL){
+            send_debug("void xputs(s:%s)", stringify(s));
+        }
     #endif
 #ifndef TERMLIB
     (void) fputs(s, stdout);

@@ -27,6 +27,10 @@ class WSSender {
         this.server.sendToList({msg: 'update_watcher', userList, numberOfWatchers}, socketInfoList);
     }
 
+    debug(message, socketInfoList) {
+        this.server.sendToList({msg: 'debug', debug: message}, socketInfoList);
+    }
+
     chatMsg(username, text, isPublic, socketInfoList){
         this.server.sendToList({msg: 'chat_msg', username, text, isPublic}, socketInfoList);
     }
@@ -50,7 +54,6 @@ class WSSender {
     loginSuccess(username, sessionKey, socketInfoList) {
         this.server.sendToList({msg: 'login_success', username, sessionKey}, socketInfoList);
     }
-
 
     gameMenu(games, socketInfoList) {
         this.server.sendToList({msg: 'game_menu', games}, socketInfoList);

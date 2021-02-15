@@ -17,7 +17,7 @@ class WSHandler {
         this.gameRoomMap = {};
         this.sessions = {};
         this.callback['key'] = (data, info) => {
-            if (!info.isLogin) {
+            if (!info.isLogin || info.status !== 'play') {
                 return;
             }
             let roomInfo = this.getGameRoomByUsername(info.username);
@@ -34,7 +34,7 @@ class WSHandler {
         }
 
         this.callback['travel'] = (data, info) => {
-            if (!info.isLogin) {
+            if (!info.isLogin || info.status !== 'play') {
                 return;
             }
             let roomInfo = this.getGameRoomByUsername(info.username);
@@ -174,15 +174,26 @@ class WSHandler {
                     info.forcePlayHandle = false;
                 }
                 if (prevRoomInfo) {
+                    if(!prevRoomInfo.udsInfo){
+                        this.toLobby([info]);
+                    }
                     info.forcePlayHandle = true;
                     prevRoomInfo.closeHandler = (roomInfo) => {
                         this.callback['play'](data, info);
                     }
                     this.udsSender.close([prevRoomInfo.udsInfo]);
                     this.sender.gameCloseWait([info]);
+                    setTimeout(_ => {
+                        let roomInfo = this.getGameRoomByUsername(info.username);
+                        if(!roomInfo || (roomInfo && roomInfo.player != info)){
+                            this.toLobby([info]);
+                        }
+                    }, 1000 * 10);
                     return;
                 }
                 // TODO 현재 플레이 중이면 해당 게임 종료 요청 보내야함
+
+                this.sender.debug(`You are over It`,[info]);
                 let sessionInfo = this.getSessionBySessionKey(info.sessionKey);
                 let config = this.getUserGameConfigWithInit(gameInfo, sessionInfo);
 		let rcText = this.getRCText(config.rcPath, config.defaultRCPath);
@@ -398,7 +409,7 @@ class WSHandler {
         this.server.closeHandler = this.server.errorHandler = ((info) => {
             if (info.status === 'play') {
                 let roomInfo = this.getGameRoomByUsername(info.username);
-                if(roomInfo.udsInfo){
+                if(roomInfo && roomInfo.udsInfo){
                     this.udsSender.close([roomInfo.udsInfo]);
                 }
             } else if (info.status === 'watch') {
