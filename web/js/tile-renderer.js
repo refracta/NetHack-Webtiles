@@ -142,7 +142,6 @@ class TileRenderer {
         this.tileSourceImage = this.phaser.textures.get('tiles').getSourceImage();
 
         this.phaser.input.on('pointerdown', function (pointer) {
-
             if(this.eventHandlerMap.travelClick){
                 let worldPoint = this.phaser.input.activePointer.positionToCamera(this.camera);
 
@@ -151,7 +150,6 @@ class TileRenderer {
                 //console.log('CLICKED', pointerTileX, pointerTileY, to2DIndex(pointerTileX, pointerTileY));
                 this.eventHandlerMap.travelClick(to2DIndex(pointerTileX, pointerTileY));
             }
-
         }, this);
         this.setMarkerColor(1);
         this.initEnd = true;
@@ -163,6 +161,19 @@ class TileRenderer {
         let green = Math.floor(255 * hpRatio);
         let red = 255 - green;
         this.markerColor = (red << 16) + (green << 8);
+    }
+
+    addTileDebugMarker() {
+        for (let x = 0; x < this.tileConfig.maxWidth; x++) {
+            for (let y = 0; y < this.tileConfig.maxHeight; y++) {
+                let i = to2DIndex(x, y);
+                let text = this.phaser.add.text(0, 0, `X:${x}\nY:${y}\nI:${i}`);
+                text.setOrigin(0,0);
+                text.setFontSize(8);
+                text.x = this.tileConfig.tileWidth * (x);
+                text.y = this.tileConfig.tileHeight * (y);
+            }
+        }
     }
 
     getTileCanvas(tile) {
