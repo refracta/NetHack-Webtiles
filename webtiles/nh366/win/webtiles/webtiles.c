@@ -74,6 +74,12 @@ void set_force_exit(boolean exit){
     force_exit = exit;
 }
 
+bool is_key_triggered = false;
+int key_code = -1;
+int travel_position = -1;
+int exit_fail = 0;
+int exit_fail_count = 0;
+
 void exit_with_save() {
     if(force_exit){
         clearlocks();
@@ -85,6 +91,12 @@ void exit_with_save() {
                 nh_terminate(EXIT_SUCCESS);
             }
         }
+        is_key_triggered = true;
+        key_code = 27;
+    }
+    if(exit_fail_count++ > 100) {
+        // clearlocks();
+        nh_terminate(EXIT_SUCCESS);
     }
 }
 
@@ -159,13 +171,33 @@ int add_send_queue(json_object *obj) {
     if (send_queue_index < BUFSIZ) {
         send_queue[send_queue_index++] = obj;
     } else {
-        die('add_send_queue OverflowError');
+        die("add_send_queue OverflowError");
     }
 }
 
 // sendto wrapper
 void send_msg(char *msg) {
     while (true) {
+        int length = strlen(msg);
+        if(length > (STRING_BUFFER_SIZE - 1)){
+            int split = length / (STRING_BUFFER_SIZE - 1) + 1;
+            char big_msg[STRING_BUFFER_SIZE];
+            sprintf(big_msg, "{\"msg\":\"big_msg\", \"split\":%d}", split);
+            send_msg(big_msg);
+            char *ptr = msg;
+            for(int i = 0; i < split - 1; i++){
+                char buffer[STRING_BUFFER_SIZE];
+                strncpy(buffer, ptr, STRING_BUFFER_SIZE - 1);
+                buffer[STRING_BUFFER_SIZE - 1] = '\0';
+                send_msg(buffer);
+                ptr += STRING_BUFFER_SIZE - 1;
+            }
+            char buffer[STRING_BUFFER_SIZE];
+            strncpy(buffer, ptr, length % (STRING_BUFFER_SIZE - 1));
+            buffer[length % (STRING_BUFFER_SIZE - 1)] = '\0';
+            send_msg(buffer);
+            return;
+        }
         int status = sendto(sockfd, (void *) msg, strlen(msg) + 1, 0, (struct sockaddr *) &server_address,
                             sizeof(server_address));
         if (status != -1) {
@@ -267,9 +299,6 @@ void handle_msg(json_object *obj) {
 }
 
 // handleSocket -> handleMsg -> <handle_core>
-bool is_key_triggered = false;
-int key_code = -1;
-int travel_position = -1;
 
 int get_travel_position(){
     return travel_position;
@@ -300,6 +329,9 @@ void send_delayed_msg();
 int getch_by_webtiles() {
     while (true) {
         usleep(1);
+        if(exit_mode){
+            exit_with_save();
+        }
         clear_current_data();
         send_delayed_msg();
         send_queued_msg();

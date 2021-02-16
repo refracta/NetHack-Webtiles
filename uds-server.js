@@ -29,6 +29,20 @@ class UDSServer {
 
         this.socket.on('message', (message, socketInfo) => {
             message = message.toString(UnixDgramSocket.payloadEncoding).substring(0, message.indexOf('\0'));
+
+            let path = socketInfo.remoteSocket;
+            let info = this.connectionInfoMap[path];
+
+            if(info && info.bigMsgInfo && info.bigMsgInfo.split > info.bigMsgInfo.receiveCount){
+                info.bigMsgInfo.message += message;
+                if(info.bigMsgInfo.split > ++info.bigMsgInfo.receiveCount){
+                    return;
+                }else{
+                    message = info.bigMsgInfo.message;
+                    delete info.bigMsgInfo;
+                }
+            }
+
             let data;
             try {
                 data = JSON.parse(message);
@@ -36,8 +50,8 @@ class UDSServer {
                 console.error('Error JSON Parsing:', message.length, message);
                 return;
             }
-            let path = socketInfo.remoteSocket;
-            let info = this.connectionInfoMap[path];
+
+
 
             if (!info && data.msg === 'init_socket') {
                 console.log('InitSocket:', path);
@@ -80,6 +94,10 @@ class UDSServer {
                     }, info);
                 } else if (data.msg === 'pong') {
                     //console.log(`Pong from ${path}`);
+                } else if (data.msg === 'big_msg') {
+                    info.bigMsgInfo = data;
+                    info.bigMsgInfo.receiveCount = 0;
+                    info.bigMsgInfo.message = '';
                 } else if (data.msg === 'queued_msg') {
                     if (this.handler) {
                         data.list.forEach(d => {
@@ -162,7 +180,6 @@ class UDSServer {
                 pathInfo.deferQueue = [data];
                 this.clearError(pathInfo);
                 pathInfo.errorCount++;
-
                 let retryInterval = setInterval(_ => {
                     if (pathInfo.errorCount > DEFAULT_RETRY_LIMIT) {
                         console.error(`Out of Retry Limit!`);
