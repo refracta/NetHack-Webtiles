@@ -198,22 +198,19 @@ class TileRenderer {
         this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
         this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
 
+        this.marker.clear();
         this.marker.lineStyle(1, this.markerColor, 1);
         this.marker.strokeRect(0, 0, this.tileConfig.tileWidth, this.tileConfig.tileHeight);
         this.marker.x = this.map.tileToWorldX(this.cursorX);
         this.marker.y = this.map.tileToWorldY(this.cursorY);
-
 
         let worldPoint = this.phaser.input.activePointer.positionToCamera(this.camera);
 
         let pointerTileX = this.map.worldToTileX(worldPoint.x);
         let pointerTileY = this.map.worldToTileY(worldPoint.y);
 
-
-
         this.cursorMarker.x = this.map.tileToWorldX(pointerTileX);
         this.cursorMarker.y = this.map.tileToWorldY(pointerTileY);
-
     }
 
     drawTileByData(data) {
