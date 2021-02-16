@@ -396,6 +396,7 @@ void send_tile(int x, int y, int t) {
     }
 
     json_object_object_add(tile_data, "t", json_object_new_int(t));
+    json_object_object_del(tile_data, "f");
 }
 
 void send_tile_flag(int x, int y, char *f) {
