@@ -269,6 +269,10 @@ class WSHandler {
             }
         }
 
+        this.callback['ping'] = (data, info) => {
+            this.sender.pong([info]);
+        }
+
     }
     setTileWithWebRC(defaultTilePath, webRC, info){
 	    let tileName = webRC.DEFAULT_TILE_NAME ? webRC.DEFAULT_TILE_NAME : 'default';

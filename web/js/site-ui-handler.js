@@ -38,6 +38,9 @@ class SiteUIHandler {
     publicChat(username, text){
         this.system_chat('§'  + username, text);
     }
+    updateLatency(){
+        $('#latency-info').text(`${new Date().getTime() - this.requestPingTime}MS`);
+    }
 
     showEditRCModal(show) {
         if (show) {
@@ -342,6 +345,13 @@ class SiteUIHandler {
         return true;
     }
 
+    sendPing(force){
+        if(this.status ==='lobby' || force){
+            this.requestPingTime = new Date().getTime();
+            this.sender.ping();
+        }
+    }
+
     init() {
         $("#archive-link").attr('href', this.config.archiveURL);
         $("#chat_caption").bind("click", this.toggle);
@@ -374,7 +384,14 @@ class SiteUIHandler {
             }
         }, 1000);
 
+        this.pingIntervalKey = setInterval(this.sendPing.bind(this), 1000 * 3);
     }
+
+    clearPingInterval(){
+        clearInterval(this.pingIntervalKey);
+    }
+
+
     setCurrentStatus(status, data){
         this.status = status;
         if(status === 'lobby'){
@@ -385,6 +402,7 @@ class SiteUIHandler {
             location.hash = `watch-${data}`;
         }
     }
+
 }
 
 export default SiteUIHandler;
