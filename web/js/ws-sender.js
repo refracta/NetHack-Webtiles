@@ -39,6 +39,10 @@ class WSSender {
         this.client.send({msg: 'watch', username});
     }
 
+    ping() {
+        this.client.send({msg: 'ping'});
+    }
+
     lobby() {
         this.client.send({msg: 'lobby'});
     }

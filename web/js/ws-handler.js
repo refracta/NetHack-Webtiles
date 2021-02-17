@@ -248,6 +248,10 @@ class WSHandler {
             this.gameUIHandler.renderInventory(data.items);
         }
 
+        this.callback['pong'] = (data) => {
+            this.siteUIHandler.updateLatency();
+        }
+
         this.callback['chat_msg'] = (data) => {
             data.isPublic ? this.siteUIHandler.publicChat(data.username, data.text) : this.siteUIHandler.roomChat(data.username, data.text);
         }
@@ -262,8 +266,8 @@ class WSHandler {
     }
 
     init() {
-
         this.client.socket.onopen = (event) => {
+            this.siteUIHandler.sendPing(true);
             if (this.siteUIHandler.getLocalSessionKey()) {
                 this.sender.loginBySessionKey(this.siteUIHandler.getLocalSessionKey());
             }
@@ -305,6 +309,7 @@ class WSHandler {
             this.siteUIHandler.showMenu1(true);
             this.siteUIHandler.showMenu2(false);
             this.siteUIHandler.clearLoading();
+            this.siteUIHandler.clearPingInterval();
             this.siteUIHandler.setSubInfo('Socket Error!!! Plz Refresh Page...');
 
             this.gameUIHandler.showTileContent(false);
