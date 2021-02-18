@@ -543,3 +543,45 @@ padding-right: 30%;
 #game .ui-popup-inner .bg0 {
   background-color: transparent;
 }
+
+
+.menu {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 50%;
+  min-width: 50%;
+  color: white;
+  background-color: black;
+  border: 3px solid gold;
+  padding: 10px;
+}
+
+#ui-menu .ui-popup-inner{
+  width: 100%;
+}
+#ui-menu .body.fg7{
+  width: 100%;
+}
+
+.menu-header {
+  margin-bottom: 20px;
+}
+
+.item-key {
+  color: greenyellow;
+}
+.item-col {
+  margin-right: 20px;
+}
+
+.item-text {
+  color: greenyellow;
+}
+
+.item-header {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  color: #2198e7;
+  background-color: white;
+}

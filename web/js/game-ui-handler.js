@@ -602,13 +602,89 @@ class GameUIHandler {
       $('#popup-content').text(text);
       $('#popup-content').scrollTop(0);
       // document.getElementById('popup-content').innerHTML = text;
-      document.getElementById('ui-popup').style.display = "block";
+      $('#ui-popup').show();
     }
 
     closePopup(){
       const popup = document.getElementById('ui-popup');
       document.getElementById('ui-popup').style.display = "none";
     }
+
+    createMenu(menuData) {
+      const groupedByMenuName = menuData.reduce((acc, cur) => {
+        // menuName이 없으면 스킵
+        if (!cur.hasOwnProperty("menuName")) return acc;
+        if (!acc.hasOwnProperty(cur.menuName)) acc[cur.menuName] = [];
+        acc[cur.menuName].push(cur);
+        return acc;
+      }, {});
+  
+      const $menu = $('#menu');
+  
+      // 메뉴만들기
+      const $menuHeader = $("<div/>").attr({
+            "class" : "menu-header"
+          });
+      $menuHeader.text(menuData[menuData.map((e) => e.type).indexOf("text")].text);
+      $menu.append($menuHeader);
+  
+      // 각 아이템 만들기
+      for (let key in groupedByMenuName) {
+        const $itemHeader = $("<div/>").attr({
+            "class" : "item-header"
+          }).text(key);
+          $menu.append($itemHeader);
+        groupedByMenuName[key].forEach((elem) => {
+
+          const $item = $("<div/>").attr({
+            "class" : "item"
+          });
+  
+          // 아이템 key
+          const $itemKey = $("<span/>").attr({
+            "class" : "item-key item-col"
+          }).html(elem.elements[0].key);
+  
+          console.log($itemKey);
+
+          // 아이템 타일
+
+          const $itemTile = $("<canvas/>").attr({
+            "class" : "item-tile item-col"
+          })
+          
+          draw($itemTile[0],4,2);
+  
+          //아이템 텍스트
+          const $itemText = $("<span/>").attr({
+            "class" : "item-text item-col"
+          }).html(elem.elements[0].text);
+          $item.append($itemKey).append($itemTile).append($itemText);
+          $menu.append($item);
+        });
+      }
+      $('#ui-menu').show();
+    }
+
+    closeMenu() {
+      const $menu = $('#menu');
+      $menu.html('');
+      $('#ui-menu').hide();
+    }
+
+    draw(canvas, x, y) {
+      const image = new Image();
+      const ctx = canvas.getContext("2d");
+      image.src = "./tileset/nh366/Nevanda-32x32-Raw.png";
+      const w = 32;
+  
+      ctx.canvas.width = w;
+      ctx.canvas.height = w;
+      return (image.onload = function () {
+        ctx.drawImage(image, x * 32, y * 32, w, w, 0, 0, w, w);
+      });
+    }
+  
 
 
 }
