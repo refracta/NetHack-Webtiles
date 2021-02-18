@@ -112,7 +112,13 @@ class WSHandler {
             this.siteUIHandler.setCurrentStatus('watch', data.username);
             this.siteUIHandler.setLoading("Loading...");
         }
-
+        this.callback['menu_item'] = (data, info) =>{
+            console.log(data);
+            this.gameUIHandler.createMenu(data.list);
+        }
+        this.callback['close_menu_item'] = (data, info) =>{
+            this.gameUIHandler.closeMenu();
+        }
 
         this.callback['init_watch'] = (data) => {
             this.deferMode = true;
