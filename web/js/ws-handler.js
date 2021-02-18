@@ -139,16 +139,19 @@ class WSHandler {
                     this.gameUIHandler.setCursor(0);
                 }
                 // console.log('status', data.playData.status);
-                this.gameUIHandler.update_status(data.playData.status);
-
+                if(data.playData.status){
+                    this.gameUIHandler.update_status(data.playData.status);
+                }
                 if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
                     this.gameUIHandler.applyFontPatch();
                 }
-                
-                queue = [{msg: 'text', list: data.playData.text}, ...queue];
+                if(data.playData.text){
+                    this.gameUIHandler.addText(data.playData.text);
+                }
                 queue.forEach(d => this.handle(d));
             }, 1000);
         }
+
         this.callback['debug'] = (data) => {
             console.log('DebugMsg:', data.debug);
         }
@@ -221,7 +224,6 @@ class WSHandler {
             }*/
 
             this.gameUIHandler.addText(data.list);
-            this.gameUIHandler.resizeMessageContent();
         }
 
         this.callback['update_watcher'] = (data) => {
