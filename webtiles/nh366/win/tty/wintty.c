@@ -1654,6 +1654,9 @@ boolean free_data;
             cw->mlist = temp->next;
             if (temp->str)
                 free((genericptr_t) temp->str);
+            if (temp->o_str){
+                free((genericptr_t) temp->o_str);
+            }
             free((genericptr_t) temp);
         }
     }
@@ -1967,7 +1970,8 @@ struct WinDesc *cw;
 
     tty_menu_item *currentItem;
     for(currentItem = cw->mlist; currentItem; currentItem = currentItem->next){
-        // sendDebug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, text:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), currentItem->a_string);
+         // send_debug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, o_str:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), stringify(currentItem->o_str));
+         send_menu_item(currentItem);
     }
 
     /* collect group accelerators; for PICK_NONE, they're ignored;
@@ -3097,6 +3101,9 @@ winid window;
     return;
 }
 
+#ifdef USE_TILES
+extern short glyph2tile[];
+#endif
 /*ARGSUSED*/
 /*
  * Add a menu item to the beginning of the menu list.  This list is reversed
@@ -3114,7 +3121,7 @@ const char *str;            /* menu string */
 boolean preselected;        /* item is marked as selected */
 {
     #if defined(WEBTILES_DEBUG)
-    send_debug("void tty_add_menu(window:%d, glyph:%d, anything:?, ch:%c, gch:%c, attr:%d, str:%s, preselected:%d)", window, glyph, ch, gch, attr, stringify(str), preselected);
+    send_debug("void tty_add_menu(window:%d, glyph:%d, anything:?, ch:%d, gch:%d, attr:%d, str:%s, preselected:%d)", window, glyph, ch, gch, attr, stringify(str), preselected);
     #endif
     register struct WinDesc *cw = 0;
     tty_menu_item *item;
@@ -3154,8 +3161,9 @@ boolean preselected;        /* item is marked as selected */
     item->gselector = gch;
     item->attr = attr;
     item->str = dupstr(newstr ? newstr : "");
-
+    item->o_str = dupstr(str ? str : "");
     item->next = cw->mlist;
+    item->tile = glyph2tile[glyph];
     cw->mlist = item;
 }
 
@@ -3673,7 +3681,7 @@ int bkglyph UNUSED;
      */
     // sendTile(x, y, glyph2tile[glyph]);
      send_tile(x, y, glyph2tile[glyph]);
-     // send_debug("UPDATE_TILE (%d, %d, #%d)", x, y, glyph2tile[glyph]);
+     send_debug("UPDATE_TILE (%d, %d, #%d)", x, y, glyph2tile[glyph]);
     #endif
 
 #ifndef NO_TERMS

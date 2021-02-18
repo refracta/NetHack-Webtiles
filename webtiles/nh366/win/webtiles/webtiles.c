@@ -19,6 +19,7 @@
 #include <json-c/json.h>
 
 #include "hack.h"
+#include "wintty.h"
 
 #define STRING_BUFFER_SIZE 131072
 #define STRING_BUFFER_SIZE_HALF 65536
@@ -454,6 +455,38 @@ void send_tile_flag(int x, int y, char *f) {
     json_object_object_add(tile_data, "f", json_object_new_string(f));
 }
 
+void send_menu_item(tty_menu_item *menu_item) {
+    bool is_inited = init_current_data("menu_item");
+
+    json_object * data = json_object_object_get(current_data, "list");
+    if(data == NULL) {
+        data = json_object_new_array();
+        json_object_object_add(current_data, "list", data);
+    }
+
+/*    *//* menu structure *//*
+    typedef struct tty_mi {
+        struct tty_mi *next;
+        anything identifier; *//* user identifier *//*
+        long count;          *//* user count *//*
+        char *str;           *//* description string (including accelerator) *//*
+        char *o_str;           *//* description string (including accelerator) *//*
+        int attr;            *//* string attribute *//*
+        boolean selected;    *//* TRUE if selected by user *//*
+        char selector;       *//* keyboard accelerator *//*
+        char gselector;      *//* group accelerator *//*
+    } tty_menu_item;*/
+
+    json_object * menu_item_data = json_object_new_object();
+    json_object_object_add(menu_item_data, "a_void", json_object_new_boolean(menu_item->identifier.a_void != 0 ? TRUE : FALSE));
+    json_object_object_add(menu_item_data, "count", json_object_new_int64(menu_item->count));
+    json_object_object_add(menu_item_data, "o_str", json_object_new_string(menu_item->o_str));
+    json_object_object_add(menu_item_data, "attr", json_object_new_int(menu_item->attr));
+    json_object_object_add(menu_item_data, "selected", json_object_new_boolean(menu_item->selected));
+    json_object_object_add(menu_item_data, "tile", json_object_new_int(menu_item->tile));
+    json_object_array_add(data, menu_item_data);
+}
+
 void send_status(int fldidx, int chg, int percent, int color, char *text) {
     bool is_inited = init_current_data("status");
 
@@ -583,5 +616,9 @@ void send_debug(char *format, ...) {
 }
 
 char *stringify(char *str) {
-    return json_object_to_json_string(json_object_new_string(str));
+    if(str != NULL){
+        return json_object_to_json_string(json_object_new_string(str));
+    } else {
+        return NULL;
+    }
 }
