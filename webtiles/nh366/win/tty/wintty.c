@@ -2322,6 +2322,7 @@ struct WinDesc *cw;
     } /* while */
     cw->morestr = msave;
     free((genericptr_t) morestr);
+    send_close_menu_item();
 }
 
 STATIC_OVL void
@@ -3163,7 +3164,8 @@ boolean preselected;        /* item is marked as selected */
     item->str = dupstr(newstr ? newstr : "");
     item->o_str = dupstr(str ? str : "");
     item->next = cw->mlist;
-    item->tile = glyph2tile[glyph];
+    item->tile = glyph != NO_GLYPH ? glyph2tile[glyph] : -1;
+    // TODO
     cw->mlist = item;
 }
 

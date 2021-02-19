@@ -454,6 +454,9 @@ void send_tile_flag(int x, int y, char *f) {
 
     json_object_object_add(tile_data, "f", json_object_new_string(f));
 }
+void send_close_menu_item(){
+    bool is_inited = init_current_data("close_menu_item");
+}
 
 void send_menu_item(tty_menu_item *menu_item) {
     bool is_inited = init_current_data("menu_item");
@@ -478,12 +481,11 @@ void send_menu_item(tty_menu_item *menu_item) {
     } tty_menu_item;*/
 
     json_object * menu_item_data = json_object_new_object();
-    json_object_object_add(menu_item_data, "a_void", json_object_new_boolean(menu_item->identifier.a_void != 0 ? TRUE : FALSE));
-
     char selector_string[2];
     selector_string[0] = menu_item->selector;
-    ptr[1] = '\0';
+    selector_string[1] = '\0';
     json_object_object_add(menu_item_data, "selector", json_object_new_string(selector_string));
+    json_object_object_add(menu_item_data, "a_void", json_object_new_boolean(menu_item->identifier.a_void != 0 ? TRUE : FALSE));
     json_object_object_add(menu_item_data, "count", json_object_new_int64(menu_item->count));
     json_object_object_add(menu_item_data, "o_str", json_object_new_string(menu_item->o_str));
     json_object_object_add(menu_item_data, "attr", json_object_new_int(menu_item->attr));
