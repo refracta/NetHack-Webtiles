@@ -635,25 +635,44 @@ class GameUIHandler {
                     }).text(data.o_str);
                     menu.append(itemHeader);
                 }else {
-                    const item = $("<div/>").attr({
-                        "class" : "item"
+                  const item = $("<div/>").attr({
+                    "class" : "item"
+                });
+                if(data.tile >= 0){
+                    const itemTile = $(this.tileRenderer.getTileCanvas(data.tile)).attr({
+                        "class" : "item-tile item-col"
                     });
-                    const itemKey = $("<span/>").attr({
-                        "class" : "item-key item-col"
-                    }).text(data.selector);
-                    item.append(itemKey);
-                    if(data.tile >= 0){
-                        const itemTile = $(this.tileRenderer.getTileCanvas(data.tile)).attr({
-                            "class" : "item-tile item-col"
-                        });
-                        item.append(itemTile);
-                    }
-                    //아이템 텍스트
-                    const itemText = $("<span/>").attr({
-                        "class" : "item-text item-col"
-                    }).text(data.o_str);
-                    item.append(itemText);
-                    menu.append(item);
+                    item.append(itemTile);
+                }
+                // 아이템 키
+                const itemKey = $("<div/>").attr({
+                  "class" : "item-key item-col"
+                }).text(data.selector);
+                item.append(itemKey);
+
+                // 중간 – 문자 (아이템키, 아이템 텍스트 구분자 - )
+                // const itemHyphen = $("<div/>").attr({
+                //   "class" : "item-hyp item-col"
+                // }).text('–');
+                // item.append(itemHyphen);
+
+                // 아이템 선택문자
+                // 이 시점 a_void = true
+                const itemSel = $("<div/>").attr({
+                "class" : "item-sel item-col"
+                }).text(()=>{
+                  if(!data.selected) return "-";
+                  else return "+";
+                });
+                item.append(itemSel);
+
+                
+                //아이템 텍스트
+                const itemText = $("<div/>").attr({
+                    "class" : "item-text item-col"
+                }).text(data.o_str);
+                item.append(itemText);
+                menu.append(item);
                 }
             }
         }
