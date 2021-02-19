@@ -3159,6 +3159,7 @@ boolean preselected;        /* item is marked as selected */
     item->count = -1L;
     item->selected = preselected;
     item->selector = ch;
+    item->ch = ch;
     item->gselector = gch;
     item->attr = attr;
     item->str = dupstr(newstr ? newstr : "");

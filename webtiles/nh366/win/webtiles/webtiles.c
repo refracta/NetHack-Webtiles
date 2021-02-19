@@ -484,7 +484,11 @@ void send_menu_item(tty_menu_item *menu_item) {
     char selector_string[2];
     selector_string[0] = menu_item->selector;
     selector_string[1] = '\0';
+    char ch_string[2];
+    ch_string[0] = menu_item->ch;
+    ch_string[1] = '\0';
     json_object_object_add(menu_item_data, "selector", json_object_new_string(selector_string));
+    json_object_object_add(menu_item_data, "ch", json_object_new_string(ch_string));
     json_object_object_add(menu_item_data, "a_void", json_object_new_boolean(menu_item->identifier.a_void != 0 ? TRUE : FALSE));
     json_object_object_add(menu_item_data, "count", json_object_new_int64(menu_item->count));
     json_object_object_add(menu_item_data, "o_str", json_object_new_string(menu_item->o_str));

@@ -21,6 +21,7 @@ typedef struct tty_mi {
     boolean selected;    /* TRUE if selected by user */
     char selector;       /* keyboard accelerator */
     char gselector;      /* group accelerator */
+    char ch;
     int tile;
 } tty_menu_item;
 
