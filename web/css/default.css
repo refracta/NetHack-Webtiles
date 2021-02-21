@@ -545,18 +545,18 @@ padding-right: 30%;
 }
 
 .menu {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  /*position: absolute;*/
+  /*left: 50%;*/
+  /*transform: translateX(-50%);*/
   margin-top: 15%;
   color: white;
-  width: 100%;
+  /*width: 100%;*/
   background-color: black;
   border: 3px solid gold;
   padding: 10px;
   height: 40rem;
-  overflow-y: scroll;
-  width: 120%;
+  overflow-y: auto;
+  /*width: 120%;*/
 }
 
 #ui-menu .ui-popup-inner{
@@ -582,12 +582,12 @@ padding-right: 30%;
   text-align: center
 }
 .item-key {
-  flex-basis: 5%;
+  flex-basis: 3.2%;
   color: greenyellow;
   text-align: center
 }
 .item-sel{
-  flex-basis: 5%;
+  flex-basis: 2%;
   color: greenyellow;
   text-align: center
 }
