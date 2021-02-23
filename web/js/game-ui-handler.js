@@ -176,14 +176,15 @@ class GameUIHandler {
                 this.sender.key(code);
             }
         });
+        if(!this.terminalStatus){
+            this.terminalStatus = 'alpha';
+            $('#terminal-content').css('opacity', 0.7);
+        }
         let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8];
         $('body').keydown(e => {
             if(e.key === 'F8' || e.key === 'F9' || e.key === 'F10' || e.key === 'F12'){
                 if(!this.zoomStatusIndex){
                     this.zoomStatusIndex = 0;
-                }
-                if(!this.terminalStatus){
-                    this.terminalStatus = 'on';
                 }
                 if(e.key == 'F8'){
                     if(this.terminalStatus == 'on'){
