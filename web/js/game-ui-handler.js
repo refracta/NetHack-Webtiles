@@ -654,7 +654,7 @@ class GameUIHandler {
     createMenu(menuData) {
         this.menuMode = true;
         const menu = $('#menu');
-        let selectorString = 'abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ';
+        let selectorString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let selectorIndex = 0;
         for(let data of menuData){
             if(data.o_str === ''){
