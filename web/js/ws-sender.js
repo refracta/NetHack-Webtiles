@@ -19,6 +19,10 @@ class WSSender {
         this.client.send({msg: 'key', keyCode});
     }
 
+    selectIndex(index) {
+        this.client.send({msg: 'select_index', index});
+    }
+
     travel(i) {
         this.client.send({msg: 'travel', i});
     }

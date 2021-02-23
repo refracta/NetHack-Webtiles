@@ -2,6 +2,7 @@ class GameUIHandler {
     constructor(sender, config) {
         this.sender = sender;
         this.config = config;
+        window.G = this;
     }
 	applyFontPatch() {
 		if (typeof fontStyle === 'undefined') {
@@ -137,6 +138,26 @@ class GameUIHandler {
         this.clearKeyHandler();
         $('#tile-content, #terminal-content').click(e=>{document.activeElement.blur();});
         $('body').keypress(e => {
+            if(this.menuMode && 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ<>'.includes(e.key)){
+                if(e.key === '>'){
+                    $('.menu').scrollTop($('.menu').scrollTop()+$('.menu').height());
+                    return;
+                }else if(e.key === '<'){
+                    $('.menu').scrollTop($('.menu').scrollTop()-$('.menu').height());
+                    return;
+                }
+                let menuScroll = $('.menu').scrollTop();
+                let selected = [...$('.item').toArray().filter(x => x.offsetTop >= menuScroll).slice(0, 52), ...$('.item').toArray().filter(x => x.offsetTop < menuScroll).reverse()].find(l=>$(l).data('selector') == e.key);
+                if(selected){
+                    selected = $(selected);
+                    if(typeof selected.data('selectIndex') === 'number'){
+                        this.sender.selectIndex(selected.data('selectIndex'));
+                    }else if(selected.data('selector')){
+                        this.sender.key(selected.data('selector').charCodeAt(0));
+                    }
+                }
+                return;
+            }
             if ($('#chat_input:focus').length > 0) {
                 //e.preventDefault();
                 return;
@@ -155,7 +176,7 @@ class GameUIHandler {
                 this.sender.key(code);
             }
         });
-        let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 0.3, 0.5, 0.6, 0.8];
+        let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8];
         $('body').keydown(e => {
             if(e.key === 'F8' || e.key === 'F9' || e.key === 'F10' || e.key === 'F12'){
                 if(!this.zoomStatusIndex){
@@ -210,8 +231,8 @@ class GameUIHandler {
                 this.sender.key(e.keyCode);
                 return;
             }
-            
-           
+
+
             var code = e.charCode || e.keyCode;
             // some browsers do not `apply` the control key to charCode
             if ((code >= 65) && (code <= 90)) { // A~Z
@@ -219,9 +240,9 @@ class GameUIHandler {
             } else if ((code >= 97) && (code <= 122)) {
                 code = code - 96;
             }
-            
+
             if(e.keyCode == 18){
-                return; 
+                return;
             }
 
             if(e.altKey){
@@ -236,7 +257,7 @@ class GameUIHandler {
                 code += 96;
                 this.sender.key(code | 0x80);
                 return;
-            }        
+            }
 
             if (!e.ctrlKey)
                 return; // key events without ctrl is handled in `keypress` events
@@ -354,6 +375,9 @@ class GameUIHandler {
     }
 
     update_status(data) {
+        try{
+
+
         if (!this.statusData) {
             this.statusData = data;
         } else {
@@ -596,19 +620,148 @@ class GameUIHandler {
         win.appendChild(lastStatus);
         // update old status to current
         //old_status = [status1, status2];
+        }catch(e){
+            console.error(e);
+        }
     }
 
     launchLargeTextPopup(text) {
-      $('#popup-content').text(text);
-      $('#popup-content').scrollTop(0);
+      $('.text-popup-content').text(text);
       // document.getElementById('popup-content').innerHTML = text;
-      document.getElementById('ui-popup').style.display = "block";
+      $('#ui-popup').show();
+      $('.text-popup-content').scrollTop(0);
     }
 
     closePopup(){
       const popup = document.getElementById('ui-popup');
       document.getElementById('ui-popup').style.display = "none";
     }
+
+    updateMenu(menuData){
+        $('.item:has(.item-selectable)').toArray().map(e=>$(e)).forEach((e, i)=>{
+            let text = e.find('.item-selectable').text().split('');
+            let currentData = menuData[i];
+            if (e.data('selected') != currentData.selected || e.data('count') != currentData.count){
+                text[2] = !currentData.selected ? '-' : (currentData.count != -1 ? '#' : '+');
+                e.data('selected', currentData.selected);
+                e.data('count', currentData.count);
+                e.find('.item-selectable').text(text.join(''));
+            }
+        });
+        // console.log(menuData);
+    }
+
+    createMenu(menuData) {
+        this.menuMode = true;
+        const menu = $('#menu');
+        let selectorString = 'abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ';
+        let selectorIndex = 0;
+        for(let data of menuData){
+            if(data.o_str === ''){
+                data.o_str += '　';
+            }
+            if(!data.a_void){
+                if(data.attr === 7){
+                    const itemHeader = $("<div/>").attr({
+                        "class" : "item-header"
+                    }).text(data.o_str);
+                    menu.append(itemHeader);
+                }else{
+                    // text element
+                    const textMenu = $("<div/>").attr({
+                        "class" : "menu-header"
+                    });
+                    textMenu.text(data.o_str);
+                    menu.append(textMenu);
+                }
+            }else{
+                if(data.attr === 7){
+                    const itemHeader = $("<div/>").attr({
+                        "class" : "item-header"
+                    }).text(data.o_str);
+                    menu.append(itemHeader);
+                }else {
+                  const item = $("<div/>").attr({
+                    "class" : "item"
+                });
+                if(data.tile >= 0){
+                    const itemTile = $(this.tileRenderer.getTileCanvas(data.tile)).attr({
+                        "class" : "item-tile item-col"
+                    });
+                    item.append(itemTile);
+                    const emptyDiv = $('<div class="item-text"> </div>');
+                    item.append(emptyDiv);
+                }
+                let selector = data.ch ? data.ch : selectorString.charAt(selectorIndex % 52);
+                const itemText = $("<div/>").attr({
+                    "class" : "item-text item-col item-selectable"
+                }).text(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`);
+                    item.data('selected', data.selected);
+                    item.data('count', data.count);
+                    item.data('selector', selector);
+                    !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
+
+                selectorIndex++;
+                item.click(e=>{
+                    e = $(e.currentTarget);
+                    if(typeof e.data('selectIndex') === 'number'){
+                        this.sender.selectIndex(e.data('selectIndex'));
+                    }else if(e.data('selector')){
+                        this.sender.key(e.data('selector').charCodeAt(0));
+                    }
+                });
+                item.append(itemText);
+                if(data.tile >= 0){
+                    let description = data.o_str;
+                    let r = description.split(/^(a|an|\d+)\s+/);
+
+                    let count = 1;
+                    if(r.length == 3) {
+                        description = r[2];
+                        count = parseInt(r[1]) || 1;
+                    }
+                    // parse BCU
+                    let bcu = null;
+                    r = description.split(/^(blessed|uncursed|cursed)\s+/);
+                    if(r.length == 3) {
+                        description = r[2];
+                        bcu = r[1];
+                    }
+                    if(bcu === null){
+                        bcu = 'item-default';
+                    }else{
+                        bcu = 'item-'+bcu;
+                    }
+                    itemText.addClass(bcu);
+                }
+                menu.append(item);
+                }
+            }
+        }
+        $('#ui-menu').show();
+        menu.scrollTop(0);
+    }
+
+    closeMenu() {
+      this.menuMode = false;
+      const $menu = $('#menu');
+      $menu.html('');
+      $('#ui-menu').hide();
+    }
+
+    draw(canvas, x, y) {
+      const image = new Image();
+      const ctx = canvas.getContext("2d");
+      image.src = "./tileset/nh366/Nevanda-32x32-Raw.png";
+      const w = 32;
+
+      ctx.canvas.width = w;
+      ctx.canvas.height = w;
+      return (image.onload = function () {
+        ctx.drawImage(image, x * 32, y * 32, w, w, 0, 0, w, w);
+      });
+    }
+
 
 
 }

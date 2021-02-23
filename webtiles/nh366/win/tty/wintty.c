@@ -1654,6 +1654,9 @@ boolean free_data;
             cw->mlist = temp->next;
             if (temp->str)
                 free((genericptr_t) temp->str);
+            if (temp->o_str){
+                free((genericptr_t) temp->o_str);
+            }
             free((genericptr_t) temp);
         }
     }
@@ -1805,10 +1808,10 @@ int lineno;
 tty_menu_item *item;
 {
     #if defined(WEBTILES_DEBUG)
-    send_debug("void set_item_state(window:%d, lineno:%d, item:?)", window, lineno);
+    send_debug("void set_item_state(window:%d, lineno:%d, item:%s)", window, lineno, item->o_str);
     #endif
     char ch = item->selected ? (item->count == -1L ? '+' : '#') : '-';
-
+//    send_debug("SEL DATA %c", ch);
     HUPSKIP();
     tty_curs(window, 4, lineno);
     term_start_attr(item->attr);
@@ -1861,7 +1864,7 @@ tty_menu_item *page_start, *page_end;
 char acc; /* group accelerator, 0 => all */
 {
     #if defined(WEBTILES_DEBUG)
-    send_debug("void invert_all_on_page(window:%d, page_start:?, page_end:?, acc:5c)", window, acc);
+    send_debug("void invert_all_on_page(window:%d, page_start:?, page_end:?, acc:%c)", window, acc);
     #endif
     tty_menu_item *curr;
     int n;
@@ -1967,7 +1970,8 @@ struct WinDesc *cw;
 
     tty_menu_item *currentItem;
     for(currentItem = cw->mlist; currentItem; currentItem = currentItem->next){
-        // sendDebug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, text:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), currentItem->a_string);
+         // send_debug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, o_str:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), stringify(currentItem->o_str));
+         send_menu_item(currentItem);
     }
 
     /* collect group accelerators; for PICK_NONE, they're ignored;
@@ -2093,6 +2097,55 @@ struct WinDesc *cw;
                 page_end = 0;
                 page_lines = 0;
             }
+
+
+/*    tty_menu_item *currentItem;
+    int n;
+
+    for (n = 0, currentItem = page_start; currentItem != page_end; n++, currentItem = currentItem->next)
+        if (currentItem->identifier.a_void && (acc == 0 || currentItem->gselector == acc)) {
+            if (currentItem->selected) {
+                currentItem->selected = FALSE;
+                currentItem->count = -1L;
+            } else
+                currentItem->selected = TRUE;
+            set_item_state(window, n, currentItem);
+        }
+
+    tty_menu_item *cItem;
+    int sIndex = 0;
+    for(cItem = cw->mlist; cItem; cItem = cItem->next){
+
+
+        if(cItem->identifier.a_void){
+            send_update_menu_item(cItem);
+            sIndex++;
+         }
+         // send_debug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, o_str:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), stringify(currentItem->o_str));
+    }*/
+
+            // CP PE
+            // SAVE THE SELECTION
+/*    invert_all_on_page(window, page_start, page_end, acc);
+
+    *//* invert the rest *//*
+    for (on_curr_page = FALSE, curr = cw->mlist; curr; curr = curr->next) {
+        if (curr == page_start)
+            on_curr_page = TRUE;
+        else if (curr == page_end)
+            on_curr_page = FALSE;
+
+        if (!on_curr_page && curr->identifier.a_void
+            && (acc == 0 || curr->gselector == acc)) {
+            if (curr->selected) {
+                curr->selected = FALSE;
+                curr->count = -1;
+            } else
+                curr->selected = TRUE;
+        }
+    }*/
+
+
             *rp = 0;
             /* remember how many explicit menu choices there are */
             resp_len = (int) strlen(resp);
@@ -2122,13 +2175,23 @@ struct WinDesc *cw;
 
             tty_curs(window, 1, page_lines);
             cl_end();
+            save_menu_status(window, page_start, page_end, page_lines, counting, count, cw, &finished);
             dmore(cw, resp);
+            clear_menu_status();
         } else {
             /* just put the cursor back... */
+            save_menu_status(window, page_start, page_end, page_lines, counting, count, cw, &finished);
             tty_curs(window, (int) strlen(cw->morestr) + 2, page_lines);
+            send_more(cw->morestr);
             xwaitforspace(resp);
+            send_close_more();
+            clear_menu_status();
         }
 
+
+
+        // WinDesc *cw
+//        save_menu_status(window, page_start, page_end, counting, count, cw, &finished);
         really_morc = morc; /* (only used with MENU_EXPLICIT_CHOICE */
         if ((rp = index(resp, morc)) != 0 && rp < resp + resp_len)
             /* explicit menu selection; don't override it if it also
@@ -2137,6 +2200,7 @@ struct WinDesc *cw;
             morc = MENU_EXPLICIT_CHOICE;
         else
             morc = map_menu_cmd(morc);
+//  clear_menu_status();
 
         switch (morc) {
         case '0':
@@ -2315,9 +2379,18 @@ struct WinDesc *cw;
             break;
         }
 
+    tty_menu_item *cItem;
+    for(cItem = cw->mlist; cItem; cItem = cItem->next){
+        if(cItem->identifier.a_void){
+            send_update_menu_item(cItem);
+         }
+    }
+
+
     } /* while */
     cw->morestr = msave;
     free((genericptr_t) morestr);
+    send_close_menu_item();
 }
 
 STATIC_OVL void
@@ -3097,6 +3170,9 @@ winid window;
     return;
 }
 
+#ifdef USE_TILES
+extern short glyph2tile[];
+#endif
 /*ARGSUSED*/
 /*
  * Add a menu item to the beginning of the menu list.  This list is reversed
@@ -3114,7 +3190,7 @@ const char *str;            /* menu string */
 boolean preselected;        /* item is marked as selected */
 {
     #if defined(WEBTILES_DEBUG)
-    send_debug("void tty_add_menu(window:%d, glyph:%d, anything:?, ch:%c, gch:%c, attr:%d, str:%s, preselected:%d)", window, glyph, ch, gch, attr, stringify(str), preselected);
+    send_debug("void tty_add_menu(window:%d, glyph:%d, anything:?, ch:%d, gch:%d, attr:%d, str:%s, preselected:%d)", window, glyph, ch, gch, attr, stringify(str), preselected);
     #endif
     register struct WinDesc *cw = 0;
     tty_menu_item *item;
@@ -3151,11 +3227,14 @@ boolean preselected;        /* item is marked as selected */
     item->count = -1L;
     item->selected = preselected;
     item->selector = ch;
+    item->ch = ch;
     item->gselector = gch;
     item->attr = attr;
     item->str = dupstr(newstr ? newstr : "");
-
+    item->o_str = dupstr(str ? str : "");
     item->next = cw->mlist;
+    item->tile = glyph != NO_GLYPH ? glyph2tile[glyph] : -1;
+    // TODO
     cw->mlist = item;
 }
 

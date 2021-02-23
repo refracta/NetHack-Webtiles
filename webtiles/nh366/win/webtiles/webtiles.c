@@ -19,6 +19,7 @@
 #include <json-c/json.h>
 
 #include "hack.h"
+#include "wintty.h"
 
 #define STRING_BUFFER_SIZE 131072
 #define STRING_BUFFER_SIZE_HALF 65536
@@ -307,6 +308,89 @@ void set_travel_position(int i){
     travel_position = i;
 }
 
+typedef struct {
+    winid window;
+    tty_menu_item* page_start;
+    tty_menu_item* page_end;
+    int page_lines;
+    int counting;
+    int count;
+    struct WinDesc *cw;
+    boolean *finished;
+    boolean is_unused;
+} MenuStatus;
+
+MenuStatus menuStatus = { 0, };
+void save_menu_status(winid window, tty_menu_item* page_start, tty_menu_item* page_end, int page_lines, int counting, int count, struct WinDesc *cw, boolean *finished) {
+    menuStatus.window = window;
+    menuStatus.page_start = page_start;
+    menuStatus.page_end = page_end;
+    menuStatus.page_lines = page_lines;
+    menuStatus.counting = counting;
+    menuStatus.count = count;
+    menuStatus.cw = cw;
+    menuStatus.finished = finished;
+    menuStatus.is_unused = TRUE;
+}
+
+void clear_menu_status() {
+    menuStatus.is_unused = FALSE;
+}
+
+bool clear_current_data();
+bool init_current_data(char * type);
+void send_delayed_msg();
+
+void process_select_by_index(int sIndex){
+    send_debug("process");
+    boolean is_current_page = 0;
+    int current_page_index = 0;
+    if(menuStatus.page_start != 0 && menuStatus.page_end != 0){
+        tty_menu_item *cItem;
+        int csIndex = 0;
+        for(cItem = menuStatus.cw->mlist; cItem; cItem = cItem->next){
+            if(menuStatus.page_start == cItem){
+                is_current_page = TRUE;
+            }else if(menuStatus.page_end == cItem){
+                is_current_page = FALSE;
+            }
+            if(cItem->identifier.a_void){
+                if(csIndex == sIndex){
+                    toggle_menu_curr(menuStatus.window, cItem, current_page_index, is_current_page, menuStatus.counting, menuStatus.count);
+                    if (menuStatus.cw->how == PICK_ONE)
+                        *(menuStatus.finished) = TRUE;
+
+                    menuStatus.counting = FALSE;
+                    menuStatus.count = 0;
+                    //menuStatus.is_unused = FALSE;
+                    /*if(is_current_page){
+                        send_debug("cItem %s", cItem->o_str);
+                        //set_item_state(menuStatus.window, current_page_index, cItem);
+                    }*/
+                    break;
+                }
+                csIndex++;
+            }
+            if(is_current_page){
+                current_page_index++;
+            }
+
+        }
+    }
+
+    tty_curs(menuStatus.window, (int) strlen(menuStatus.cw->morestr) + 2, menuStatus.page_lines);
+    (void) fflush(stdout);
+
+    tty_menu_item *cItem1;
+    for(cItem1 = menuStatus.cw->mlist; cItem1; cItem1 = cItem1->next){
+        if(cItem1->identifier.a_void){
+            send_update_menu_item(cItem1);
+        }
+    }
+    clear_current_data();
+}
+
+
 void handle_core(char *msg, json_object *obj) {
     if (strcmp(msg, "key") == 0) {
         json_object *key_obj = json_object_object_get(obj, "keyCode");
@@ -316,15 +400,18 @@ void handle_core(char *msg, json_object *obj) {
         travel_position = json_object_get_int(json_object_object_get(obj, "i"));
         key_code = 0;
         is_key_triggered = true;
+    }  else if (strcmp(msg, "select_index") == 0) {
+        if(menuStatus.is_unused) {
+            int select_index = json_object_get_int(json_object_object_get(obj, "index"));
+            process_select_by_index(select_index);
+        }
     } else if (strcmp(msg, "debug") == 0) {
 
     } else {
         // printf("Unknown Request!");
     }
 }
-bool clear_current_data();
-bool init_current_data(char * type);
-void send_delayed_msg();
+
 /* KEY EMULATION */
 int getch_by_webtiles() {
     while (true) {
@@ -452,6 +539,69 @@ void send_tile_flag(int x, int y, char *f) {
     }
 
     json_object_object_add(tile_data, "f", json_object_new_string(f));
+}
+void send_close_menu_item(){
+    bool is_inited = init_current_data("close_menu_item");
+}
+
+void send_update_menu_item(tty_menu_item *menu_item) {
+    bool is_inited = init_current_data("update_menu_item");
+
+    json_object * data = json_object_object_get(current_data, "list");
+    if(data == NULL) {
+        data = json_object_new_array();
+        json_object_object_add(current_data, "list", data);
+    }
+
+    json_object * menu_item_data = json_object_new_object();
+
+    json_object_object_add(menu_item_data, "count", json_object_new_int64(menu_item->count));
+    json_object_object_add(menu_item_data, "selected", json_object_new_boolean(menu_item->selected));
+    json_object_array_add(data, menu_item_data);
+}
+
+void send_menu_item(tty_menu_item *menu_item) {
+    bool is_inited = init_current_data("menu_item");
+
+    json_object * data = json_object_object_get(current_data, "list");
+    if(data == NULL) {
+        data = json_object_new_array();
+        json_object_object_add(current_data, "list", data);
+    }
+
+/*    *//* menu structure *//*
+    typedef struct tty_mi {
+        struct tty_mi *next;
+        anything identifier; *//* user identifier *//*
+        long count;          *//* user count *//*
+        char *str;           *//* description string (including accelerator) *//*
+        char *o_str;           *//* description string (including accelerator) *//*
+        int attr;            *//* string attribute *//*
+        boolean selected;    *//* TRUE if selected by user *//*
+        char selector;       *//* keyboard accelerator *//*
+        char gselector;      *//* group accelerator *//*
+    } tty_menu_item;*/
+
+    json_object * menu_item_data = json_object_new_object();
+//    char gselector_string[2];
+//    gselector_string[0] = menu_item->gselector;
+//    gselector_string[1] = '\0';
+    char selector_string[2];
+    selector_string[0] = menu_item->selector;
+    selector_string[1] = '\0';
+    char ch_string[2];
+    ch_string[0] = menu_item->ch;
+    ch_string[1] = '\0';
+//    json_object_object_add(menu_item_data, "gselector", json_object_new_string(gselector_string));
+    json_object_object_add(menu_item_data, "selector", json_object_new_string(selector_string));
+    json_object_object_add(menu_item_data, "ch", json_object_new_string(ch_string));
+    json_object_object_add(menu_item_data, "a_void", json_object_new_boolean(menu_item->identifier.a_void != 0 ? TRUE : FALSE));
+    json_object_object_add(menu_item_data, "count", json_object_new_int64(menu_item->count));
+    json_object_object_add(menu_item_data, "o_str", json_object_new_string(menu_item->o_str));
+    json_object_object_add(menu_item_data, "attr", json_object_new_int(menu_item->attr));
+    json_object_object_add(menu_item_data, "selected", json_object_new_boolean(menu_item->selected));
+    json_object_object_add(menu_item_data, "tile", json_object_new_int(menu_item->tile));
+    json_object_array_add(data, menu_item_data);
 }
 
 void send_status(int fldidx, int chg, int percent, int color, char *text) {
@@ -583,5 +733,9 @@ void send_debug(char *format, ...) {
 }
 
 char *stringify(char *str) {
-    return json_object_to_json_string(json_object_new_string(str));
+    if(str != NULL){
+        return json_object_to_json_string(json_object_new_string(str));
+    } else {
+        return NULL;
+    }
 }

@@ -413,12 +413,10 @@ char def;
     if(query != NULL & resp != NULL){
         send_debug("char tty_yn_function(query:%s, resp:%s, def:%c)", stringify(query), stringify(resp), def);
     }
-
+    #endif
     if(query != NULL && strcmp(query, "Overwrite the old file?") == 0 && get_exit_mode()){
         return 'y';
     }
-
-    #endif
     register char q;
     char rtmp[40];
     boolean digit_ok, allow_num, preserve_case = FALSE;

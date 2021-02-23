@@ -63,6 +63,9 @@ class WSHandler {
             this.gameUIHandler.showTileContent(false);
             this.gameUIHandler.clearTerminal();
             this.gameUIHandler.clearTileContent();
+            this.gameUIHandler.close_more();
+            this.gameUIHandler.closePopup();
+            this.gameUIHandler.closeMenu();
             this.gameUIHandler.showGameContent(false);
             this.gameUIHandler.disapplyFontPatch();
             this.siteUIHandler.showGameList(true);
@@ -112,7 +115,16 @@ class WSHandler {
             this.siteUIHandler.setCurrentStatus('watch', data.username);
             this.siteUIHandler.setLoading("Loading...");
         }
-
+        this.callback['menu_item'] = (data, info) =>{
+            // console.log(data);
+            this.gameUIHandler.createMenu(data.list);
+        }
+        this.callback['update_menu_item'] = (data, info) =>{
+            this.gameUIHandler.updateMenu(data.list);
+        }
+        this.callback['close_menu_item'] = (data, info) =>{
+            this.gameUIHandler.closeMenu();
+        }
 
         this.callback['init_watch'] = (data) => {
             this.deferMode = true;
@@ -315,6 +327,9 @@ class WSHandler {
             this.siteUIHandler.setSubInfo('Socket Error!!! Plz Refresh Page...');
 
             this.gameUIHandler.showTileContent(false);
+            this.gameUIHandler.close_more();
+            this.gameUIHandler.closePopup();
+            this.gameUIHandler.closeMenu();
             this.gameUIHandler.clearTileContent();
             this.gameUIHandler.showGameContent(false);
         }
