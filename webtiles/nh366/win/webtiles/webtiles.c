@@ -342,24 +342,27 @@ bool init_current_data(char * type);
 void send_delayed_msg();
 
 void process_select_by_index(int sIndex){
-    send_debug("process");
     boolean is_current_page = 0;
     int current_page_index = 0;
-    if(menuStatus.page_start != 0 && menuStatus.page_end != 0){
+/*    if(menuStatus.page_start != 0 && menuStatus.page_end != 0){ */
         tty_menu_item *cItem;
         int csIndex = 0;
-        for(cItem = menuStatus.cw->mlist; cItem; cItem = cItem->next){
-            if(menuStatus.page_start == cItem){
+        for(cItem = menuStatus.cw->mlist; cItem; cItem = cItem->next) {
+            if (menuStatus.page_start == cItem) {
                 is_current_page = TRUE;
-            }else if(menuStatus.page_end == cItem){
+            } else if (menuStatus.page_end == cItem) {
                 is_current_page = FALSE;
             }
-            if(cItem->identifier.a_void){
-                if(csIndex == sIndex){
-                    toggle_menu_curr(menuStatus.window, cItem, current_page_index, is_current_page, menuStatus.counting, menuStatus.count);
-                    if (menuStatus.cw->how == PICK_ONE)
+            if (cItem->identifier.a_void) {
+                if (csIndex == sIndex) {
+                    toggle_menu_curr(menuStatus.window, cItem, current_page_index, is_current_page, menuStatus.counting,
+                                     menuStatus.count);
+                    send_debug("COOL PICK %d %d", menuStatus.cw->how, PICK_ONE);
+                    if (menuStatus.cw->how == PICK_ONE) {
                         *(menuStatus.finished) = TRUE;
-
+                        key_code = 13;
+                        is_key_triggered = TRUE;
+                    }
                     menuStatus.counting = FALSE;
                     menuStatus.count = 0;
                     //menuStatus.is_unused = FALSE;
@@ -371,11 +374,11 @@ void process_select_by_index(int sIndex){
                 }
                 csIndex++;
             }
-            if(is_current_page){
+            if (is_current_page) {
                 current_page_index++;
             }
 
-        }
+//        }
     }
 
     tty_curs(menuStatus.window, (int) strlen(menuStatus.cw->morestr) + 2, menuStatus.page_lines);
