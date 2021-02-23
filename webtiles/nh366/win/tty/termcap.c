@@ -768,6 +768,8 @@ tty_nhbell()
     #endif
     if (flags.silent)
         return;
+
+    send_debug("NHBELL");
     (void) putchar('\007'); /* curx does not change */
     (void) fflush(stdout);
 }

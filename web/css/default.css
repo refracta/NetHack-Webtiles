@@ -72,6 +72,7 @@
 }
 
 #message-content {
+    font-family: Hack;
     /*position: fixed;*/
     /*bottom: 0;*/
     padding-left: 0.8em;
@@ -477,8 +478,8 @@ body {
   bottom: 0px;
   right: 0px;
 
-padding-left: 30%;
-padding-right: 30%;
+/*padding-left: 30%;
+padding-right: 30%;*/
 
   display: -webkit-box;
   display: -ms-flexbox;
@@ -493,9 +494,10 @@ padding-right: 30%;
 }
 
 /* progressively indent nested popups: four levels deel is probably enough */
-.ui-popup + .ui-popup { padding-top: 20px; }
-.ui-popup + .ui-popup + .ui-popup { padding-top: 40px; }
-.ui-popup + .ui-popup + .ui-popup + .ui-popup { padding-top: 60px; }
+.ui-popup + .ui-popup { padding-top: calc(20px + 5vh) }
+/*.ui-popup + .ui-popup { padding-top: 20px; }*/
+/*.ui-popup + .ui-popup + .ui-popup { padding-top: 40px; }*/
+/*.ui-popup + .ui-popup + .ui-popup + .ui-popup { padding-top: 60px; }*/
 
 .ui-popup.centred {
   padding-top: 0;
@@ -508,9 +510,9 @@ padding-right: 30%;
   overflow-y: scroll !important;
   overflow-x: hidden;
   /* overflow-y: hidden !im?portant; */
-  margin-top: 200px !important;
+  /*margin-top: 200px !important;*/
   margin: 50px;
-  max-height: calc(100vh - 100px);
+  max-height: 80vh;
 
   padding: 20px;
   background-color: #040204;
@@ -523,7 +525,7 @@ padding-right: 30%;
   z-index: 0;
   position: relative;
 
-  height: 70%;
+  /*height: 70%;*/
 
 }
 
@@ -545,33 +547,45 @@ padding-right: 30%;
 }
 
 .menu {
+  font-family: Hack;
   /*position: absolute;*/
   /*left: 50%;*/
   /*transform: translateX(-50%);*/
-  margin-top: 15%;
+  /*margin-top: 10%;*/
+  /*margin-bottom: 10%;*/
   color: white;
   /*width: 100%;*/
   background-color: black;
   border: 3px solid gold;
   padding: 10px;
-  height: 40rem;
+  /*height: 40rem;*/
+    max-height: 80vh;
   overflow-y: auto;
   /*width: 120%;*/
 }
 
 #ui-menu .ui-popup-inner{
-  width: 100%;
+  /*width: 100%;*/
 }
 #ui-menu .body.fg7{
   width: 100%;
 }
 
+.text-popup-content {
+    font-size: small;
+    font-family: Hack;
+}
+
 .item{
   display: flex;
-  margin-bottom: 5px;
-  white-space: nowrap;
+  /*margin-bottom: 5px;*/
+  /*white-space: nowrap;*/
+
 }
 .menu-header {
+    padding: 2px;
+    white-space: pre;
+    /*margin-left: 1%;*/
 }
 .item-col {
   
@@ -598,15 +612,41 @@ padding-right: 30%;
 }
 
 .item-text {
-  flex-basis: 70%;
+  /*flex-basis: 70%;*/
   color: greenyellow;
-  margin-left: 1%;
+  /*margin-left: 1%;*/
+  white-space: pre;
 }
 
 .item-header {
+  font-weight: bold;
+  padding-left: 1%;
   margin-top: 5px;
   margin-bottom: 5px;
   color: #2198e7;
   background-color: white;
-  
+}
+
+.item-blessed {
+    color: #0062cc;
+}
+.item-cursed {
+    color: #f30000;
+}
+.item-uncursed {
+    color: greenyellow;
+}
+
+.item {
+    width: 100%;
+    padding: 2px;
+    align-items: center;
+}
+.item:hover {
+    box-shadow: 0 0 0 2px gold inset;
+    cursor: pointer;
+}
+
+.item-default {
+    color:white;
 }
