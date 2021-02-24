@@ -700,8 +700,8 @@ class GameUIHandler {
                     item.data('selected', data.selected);
                     item.data('count', data.count);
                     item.data('selector', selector);
-                    !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
-
+                    // !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
+                    item.data('selectIndex', selectorIndex);
                 selectorIndex++;
                 item.click(e=>{
                     e = $(e.currentTarget);
