@@ -704,6 +704,7 @@ class GameUIHandler {
         const menu = $('#built-in-inventory');
         menu.html('');
         $('#built-in-inventory').css('background', '#101d42');
+        $('#built-in-inventory').css('height', `calc(100vh - 296.5px - ${($('#chat').height() + 12) + 'px'})`);
         for(let data of menuData){
             if(data.o_str === ''){
                 data.o_str += '　';
