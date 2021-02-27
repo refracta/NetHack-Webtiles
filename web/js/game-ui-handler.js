@@ -227,7 +227,16 @@ class GameUIHandler {
                     this.zoomStatusIndex %= zoomArray.length;
                     this.tileRenderer.setZoom(zoomArray[this.zoomStatusIndex]);
                 }else if(e.key == 'F12'){
+                        $("#chat_body").slideDown(200);
+                        this.new_message_count = 0;
+                        //update_message_count();
+                        $("#message_count").html("(Esc: back to game)");
+                        $('#chat_history_container').scrollTop($('#chat_history_container')[0].scrollHeight);
+                        setTimeout(_=>{
+                            $('#built-in-inventory').css('height', `calc(100vh - 296.5px - ${($('#chat').height() + 12) + 'px'})`);
+                        },300);
                     $('#chat_input').focus();
+
                 }
                 e.preventDefault();
                 return;

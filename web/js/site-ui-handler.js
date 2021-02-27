@@ -268,7 +268,7 @@ class SiteUIHandler {
         $("#chat_history").append("<br>");
         $('#chat_history_container').scrollTop($('#chat_history_container')[0].scrollHeight);
         if ($("#chat_body").css("display") === "none") {
-            $("#message_count").html("new system messages (Press F12)");
+            $("#message_count").html("new messages (Press F12)");
             $("#message_count").toggleClass("has_new", true);
         }
     }
