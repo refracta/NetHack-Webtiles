@@ -121,3 +121,4 @@ OPTIONS=hilite_status: gold/up/yellow/down/brown
 ## Dog Name & Cat Name
 OPTIONS=dogname:Dangdangee
 OPTIONS=catname:Tekaaluk
+OPTIONS=perm_invent
