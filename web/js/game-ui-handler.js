@@ -60,7 +60,7 @@ class GameUIHandler {
     }
 
     close_sharp_input() {
-        $('.sharp_input').remove();
+        $('.sharp-container').remove();
     }
 
     addText(list) {
@@ -90,18 +90,28 @@ class GameUIHandler {
         $('#message-content').scrollTop($('#message-content').prop('scrollHeight'));
         window.G = this;
     }
+    sharp_autocomplete(autocomplete){
+        $('.sharp_autocomplete').text(autocomplete);
+    }
 
     sharp_input(text) {
         let sharpInput = $('.sharp_input');
         if(sharpInput.length == 0){
-            let textSpan = $('<span>');
-            textSpan.addClass('ingame-text');
-            textSpan.addClass('sharp_input');
-            textSpan.css('background-color', 'rgb(40, 80, 84)');
-            textSpan.text(text);
-            $('#message-content').append(textSpan);
+            let div = $('<div>');
+            div.addClass('sharp-container');
+            div.addClass('ingame-text');
+            div.css('background-color', 'rgb(40, 80, 84)');
+            let sharpInput = $('<span>');
+            sharpInput.addClass('sharp_input');
+            sharpInput.text(text);
+            div.append(sharpInput);
+            let sharpAutoComplete = $('<span>');
+            sharpAutoComplete.addClass('sharp_autocomplete');
+            div.append(sharpAutoComplete);
+            $('#message-content').append(div);
         }else{
             sharpInput.text(text);
+            this.sharp_autocomplete('');
         }
         $('#message-content').scrollTop($('#message-content').prop('scrollHeight'));
     }
@@ -157,6 +167,14 @@ class GameUIHandler {
                     }
                 }
                 return;
+            }else if(this.textMode){
+                if(e.key === '>'){
+                    $('.ui-popup-outer').scrollTop($('.ui-popup-outer').scrollTop()+$('.ui-popup-outer').height());
+                    return;
+                }else if(e.key === '<'){
+                    $('.ui-popup-outer').scrollTop($('.ui-popup-outer').scrollTop()-$('.ui-popup-outer').height());
+                    return;
+                }
             }
             if ($('#chat_input:focus').length > 0) {
                 //e.preventDefault();
@@ -177,8 +195,8 @@ class GameUIHandler {
             }
         });
         if(!this.terminalStatus){
-            this.terminalStatus = 'alpha';
-            $('#terminal-content').css('opacity', 0.7);
+            this.terminalStatus = 'off';
+            $('#terminal-content').css('opacity', 0);
         }
         let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8];
         $('body').keydown(e => {
@@ -376,6 +394,7 @@ class GameUIHandler {
     }
 
     update_status(data) {
+        // console.log(data);
         try{
 
 
@@ -390,13 +409,19 @@ class GameUIHandler {
         // creates a bootstrap statusbar given a max and current value
         var getProgressBar = function (max, value, style, text) {
             var percent = Math.round((1.0 * value / max) * 100);
+            if(percent == Infinity){
+                percent = 100;
+            }
             var div = document.createElement('div');
             div.className = 'progress';
-            div.style.minHeight = "25px";
+            var minHeight = style =='warning' ? 15 : 25;
+            div.style.minHeight = minHeight + 'px';
+            // var textColor = percent < 40 ? 'black': 'white';
+            var textColor = percent < 75 ? 'black': 'white';
             div.innerHTML = '<div class="progress-bar bg-'
                 + style + '" role="progressbar" aria-valuenow="'
                 + value + '" aria-valuemin="0" aria-valuemax="'
-                + max + '" style="width:' + percent + '%"><span>'
+                + max + `" style="width:` + percent + `%"><span style="width: 390px; position: absolute; color:${textColor};px">`
                 + text + value + ' / ' + max + '</span></div>';
             return div;
         };
@@ -448,10 +473,11 @@ class GameUIHandler {
         // console.log(data[13].text);
         var status1 = [1, this.statusData[0].text, "ST:", this.statusData[1].text, "DX: ", this.statusData[2].text, "CO:", this.statusData[3].text, "IN:", this.statusData[4].text, "WI:", this.statusData[5].text, "CH:", this.statusData[6].text, 15, 16, 17, 18, 19, this.statusData[7].text].map(e => e + '');
         // console.log(data[8].text);
-        var status2 = [21, this.statusData[20].text, 23, 24, this.statusData[18].text, 26, this.statusData[19].text, 28, 29, this.statusData[11].text, 31, this.statusData[12].text, 33, 34, this.statusData[14].text, 36, this.statusData[13].text, 38, [this.statusData[9].text, this.statusData[17].text].filter(e => e !== "").join(', '), 40].map(e => e + '');
+        var status2 = [21, this.statusData[20].text, 23, 24, this.statusData[18].text, 26, this.statusData[19].text, 28, 29, this.statusData[11].text, 31, this.statusData[12].text, 33, 34, this.statusData[14].text, 36, this.statusData[13].text, 38, [this.statusData[9].text, this.statusData[17].text].filter(e => e !== "").join(', '), 40, this.statusData[16].text, this.statusData[21].text].map(e => e + '');
         // console.log(status2);
         // if no old status, copy current status
         var old_status = [status1, status2];
+        // console.log(status2);
 
         // clear status bar
         win.innerHTML = '';
@@ -504,6 +530,11 @@ class GameUIHandler {
         tr = table.insertRow();
         td = tr.insertCell();
         td.appendChild(getProgressBar(status2[11], status2[9], 'info', 'PW: '));
+        win.appendChild(table);
+
+        tr = table.insertRow();
+        td = tr.insertCell();
+        td.appendChild(getProgressBar(status2[21], status2[16], 'warning', 'XP: '));
         win.appendChild(table);
 
         var statDiv =  document.createElement('div');
@@ -599,17 +630,27 @@ class GameUIHandler {
         // TODO: turns
         var lastStatus =  document.createElement('div');
         lastStatus.style.textAlign = 'center';
-        var dlvl = document.createElement('i');
-        dlvl.classList.add('fa', 'fa-compass', 'status-misc');
-        dlvl.innerHTML = ' ' + status2[1].split(':')[1].split(' ')[0];
-        lastStatus.appendChild(dlvl);
-        // No turn in current status lines?
-        /*
+
+
+
         var turn = document.createElement('i');
         turn.classList.add('fa', 'fa-hourglass-half', 'status-misc');
-        turn.innerHTML = ' ' + '0';
-        win.appendChild(turn);
-        */
+        turn.innerHTML = ' ' + outerHTML(this.create_highlight_element(old_status[1][20], status2[20], true));
+        lastStatus.appendChild(turn);
+
+
+        var dlvl = document.createElement('i');
+        dlvl.classList.add('fa', 'fa-compass', 'status-misc');
+            try{
+                dlvl.innerHTML = ' ' + status2[1].split(':')[1].split(' ')[0];
+            }catch(e){
+                dlvl.innerHTML = ' ' + status2[1];
+            }
+        lastStatus.appendChild(dlvl);
+        // No turn in current status lines?
+
+
+
         var ac = document.createElement('i');
         ac.classList.add('fa', 'fa-shield', 'status-misc');
         ac.innerHTML = ' ' + outerHTML(this.create_highlight_element(old_status[1][14], status2[14], true));
@@ -627,13 +668,15 @@ class GameUIHandler {
     }
 
     launchLargeTextPopup(text) {
-      $('.text-popup-content').text(text);
-      // document.getElementById('popup-content').innerHTML = text;
+        this.textMode = true;
+        $('.text-popup-content').text(text);
+        // document.getElementById('popup-content').innerHTML = text;
       $('#ui-popup').show();
       $('.text-popup-content').scrollTop(0);
     }
 
     closePopup(){
+        this.textMode = false;
       const popup = document.getElementById('ui-popup');
       document.getElementById('ui-popup').style.display = "none";
     }
@@ -651,7 +694,86 @@ class GameUIHandler {
         });
         // console.log(menuData);
     }
+    clearBuiltInInventory(){
+        const menu = $('#built-in-inventory');
+        $('#built-in-inventory').css('background', '#283654');
+        menu.html('');
+    }
 
+    updateBuiltInInventory(menuData){
+        const menu = $('#built-in-inventory');
+        menu.html('');
+        $('#built-in-inventory').css('background', '#101d42');
+        for(let data of menuData){
+            if(data.o_str === ''){
+                data.o_str += '　';
+            }
+            if(!data.a_void){
+                if(data.attr === 7){
+                    const itemHeader = $("<div/>").attr({
+                        "class" : "item-header"
+                    }).text(data.o_str);
+                    menu.append(itemHeader);
+                }else{
+                    // text element
+                    const textMenu = $("<div/>").attr({
+                        "class" : "menu-header"
+                    });
+                    textMenu.text(data.o_str);
+                    menu.append(textMenu);
+                }
+            }else{
+                if(data.attr === 7){
+                    const itemHeader = $("<div/>").attr({
+                        "class" : "item-header"
+                    }).text(data.o_str);
+                    menu.append(itemHeader);
+                }else {
+                    const item = $("<div/>").attr({
+                        "class" : "item"
+                    });
+                    if(data.tile >= 0){
+                        const itemTile = $(this.tileRenderer.getTileCanvas(data.tile)).attr({
+                            "class" : "item-tile item-col"
+                        });
+                        item.append(itemTile);
+                        const emptyDiv = $('<div class="item-text"> </div>');
+                        item.append(emptyDiv);
+                    }
+                    let selector = data.ch ? data.ch : selectorString.charAt(selectorIndex % 52);
+                    const itemText = $("<div/>").attr({
+                        "class" : "item-text item-col"
+                    }).text(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`);
+                    // !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
+                    item.append(itemText);
+                    if(data.tile >= 0){
+                        let description = data.o_str;
+                        let r = description.split(/^(a|an|\d+)\s+/);
+
+                        let count = 1;
+                        if(r.length == 3) {
+                            description = r[2];
+                            count = parseInt(r[1]) || 1;
+                        }
+                        // parse BCU
+                        let bcu = null;
+                        r = description.split(/^(blessed|uncursed|cursed)\s+/);
+                        if(r.length == 3) {
+                            description = r[2];
+                            bcu = r[1];
+                        }
+                        if(bcu === null){
+                            bcu = 'item-default';
+                        }else{
+                            bcu = 'item-'+bcu;
+                        }
+                        itemText.addClass(bcu);
+                    }
+                    menu.append(item);
+                }
+            }
+        }
+    }
     createMenu(menuData) {
         this.menuMode = true;
         const menu = $('#menu');

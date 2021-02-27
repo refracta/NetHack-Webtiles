@@ -170,6 +170,7 @@ getlin_hook_proc hook;
             bufp++;
             if (hook && (*hook)(obufp)) {
                 putsyms(bufp);
+                send_sharp_autocomplete(bufp);
 #ifndef NEWAUTOCOMP
                 bufp = eos(bufp);
 #else  /* NEWAUTOCOMP */
