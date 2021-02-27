@@ -142,6 +142,7 @@
 }
 
 .ingame-text {
+    white-space: pre;
     color: #ffffff;
     display: block;
 }
