@@ -271,6 +271,7 @@ class SiteUIHandler {
             $("#message_count").html("new messages (Press F12)");
             $("#message_count").toggleClass("has_new", true);
         }
+        $('#built-in-inventory').css('height', `calc(100vh - 296.5px - ${($('#chat').height() + 12) + 'px'})`);
     }
 
     toggle() {
@@ -285,6 +286,9 @@ class SiteUIHandler {
             //update_message_count();
             $('body').focus();
         }
+        setTimeout(_=>{
+            $('#built-in-inventory').css('height', `calc(100vh - 296.5px - ${($('#chat').height() + 12) + 'px'})`);
+        },300);
     }
 
     chat_message_send(e) {

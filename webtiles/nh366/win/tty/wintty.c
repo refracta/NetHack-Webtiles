@@ -3467,9 +3467,11 @@ tty_update_inventory()
     #endif
 
     if(iflags.perm_invent){
-        set_update_inventory_mode(TRUE);
-        display_inventory(NULL, FALSE);
-        set_update_inventory_mode(FALSE);
+        if(get_update_inventory_mode() == FALSE){
+            set_update_inventory_mode(TRUE);
+            display_inventory(NULL, FALSE);
+            set_update_inventory_mode(FALSE);
+        }
     }else{
         send_clear_built_in_inventory();
     }
