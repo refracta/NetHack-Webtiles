@@ -71,6 +71,14 @@
     flex-grow: 1;
 }
 
+.sharp_autocomplete {
+    white-space: pre;
+    color:#17a2b8;
+}
+.sharp_input {
+    white-space: pre;
+}
+
 #message-content {
     font-family: Hack;
     /*position: fixed;*/
@@ -81,6 +89,14 @@
     height: 105px;
     top: 0;
     /*padding-bottom: 5px;*/
+}
+
+#built-in-inventory {
+    margin-top: 10px;
+    width: 400px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: calc(100vh - 355.5px);
 }
 
 

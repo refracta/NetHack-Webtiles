@@ -122,6 +122,12 @@ class WSHandler {
         this.callback['update_menu_item'] = (data, info) =>{
             this.gameUIHandler.updateMenu(data.list);
         }
+        this.callback['built_in_menu_item'] = (data, info) =>{
+            this.gameUIHandler.updateBuiltInInventory(data.list);
+        }
+        this.callback['clear_built_in_inventory'] = (data, info) =>{
+            this.gameUIHandler.clearBuiltInInventory();
+        }
         this.callback['close_menu_item'] = (data, info) =>{
             this.gameUIHandler.closeMenu();
         }
@@ -213,6 +219,10 @@ class WSHandler {
             this.gameUIHandler.sharp_input(this.sharp_query + this.sharp_input_text);
         }
 
+        this.callback['sharp_autocomplete'] = (data) => {
+            this.gameUIHandler.sharp_autocomplete(data.autocomplete);
+        }
+
         this.callback['sharp_input'] = (data) => {
             if(data.c == 8){
                 this.sharp_input_text = this.sharp_input_text.slice(0, -1);
@@ -251,7 +261,7 @@ class WSHandler {
         }
 
         this.callback['large_text'] = (data) => {
-            this.gameUIHandler.launchLargeTextPopup(data.text);
+            this.gameUIHandler.launchLargeTextPopup(data.list.join('\n'));
         }
 
         this.callback['close_large_text'] = (data) => {

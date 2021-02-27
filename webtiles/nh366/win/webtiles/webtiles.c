@@ -57,6 +57,16 @@ void die(char *errmsg) {
     exit(1);
 }
 
+boolean update_inventory_mode = FALSE;
+
+int get_update_inventory_mode(){
+    return update_inventory_mode;
+}
+
+int set_update_inventory_mode(boolean mode){
+    update_inventory_mode = mode;
+}
+
 boolean exit_mode = FALSE;
 
 int get_exit_mode(){
@@ -357,7 +367,6 @@ void process_select_by_index(int sIndex){
                 if (csIndex == sIndex) {
                     toggle_menu_curr(menuStatus.window, cItem, current_page_index, is_current_page, menuStatus.counting,
                                      menuStatus.count);
-                    send_debug("COOL PICK %d %d", menuStatus.cw->how, PICK_ONE);
                     if (menuStatus.cw->how == PICK_ONE) {
                         *(menuStatus.finished) = TRUE;
                         key_code = 13;
@@ -478,14 +487,6 @@ void send_close_large_text(){
     add_send_queue(obj);
 }
 
-void send_large_text(char * text){
-    json_object *obj = json_object_new_object();
-    json_object_object_add(obj, "msg", json_object_new_string("large_text"));
-    json_object_object_add(obj, "text", json_object_new_string(text));
-    add_send_queue(obj);
-}
-
-
 
 
 void send_character_pos(int x, int y) {
@@ -562,6 +563,51 @@ void send_update_menu_item(tty_menu_item *menu_item) {
     json_object_object_add(menu_item_data, "selected", json_object_new_boolean(menu_item->selected));
     json_object_array_add(data, menu_item_data);
 }
+
+void send_built_in_menu_item(tty_menu_item *menu_item) {
+    bool is_inited = init_current_data("built_in_menu_item");
+
+    json_object * data = json_object_object_get(current_data, "list");
+    if(data == NULL) {
+        data = json_object_new_array();
+        json_object_object_add(current_data, "list", data);
+    }
+
+/*    *//* menu structure *//*
+    typedef struct tty_mi {
+        struct tty_mi *next;
+        anything identifier; *//* user identifier *//*
+        long count;          *//* user count *//*
+        char *str;           *//* description string (including accelerator) *//*
+        char *o_str;           *//* description string (including accelerator) *//*
+        int attr;            *//* string attribute *//*
+        boolean selected;    *//* TRUE if selected by user *//*
+        char selector;       *//* keyboard accelerator *//*
+        char gselector;      *//* group accelerator *//*
+    } tty_menu_item;*/
+
+    json_object * menu_item_data = json_object_new_object();
+//    char gselector_string[2];
+//    gselector_string[0] = menu_item->gselector;
+//    gselector_string[1] = '\0';
+    char selector_string[2];
+    selector_string[0] = menu_item->selector;
+    selector_string[1] = '\0';
+    char ch_string[2];
+    ch_string[0] = menu_item->ch;
+    ch_string[1] = '\0';
+//    json_object_object_add(menu_item_data, "gselector", json_object_new_string(gselector_string));
+    json_object_object_add(menu_item_data, "selector", json_object_new_string(selector_string));
+    json_object_object_add(menu_item_data, "ch", json_object_new_string(ch_string));
+    json_object_object_add(menu_item_data, "a_void", json_object_new_boolean(menu_item->identifier.a_void != 0 ? TRUE : FALSE));
+    json_object_object_add(menu_item_data, "count", json_object_new_int64(menu_item->count));
+    json_object_object_add(menu_item_data, "o_str", json_object_new_string(menu_item->o_str));
+    json_object_object_add(menu_item_data, "attr", json_object_new_int(menu_item->attr));
+    json_object_object_add(menu_item_data, "selected", json_object_new_boolean(menu_item->selected));
+    json_object_object_add(menu_item_data, "tile", json_object_new_int(menu_item->tile));
+    json_object_array_add(data, menu_item_data);
+}
+
 
 void send_menu_item(tty_menu_item *menu_item) {
     bool is_inited = init_current_data("menu_item");
@@ -663,6 +709,14 @@ void send_start_sharp_input(char * query){
     add_send_queue(obj);
 }
 
+void send_sharp_autocomplete(char* autocomplete){
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("sharp_autocomplete"));
+    json_object_object_add(obj, "autocomplete", json_object_new_string(autocomplete));
+    add_send_queue(obj);
+}
+
+
 void send_sharp_input(char c){
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("sharp_input"));
@@ -690,7 +744,21 @@ void send_text(char * text){
     }
 }
 
+void send_large_text(char * text){
+    bool is_inited = init_current_data("large_text");
 
+    json_object * data = json_object_object_get(current_data, "list");
+    if(data == NULL) {
+        data = json_object_new_array();
+        json_object_object_add(current_data, "list", data);
+    }
+
+    json_object_array_add(data, json_object_new_string(text));
+}
+
+void send_clear_built_in_inventory() {
+    init_current_data("clear_built_in_inventory");
+}
 
 void send_clear_tile() {
     if(screen_change){
