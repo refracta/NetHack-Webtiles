@@ -58,7 +58,7 @@ class WSHandler {
         }
 
         this.callback['register'] = (data, info) => {
-            console.log('Register request:', data);
+            console.log('Register request:', data.username, data.email);
             if (this.db.isRegistered(data.username)) {
                 this.sender.registerFail('User already exists!', [info]);
                 return;

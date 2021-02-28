@@ -1,4 +1,5 @@
 const low = require('lowdb');
+const crypt = require('crypt3/sync');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const db = low(adapter);
@@ -23,14 +24,15 @@ class LocalDB {
 
     isValidLogin(username, password) {
         let user = this.getUser(username);
-        return user && user.password === password;
+        return user && crypt(password, user.password) === user.password;
+
     }
 
     register(data) {
         db.get('users').assign({
             [data.username.toLowerCase()]: {
                 username: data.username,
-                password: data.password,
+                password: crypt(data.password, data.password),
                 email: data.email
             }
         }).write();
