@@ -29,7 +29,6 @@ void send_queued_msg();
 void send_text(char *);
 void send_tile_flag(int, int, char *);
 void send_clear_tile();
-void send_status(int, int, int, int, char *);
 void send_tile(int, int, int);
 void send_more(char *);
 

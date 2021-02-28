@@ -233,7 +233,7 @@ class GameUIHandler {
                         $("#message_count").html("(Esc: back to game)");
                         $('#chat_history_container').scrollTop($('#chat_history_container')[0].scrollHeight);
                         setTimeout(_=>{
-                            $('#built-in-inventory').css('height', `calc(100vh - 296.5px - ${($('#chat').height() + 12) + 'px'})`);
+                            $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
                         },300);
                     $('#chat_input').focus();
 
@@ -350,38 +350,9 @@ class GameUIHandler {
         return this.tileRenderer.initEnd;
     }
 
-    create_highlight_element(old_value, new_value, invert) {
+    create_highlight_element(value) {
         var ele = document.createElement('span');
-        var number_pattern = /^(-?\d+)(?:\/(\*\*|-?\d+))?$/;
-        var old_match = old_value.match(number_pattern);
-        var new_match = new_value.match(number_pattern);
-        if ((old_match != null) && (new_match != null)) {
-            var diff = parseInt(new_match[1]) - parseInt(old_match[1]);
-            if (diff != 0) { // major difference
-                ele.textContent = new_value;
-                var better = (diff > 0);
-                if (invert) better = !better;
-                ele.className = (better ? 'green' : 'red');
-            } else if (new_match[2] == old_match[2]) { // the same
-                ele.textContent = new_value;
-            } else { // minor difference
-                var ele1 = document.createElement('span');
-                ele1.textContent = new_match[1] + '/';
-                ele.appendChild(ele1);
-
-                // '**' is 100
-                var old_value2 = (old_match[2] == '**' ? 100 : (parseInt(old_match[2]) || 0))
-                var new_value2 = (new_match[2] == '**' ? 100 : (parseInt(new_match[2]) || 0))
-                var better = new_value2 > old_value2;
-                if (invert) better = !better;
-                var ele2 = document.createElement('span');
-                ele2.textContent = new_match[2];
-                ele2.className = (better ? 'green' : 'red');
-                ele.appendChild(ele2);
-            }
-        } else { // nothing special
-            ele.textContent = new_value;
-        }
+        ele.textContent = value;
         return ele;
     }
 
@@ -402,21 +373,174 @@ class GameUIHandler {
         show ? $('#game-content').show() : $('#game-content').hide();
     }
 
+    parseStatusData(data){
+        const TITLE_INDEX = 0;
+        const ST_INDEX = 1;
+        const DX_INDEX = 2;
+        const CO_INDEX = 3;
+        const IN_INDEX = 4;
+        const WI_INDEX = 5;
+        const CH_INDEX = 6;
+        const ALIGNMENT_INDEX = 7;
+        const ENCUMBRANCE_INDEX = 9;
+        const GOLD_INDEX = 10;
+        const PW_INDEX = 11;
+        const MAX_PW_INDEX = 12;
+        const LEVEL_INDEX = 13;
+        const AC_INDEX = 14;
+        const TURN_INDEX = 16;
+        const HUNGER_INDEX = 17;
+        const HP_INDEX = 18;
+        const MAX_HP_INDEX = 19;
+        const LOCATION_INDEX = 20;
+        const XP_INDEX = 21;
+        const CONDITION_INDEX = 22;
+        return {
+            title: {value: data[TITLE_INDEX].text},
+            st: {value: data[ST_INDEX].text, color: data[ST_INDEX].color, attr: data[ST_INDEX].attr},
+            dx: {value: data[DX_INDEX].text, color: data[DX_INDEX].color, attr: data[DX_INDEX].attr},
+            co: {value: data[CO_INDEX].text, color: data[CO_INDEX].color, attr: data[CO_INDEX].attr},
+            in: {value: data[IN_INDEX].text, color: data[IN_INDEX].color, attr: data[IN_INDEX].attr},
+            wi: {value: data[WI_INDEX].text, color: data[WI_INDEX].color, attr: data[WI_INDEX].attr},
+            ch: {value: data[CH_INDEX].text, color: data[CH_INDEX].color, attr: data[CH_INDEX].attr},
+            encumbrance: {value: data[ENCUMBRANCE_INDEX].text, color: data[ENCUMBRANCE_INDEX].color, attr: data[ENCUMBRANCE_INDEX].attr},
+            hunger: {value: data[HUNGER_INDEX].text, color: data[HUNGER_INDEX].color, attr: data[HUNGER_INDEX].attr},
+            alignment: {value: data[ALIGNMENT_INDEX].text, color: data[ALIGNMENT_INDEX].color, attr: data[ALIGNMENT_INDEX].attr},
+            gold: {value: parseInt(data[GOLD_INDEX].text.split(':').pop())},
+            pw: {value: parseInt(data[PW_INDEX].text), color: data[PW_INDEX].color, attr: data[PW_INDEX].attr},
+            maxPW: {value: parseInt(data[MAX_PW_INDEX].text), color: data[MAX_PW_INDEX].color, attr: data[MAX_PW_INDEX].attr},
+            hp: {value: parseInt(data[HP_INDEX].text), color: data[HP_INDEX].color, attr: data[HP_INDEX].attr},
+            maxHP: {value: parseInt(data[MAX_HP_INDEX].text), color: data[MAX_HP_INDEX].color, attr: data[MAX_HP_INDEX].attr},
+            ac: {value: parseInt(data[AC_INDEX].text), color: data[AC_INDEX].color, attr: data[AC_INDEX].attr},
+            level: {value: parseInt(data[LEVEL_INDEX].text), color: data[LEVEL_INDEX].color, attr: data[LEVEL_INDEX  ].attr},
+            turn: {value: parseInt(data[TURN_INDEX].text), color: data[TURN_INDEX].color, attr: data[TURN_INDEX].attr},
+            xp: {value: parseInt(data[XP_INDEX].text), color: data[XP_INDEX].color, attr: data[XP_INDEX].attr},
+            location: {value: data[LOCATION_INDEX].text, color: data[LOCATION_INDEX].color, attr: data[LOCATION_INDEX].attr},
+            condition: {value: data[CONDITION_INDEX].condition_list}
+        }
+    }
+    create_text_element(text, color, attr, colorOverride, type = 'hl'){
+        color = color & 0x00FF;
+        let terminalColor = {
+            "name" : "Campbell",
+
+            "cursorColor": "#FFFFFF",
+            "selectionBackground": "#FFFFFF",
+
+            "background" : "#0C0C0C",
+            "foreground" : "#CCCCCC",
+            "pureWhite" : "#ffffff",
+
+            "black" : "#0C0C0C",
+            "blue" : "#0037DA",
+            "cyan" : "#3A96DD",
+            "green" : "#13A10E",
+            "purple" : "#881798",
+            "red" : "#C50F1F",
+            "white" : "#CCCCCC",
+            "yellow" : "#C19C00",
+            "brightBlack" : "#767676",
+            "brightBlue" : "#3B78FF",
+            "brightCyan" : "#61D6D6",
+            "brightGreen" : "#16C60C",
+            "brightPurple" : "#B4009E",
+            "brightRed" : "#E74856",
+            "brightWhite" : "#F2F2F2",
+            "brightYellow" : "#F9F1A5"
+        };
+        terminalColor = {...terminalColor, ...colorOverride};
+        const colorOrder = ["black", "red", "green", "yellow", "blue", "purple", "cyan", "white", "brightBlack", "brightRed", "brightGreen", "brightYellow", "brightBlue","brightPurple","brightCyan","brightWhite"];
+        const ATR_NONE = 0;
+        const ATR_BOLD = 1;
+        const ATR_DIM = 2;
+        const ATR_ULINE = 4;
+        const ATR_BLINK = 5;
+        const ATR_INVERSE = 7;
+
+        const HL_UNDEF   = 0x00;
+        const HL_NONE    = 0x01;
+        const HL_BOLD    = 0x02;
+        const HL_INVERSE = 0x04;
+        const HL_ULINE   = 0x08;
+        const HL_BLINK   = 0x10;
+        const HL_DIM     = 0x20;
+
+        let realColor = terminalColor[colorOrder[color]];
+
+        let outerSpan = $('<span/>');
+        let innerSpan = $('<span/>');
+        outerSpan.append(innerSpan);
+        innerSpan.text(text);
+        innerSpan.css('color', realColor);
+
+        if(type == 'hr'){
+            if(attr & HL_NONE){
+
+            }
+            if(attr & HL_NONE){
+                outerSpan.addClass('console-effect-none');
+            }
+            if(attr & HL_BOLD){
+                outerSpan.addClass('console-effect-bold');
+            }
+            if(attr & HL_DIM){
+                outerSpan.addClass('console-effect-dim');
+            }
+            if(attr & HL_ULINE){
+                outerSpan.addClass('console-effect-uline');
+            }
+            if(attr & HL_BLINK){
+                outerSpan.addClass('console-effect-blink');
+            }
+            if(attr & HL_INVERSE){
+                outerSpan.css('background', realColor);
+                innerSpan.css('color', terminalColor.background);
+            }
+        }else if(type =='atr'){
+            switch (attr){
+                case ATR_BOLD:
+                    outerSpan.addClass('console-effect-bold');
+                    break;
+                case ATR_DIM:
+                    outerSpan.addClass('console-effect-dim');
+                    break;
+                case ATR_ULINE:
+                    outerSpan.addClass('console-effect-uline');
+                    break;
+                case ATR_BLINK:
+                    outerSpan.addClass('console-effect-blink');
+                    break;
+                case ATR_INVERSE:
+                    outerSpan.css('background', realColor);
+                    innerSpan.css('color', terminalColor.background);
+                    break;
+            }
+        }
+
+
+       return outerSpan.get(0);
+    }
+
     update_status(data) {
-        // console.log(data);
+
         try{
-
-
         if (!this.statusData) {
             this.statusData = data;
         } else {
             this.statusData = {...this.statusData, ...data};
         }
+        let status = this.parseStatusData(this.statusData);
+        // console.log(status);
+        // console.log(this.statusData);
         // console.log('isnot?', data)
         var win = $('#browserhack-status')[0];
 
         // creates a bootstrap statusbar given a max and current value
-        var getProgressBar = function (max, value, style, text) {
+        var getProgressBar =  (max, value, style, text) => {
+            let rawMax = max;
+            let rawValue = value;
+            max = rawMax.value;
+            value = rawValue.value;
             var percent = Math.round((1.0 * value / max) * 100);
             if(percent == Infinity){
                 percent = 100;
@@ -431,7 +555,7 @@ class GameUIHandler {
                 + style + '" role="progressbar" aria-valuenow="'
                 + value + '" aria-valuemin="0" aria-valuemax="'
                 + max + `" style="width:` + percent + `%"><span style="width: 390px; position: absolute; color:${textColor};px">`
-                + text + value + ' / ' + max + '</span></div>';
+                + text + this.create_text_element(rawValue.value, rawValue.color, rawValue.attr).outerHTML + ' / ' + this.create_text_element(rawMax.value, rawMax.color, rawMax.attr, {brightBlack: textColor}).outerHTML + '</span></div>';
             return div;
         };
 
@@ -479,13 +603,7 @@ class GameUIHandler {
             return container.innerHTML;
         }
 
-        // console.log(data[13].text);
-        var status1 = [1, this.statusData[0].text, "ST:", this.statusData[1].text, "DX: ", this.statusData[2].text, "CO:", this.statusData[3].text, "IN:", this.statusData[4].text, "WI:", this.statusData[5].text, "CH:", this.statusData[6].text, 15, 16, 17, 18, 19, this.statusData[7].text].map(e => e + '');
-        // console.log(data[8].text);
-        var status2 = [21, this.statusData[20].text, 23, 24, this.statusData[18].text, 26, this.statusData[19].text, 28, 29, this.statusData[11].text, 31, this.statusData[12].text, 33, 34, this.statusData[14].text, 36, this.statusData[13].text, 38, [this.statusData[9].text, this.statusData[17].text].filter(e => e !== "").join(', '), 40, this.statusData[16].text, this.statusData[21].text].map(e => e + '');
-        // console.log(status2);
-        // if no old status, copy current status
-        var old_status = [status1, status2];
+
         // console.log(status2);
 
         // clear status bar
@@ -507,19 +625,27 @@ class GameUIHandler {
         td = tr.insertCell();
         var name = document.createElement('span');
         name.className = 'name';
-        name.textContent = status1[1];
+        name.textContent = status.title.value;
         td.appendChild(name);
         // level, alignment and status effects
         tr = table.insertRow();
         td = tr.insertCell();
         td.style.textAlign = 'right';
-        var lvl = this.create_highlight_element(old_status[1][16], status2[16]);
-        var effect = status2[18].trim();
+        var lvl = this.create_text_element(status.level.value, status.level.color, status.level.attr, {brightBlack: 'inherit'});
+        // status.condition.con
+
         var alignLvl = document.createElement('span');
         alignLvl.className = 'highlight';
-        alignLvl.innerHTML = 'LV <b style="font-size:14pt;">' + outerHTML(lvl) + '</b>, ' + status1[status1.length - 1].trim();
-        if (effect != "")
-            alignLvl.innerHTML += ', <b style="color:white;">' + effect + '</b>';
+        alignLvl.innerHTML = 'LV <b style="font-size:14pt;">' + outerHTML(lvl) + '</b>, ' + this.create_text_element(status.alignment.value.trim(), status.alignment.color, status.alignment.attr).outerHTML;
+        if (status.hunger.value){
+            alignLvl.innerHTML += ', ' + this.create_text_element(status.hunger.value.trim(), status.hunger.color, status.hunger.attr, ).outerHTML;
+        }
+        if (status.encumbrance.value){
+            alignLvl.innerHTML += ', ' + this.create_text_element(status.encumbrance.value.trim(), status.encumbrance.color, status.encumbrance.attr).outerHTML;
+        }
+        if (status.condition.value){
+            alignLvl.innerHTML += ', ' + status.condition.value.map(e=>this.create_text_element(e.condtext.trim(), e.coloridx, e.attrmask).outerHTML).join(', ');
+        }
         td.appendChild(alignLvl);
         win.appendChild(table);
 
@@ -533,17 +659,12 @@ class GameUIHandler {
         // HP
         tr = table.insertRow();
         td = tr.insertCell();
-        td.appendChild(getProgressBar(status2[6], status2[4], 'danger', 'HP: '));
-        this.tileRenderer.setMarkerColor(status2[4]/status2[6]);
+        td.appendChild(getProgressBar(status.maxHP, status.hp, 'danger', 'HP: '));
+        this.tileRenderer.setMarkerColor(status.hp.value/status.maxHP.value);
         // Pw
         tr = table.insertRow();
         td = tr.insertCell();
-        td.appendChild(getProgressBar(status2[11], status2[9], 'info', 'PW: '));
-        win.appendChild(table);
-
-        tr = table.insertRow();
-        td = tr.insertCell();
-        td.appendChild(getProgressBar(status2[21], status2[16], 'warning', 'XP: '));
+        td.appendChild(getProgressBar(status.maxPW, status.pw, 'info', 'PW: '));
         win.appendChild(table);
 
         var statDiv =  document.createElement('div');
@@ -556,30 +677,30 @@ class GameUIHandler {
         table.style.marginTop = '5px';
         table.style.width = '310px';
         tr = table.insertRow();
-        for (var i = 2; i < 14; i += 2) {
-            if (i == 8)
+        let statKey = ['st', 'dx', 'co', 'in', 'wi', 'ch'];
+        let statData = statKey.map(k=>status[k]);
+        for (var i = 0; i < statData.length; i ++) {
+            if (i == 3)
                 tr = table.insertRow();
             td = tr.insertCell();
-            var str = status1[i].trim()
-            str = str.substring(0, str.length - 1)
+            var str = statKey[i].trim()
             var statName = document.createElement('div');
             statName.className = 'statName';
             statName.innerHTML = '<b>' + str.toUpperCase() + '</b>';
             statName.style.textAlign = 'center';
-            statName.style.color = colors[(i - 2) / 2];
+            statName.style.color = colors[i];
             td.appendChild(statName);
-            var stat = this.create_highlight_element(old_status[0][i + 1], status1[i + 1]);
+            var stat = this.create_text_element(statData[i].value, statData[i].color, statData[i].attr, {brightBlack: 'inherit'});
             stat.className = 'stat';
             stat.style.display = "grid";
             stat.style.textAlign = "center";
             td.appendChild(stat);
             // store stat in list for later use in hexagon
             // we treat 18/xx as 18 for simplicity
-            var statValue = status1[i + 1];
+            var statValue = statData[i].value;
             if (statValue.length > 2)
                 statValue = statValue.substring(0, 2);
             stats.push(parseInt(statValue));
-
         }
         statDiv.appendChild(table);
 
@@ -638,23 +759,24 @@ class GameUIHandler {
         // last status: Dlvl, AC, Cash
         // TODO: turns
         var lastStatus =  document.createElement('div');
+        lastStatus.style.width = '400px';
         lastStatus.style.textAlign = 'center';
-
-
 
         var turn = document.createElement('i');
         turn.classList.add('fa', 'fa-hourglass-half', 'status-misc');
-        turn.innerHTML = ' ' + outerHTML(this.create_highlight_element(old_status[1][20], status2[20], true));
+        turn.innerHTML = ' ' + this.create_text_element(status.turn.value, status.turn.color, status.turn.attr, {brightBlack: 'inherit'}).outerHTML;
         lastStatus.appendChild(turn);
 
 
         var dlvl = document.createElement('i');
         dlvl.classList.add('fa', 'fa-compass', 'status-misc');
+        let dlvlText;
             try{
-                dlvl.innerHTML = ' ' + status2[1].split(':')[1].split(' ')[0];
+                dlvlText = ' ' + status.location.value.split(':')[1].split(' ')[0];
             }catch(e){
-                dlvl.innerHTML = ' ' + status2[1];
+                dlvlText = ' ' + status.location.value;
             }
+        dlvl.innerHTML = ' ' + this.create_text_element(dlvlText, status.location.color, status.location.attr, {brightBlack: 'inherit'}).outerHTML;
         lastStatus.appendChild(dlvl);
         // No turn in current status lines?
 
@@ -662,12 +784,16 @@ class GameUIHandler {
 
         var ac = document.createElement('i');
         ac.classList.add('fa', 'fa-shield', 'status-misc');
-        ac.innerHTML = ' ' + outerHTML(this.create_highlight_element(old_status[1][14], status2[14], true));
+        ac.innerHTML = ' ' + this.create_text_element(status.ac.value, status.ac.color, status.ac.attr, {brightBlack: 'inherit'}).outerHTML;
         lastStatus.appendChild(ac);
         var gold = document.createElement('i');
         gold.classList.add('fa', 'fa-usd', 'status-misc');
-        gold.innerHTML = ' ' + outerHTML(this.create_highlight_element(this.statusData[10].text.split(':').pop(), this.statusData[10].text.split(':').pop()));
+        gold.innerHTML = ' ' + this.create_text_element(status.gold.value, status.gold.color, status.gold.attr, {black: '#ffffff', brightBlack: 'inherit'}).outerHTML;
         lastStatus.appendChild(gold);
+        var xp = document.createElement('i');
+        xp.classList.add('fa', 'fa-etsy', 'status-misc');
+        xp.innerHTML = ' ' + this.create_text_element(status.xp.value, status.xp.color, status.xp.attr, {brightBlack: 'inherit'}).outerHTML;
+        lastStatus.appendChild(xp);
         win.appendChild(lastStatus);
         // update old status to current
         //old_status = [status1, status2];
@@ -692,13 +818,13 @@ class GameUIHandler {
 
     updateMenu(menuData){
         $('.item:has(.item-selectable)').toArray().map(e=>$(e)).forEach((e, i)=>{
-            let text = e.find('.item-selectable').text().split('');
+            let text = e.find('.item-selectable > span > span').text().split('');
             let currentData = menuData[i];
             if (e.data('selected') != currentData.selected || e.data('count') != currentData.count){
                 text[2] = !currentData.selected ? '-' : (currentData.count != -1 ? '#' : '+');
                 e.data('selected', currentData.selected);
                 e.data('count', currentData.count);
-                e.find('.item-selectable').text(text.join(''));
+                e.find('.item-selectable > span > span').text(text.join(''));
             }
         });
         // console.log(menuData);
@@ -713,7 +839,8 @@ class GameUIHandler {
         const menu = $('#built-in-inventory');
         menu.html('');
         $('#built-in-inventory').css('background', '#101d42');
-        $('#built-in-inventory').css('height', `calc(100vh - 296.5px - ${($('#chat').height() + 12) + 'px'})`);
+
+        $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
         for(let data of menuData){
             if(data.o_str === ''){
                 data.o_str += '　';
@@ -752,33 +879,11 @@ class GameUIHandler {
                     }
                     let selector = data.ch ? data.ch : selectorString.charAt(selectorIndex % 52);
                     const itemText = $("<div/>").attr({
-                        "class" : "item-text item-col"
-                    }).text(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`);
+                        "class" : "item-text item-col item-non-selectable"
+                    })
+                    itemText.append(this.create_text_element(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`, data.color, data.text_attr, {brightBlack: 'inherit'},'atr'));
                     // !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
                     item.append(itemText);
-                    if(data.tile >= 0){
-                        let description = data.o_str;
-                        let r = description.split(/^(a|an|\d+)\s+/);
-
-                        let count = 1;
-                        if(r.length == 3) {
-                            description = r[2];
-                            count = parseInt(r[1]) || 1;
-                        }
-                        // parse BCU
-                        let bcu = null;
-                        r = description.split(/^(blessed|uncursed|cursed)\s+/);
-                        if(r.length == 3) {
-                            description = r[2];
-                            bcu = r[1];
-                        }
-                        if(bcu === null){
-                            bcu = 'item-default';
-                        }else{
-                            bcu = 'item-'+bcu;
-                        }
-                        itemText.addClass(bcu);
-                    }
                     menu.append(item);
                 }
             }
@@ -828,7 +933,7 @@ class GameUIHandler {
                 let selector = data.ch ? data.ch : selectorString.charAt(selectorIndex % 52);
                 const itemText = $("<div/>").attr({
                     "class" : "item-text item-col item-selectable"
-                }).text(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`);
+                });
                     item.data('selected', data.selected);
                     item.data('count', data.count);
                     item.data('selector', selector);
@@ -843,30 +948,10 @@ class GameUIHandler {
                         this.sender.key(e.data('selector').charCodeAt(0));
                     }
                 });
-                item.append(itemText);
-                if(data.tile >= 0){
-                    let description = data.o_str;
-                    let r = description.split(/^(a|an|\d+)\s+/);
 
-                    let count = 1;
-                    if(r.length == 3) {
-                        description = r[2];
-                        count = parseInt(r[1]) || 1;
-                    }
-                    // parse BCU
-                    let bcu = null;
-                    r = description.split(/^(blessed|uncursed|cursed)\s+/);
-                    if(r.length == 3) {
-                        description = r[2];
-                        bcu = r[1];
-                    }
-                    if(bcu === null){
-                        bcu = 'item-default';
-                    }else{
-                        bcu = 'item-'+bcu;
-                    }
-                    itemText.addClass(bcu);
-                }
+                    itemText.append(this.create_text_element(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`, data.color, data.text_attr,{brightBlack: 'inherit', black: '#444444'}, 'atr'));
+                    // !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
+                    item.append(itemText);
                 menu.append(item);
                 }
             }

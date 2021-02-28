@@ -135,9 +135,9 @@
 }
 
 #browserhack-status .status-misc {
-    margin-left: 10px;
-    margin-right: 10px;
-    font-size: 16pt;
+    margin-left: 5px;
+    margin-right: 5px;
+    font-size: 13pt;
     vertical-align: middle;
 }
 
@@ -617,6 +617,12 @@ padding-right: 30%;*/
   color: greenyellow;
   text-align: center
 }
+.item-selectable {
+    color: white!important;
+}
+.item-non-selectable {
+    color: white!important;
+}
 .item-sel{
   flex-basis: 2%;
   color: greenyellow;
@@ -667,3 +673,40 @@ padding-right: 30%;*/
 .item-default {
     color:white;
 }
+
+/*#define ATR_NONE       0*/
+/*#define ATR_BOLD       1*/
+/*#define ATR_DIM        2*/
+/*#define ATR_ULINE      4*/
+/*#define ATR_BLINK      5*/
+/*#define ATR_INVERSE    7*/
+
+.console-effect-none > span{
+}
+
+.console-effect-bold > span{
+    font-weight: bold;
+}
+
+.console-effect-dim > span{
+    filter: brightness(50%);
+}
+
+.console-effect-uline > span{
+    text-decoration: underline;
+}
+
+.console-effect-blink > span {
+    animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+        filter: brightness(50%);
+    }
+}
+
+.console-effect-invisible {
+    visibility: hidden;
+}
+
