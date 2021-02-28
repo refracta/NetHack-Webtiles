@@ -22,7 +22,7 @@ class WSHandler {
             }
             let roomInfo = this.getGameRoomByUsername(info.username);
             if (roomInfo && roomInfo.udsInfo) {
-                if (data.keyCode == 3) {
+                if (data.keyCode == 26) {
                     console.log('Okay Close Message');
                     this.udsSender.close([roomInfo.udsInfo]);
                 } else {
@@ -217,6 +217,7 @@ class WSHandler {
                     cwd: process.env.HOME,
                     env: process.env
                 });
+
                 ptyProcess.write(config.cmd.nethackWithTTYREC);
                 let terminal = new Terminal();
                 let terminalSerializer = new SerializeAddon();
@@ -231,8 +232,10 @@ class WSHandler {
                 ptyProcess.write('\r');
                 console.log(config.cmd.nethackWithTTYREC);
                 console.log(info.username);
+                console.log(`PID: ${ptyProcess.pid}`);
 		
                 let roomInfo = {
+                    pid: ptyProcess.pid,
                     id: gameInfo.id,
                     name: gameInfo.name,
                     player: info,
@@ -251,12 +254,14 @@ class WSHandler {
                 let watcherData = this.roomToWatcherData(roomInfo);
                 this.sender.updateWatcher(watcherData.userList, watcherData.numberOfWatchers, [roomInfo.player, ...roomInfo.watchers])
                 setTimeout(_ => {
-                    if (!roomInfo.udsInfo) {
+                    if (!roomInfo.initGame) {
+                        roomInfo.ptyProcess.write('\x03');
                         this.removeGameRoomByUsername(info.username);
                         let lobbyList = this.getStatusSocketInfoList('lobby');
                         this.sender.lobbyRemove(roomInfo, lobbyList);
                         let roomMembers = [roomInfo.player, ...roomInfo.watchers];
                         this.toLobby(roomMembers);
+                        this.sender.terminalError((roomInfo.playData.tty_raw_print ? roomInfo.playData.tty_raw_print : ['Unknown Error...']).join('\n'), [roomInfo.player]);
                         if (roomInfo.closeHandler) {
                             roomInfo.closeHandler(roomInfo);
                         }

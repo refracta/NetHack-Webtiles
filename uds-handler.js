@@ -4,29 +4,13 @@ class UDSHandler {
         this.callback = {};
 
         this.callback['init_game'] = (data, info) => {
-            let roomInfo = this.wsHandler.getGameRoomByUsername(data.username);
-            if(roomInfo && roomInfo.udsInfo){
-                // TODO
-                // if webtiles, this case => close self
-                // if tty, this case => close webtiles, run tty play
-            }
+            let roomInfo = this.wsHandler.getGameRoomByUsername(info.username);
             if (roomInfo) {
                 this.wsSender.initGame(roomInfo.webRC, [roomInfo.player]);
-                info.closeHandler = (info) => {
-                    this.wsHandler.removeGameRoomByUsername(data.username);
-                    let roomMembersInfo = [roomInfo.player, ...roomInfo.watchers];
-                    let lobbyList = this.wsHandler.getStatusSocketInfoList('lobby');
-                    this.wsSender.lobbyRemove(roomInfo, lobbyList);
-                    this.wsHandler.toLobby(roomMembersInfo);
-                    roomInfo.ptyProcess.kill();
-                    if (roomInfo.closeHandler) {
-                        roomInfo.closeHandler(roomInfo);
-                    }
-                };
-                info.room = roomInfo;
-                roomInfo.udsInfo = info;
+                roomInfo.initGame = true;
             }
         }
+
         this.callback['debug'] = (data, info) => {
             if(data.debug){
                 try{
@@ -65,10 +49,14 @@ class UDSHandler {
             info.room.playData.cursor = data.i;
             info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
         }
-
         this.callback['clear_tile'] = (data, info) => {
             info.room ? info.room.playData.tile = {} : void 0;
             info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
+        }
+
+        this.callback['tty_raw_print'] = (data, info) => {
+            let tty_raw_print = info.room.playData.tty_raw_print;
+            info.room.playData.tty_raw_print = tty_raw_print ? [...tty_raw_print, ...data.list] : data.list;
         }
 
         this.callback['sharp_autocomplete'] = this.callback['clear_built_in_inventory'] = this.callback['built_in_menu_item'] =
@@ -87,10 +75,31 @@ class UDSHandler {
             }
     }
 
+    connectionHandle(info){
+        let username = info.username;
+        let roomInfo = this.wsHandler.getGameRoomByUsername(username);
+        if(roomInfo){
+            info.room = roomInfo;
+            roomInfo.udsInfo = info;
+            info.closeHandler = (info) => {
+                this.wsHandler.removeGameRoomByUsername(username);
+                let roomMembersInfo = [roomInfo.player, ...roomInfo.watchers];
+                let lobbyList = this.wsHandler.getStatusSocketInfoList('lobby');
+                this.wsSender.lobbyRemove(roomInfo, lobbyList);
+                this.wsHandler.toLobby(roomMembersInfo);
+                roomInfo.ptyProcess.kill();
+                if (roomInfo.closeHandler) {
+                    roomInfo.closeHandler(roomInfo);
+                }
+            };
+        }
+    }
+
     init(initHandle) {
         this.wsHandler = initHandle.wsHandler;
         this.wsSender = initHandle.wsSender;
         this.server.handler = this.handle.bind(this);
+        this.server.connectionHandle = this.connectionHandle.bind(this);
     }
 }
 
