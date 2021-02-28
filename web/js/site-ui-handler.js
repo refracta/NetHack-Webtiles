@@ -271,7 +271,7 @@ class SiteUIHandler {
             $("#message_count").html("new messages (Press F12)");
             $("#message_count").toggleClass("has_new", true);
         }
-        $('#built-in-inventory').css('height', `calc(100vh - 296.5px - ${($('#chat').height() + 12) + 'px'})`);
+        $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
     }
 
     toggle() {
@@ -287,7 +287,7 @@ class SiteUIHandler {
             $('body').focus();
         }
         setTimeout(_=>{
-            $('#built-in-inventory').css('height', `calc(100vh - 296.5px - ${($('#chat').height() + 12) + 'px'})`);
+            $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
         },300);
     }
 

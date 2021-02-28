@@ -57,6 +57,16 @@ void die(char *errmsg) {
     exit(1);
 }
 
+boolean print_error_mode = FALSE;
+
+int get_print_error_mode(){
+    return print_error_mode;
+}
+
+int set_print_error_mode(boolean mode){
+    print_error_mode = mode;
+}
+
 boolean update_inventory_mode = FALSE;
 
 int get_update_inventory_mode(){
@@ -564,7 +574,7 @@ void send_update_menu_item(tty_menu_item *menu_item) {
     json_object_array_add(data, menu_item_data);
 }
 
-void send_built_in_menu_item(tty_menu_item *menu_item) {
+void send_built_in_menu_item(tty_menu_item *menu_item, int color, int attr) {
     bool is_inited = init_current_data("built_in_menu_item");
 
     json_object * data = json_object_object_get(current_data, "list");
@@ -605,11 +615,13 @@ void send_built_in_menu_item(tty_menu_item *menu_item) {
     json_object_object_add(menu_item_data, "attr", json_object_new_int(menu_item->attr));
     json_object_object_add(menu_item_data, "selected", json_object_new_boolean(menu_item->selected));
     json_object_object_add(menu_item_data, "tile", json_object_new_int(menu_item->tile));
+    json_object_object_add(menu_item_data, "color", json_object_new_int(color));
+    json_object_object_add(menu_item_data, "text_attr", json_object_new_int(attr));
     json_object_array_add(data, menu_item_data);
 }
 
 
-void send_menu_item(tty_menu_item *menu_item) {
+void send_menu_item(tty_menu_item *menu_item, int color, int attr) {
     bool is_inited = init_current_data("menu_item");
 
     json_object * data = json_object_object_get(current_data, "list");
@@ -650,10 +662,62 @@ void send_menu_item(tty_menu_item *menu_item) {
     json_object_object_add(menu_item_data, "attr", json_object_new_int(menu_item->attr));
     json_object_object_add(menu_item_data, "selected", json_object_new_boolean(menu_item->selected));
     json_object_object_add(menu_item_data, "tile", json_object_new_int(menu_item->tile));
+    json_object_object_add(menu_item_data, "color", json_object_new_int(color));
+    json_object_object_add(menu_item_data, "text_attr", json_object_new_int(attr));
     json_object_array_add(data, menu_item_data);
 }
 
-void send_status(int fldidx, int chg, int percent, int color, char *text) {
+void add_status_condition(int fldidx, char * condtext, int coloridx, int attrmask) {
+    bool is_inited = init_current_data("status");
+    char fldidx_string[3];
+    sprintf(fldidx_string, "%d", fldidx);
+
+    json_object * data = json_object_object_get(current_data, "data");
+    if(data == NULL) {
+        data = json_object_new_object();
+        json_object_object_add(current_data, "data", data);
+    }
+
+    json_object * status_data = json_object_object_get(data, fldidx_string);
+    if(status_data == NULL) {
+        status_data = json_object_new_object();
+        json_object_object_add(data, fldidx_string, status_data);
+    }
+
+    json_object * condition_list = json_object_object_get(status_data, "condition_list");
+    if(condition_list == NULL) {
+        condition_list = json_object_new_array();
+        json_object_object_add(status_data, "condition_list", condition_list);
+    }
+    json_object * condition_data = json_object_new_object();
+    json_object_object_add(condition_data, "condtext", json_object_new_string(condtext));
+    json_object_object_add(condition_data, "coloridx", json_object_new_int(coloridx));
+    json_object_object_add(condition_data, "attrmask", json_object_new_int(attrmask));
+    json_object_array_add(condition_list, condition_data);
+}
+
+
+void add_status_attr(int fldidx, int attr) {
+    bool is_inited = init_current_data("status");
+    char fldidx_string[3];
+    sprintf(fldidx_string, "%d", fldidx);
+
+    json_object * data = json_object_object_get(current_data, "data");
+    if(data == NULL) {
+        data = json_object_new_object();
+        json_object_object_add(current_data, "data", data);
+    }
+
+    json_object * status_data = json_object_object_get(data, fldidx_string);
+    if(status_data == NULL) {
+        status_data = json_object_new_object();
+        json_object_object_add(data, fldidx_string, status_data);
+    }
+
+    json_object_object_add(status_data, "attr", json_object_new_int(attr));
+}
+
+void send_status(int fldidx, int chg, int percent, int color, genericptr_t *ptr) {
     bool is_inited = init_current_data("status");
 
     char fldidx_string[3];
@@ -675,10 +739,12 @@ void send_status(int fldidx, int chg, int percent, int color, char *text) {
     json_object_object_add(status_data, "chg", json_object_new_int(chg));
     json_object_object_add(status_data, "percent", json_object_new_int(percent));
     json_object_object_add(status_data, "color", json_object_new_int(color));
-    if (text != NULL) {
+    if (fldidx != BL_CONDITION && ptr != NULL) {
+        char * text = (char *) ptr;
         json_object_object_add(status_data, "text", json_object_new_string(text));
     } else {
-        json_object_object_add(status_data, "text", json_object_new_string(""));
+        long * condition = (long *) ptr;
+        json_object_object_add(status_data, "condition", json_object_new_int64(condition));
     }
 }
 
@@ -742,6 +808,25 @@ void send_text(char * text){
 
     json_object_array_add(data, json_object_new_string(text));
     }
+}
+
+void send_error_start(){
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("error_start"));
+
+    char *json = json_object_to_json_string(obj);
+    send_msg(json);
+    json_object_put(obj);
+}
+
+void send_error(char * error){
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("error"));
+    json_object_object_add(obj, "error", json_object_new_string(error));
+
+    char *json = json_object_to_json_string(obj);
+    send_msg(json);
+    json_object_put(obj);
 }
 
 void send_large_text(char * text){
