@@ -638,7 +638,7 @@ class GameUIHandler {
         tr = table.insertRow();
         td = tr.insertCell();
         td.style.textAlign = 'right';
-        var lvl = this.create_text_element(status.level.value, status.level.color, status.level.attr, {brightBlack: 'inherit'});
+        var lvl = this.create_text_element(status.level.value, status.level.color, status.level.attr, {brightBlack: '#dddddd'});
         // status.condition.con
 
         var alignLvl = document.createElement('span');
@@ -697,7 +697,7 @@ class GameUIHandler {
             statName.style.textAlign = 'center';
             statName.style.color = colors[i];
             td.appendChild(statName);
-            var stat = this.create_text_element(statData[i].value, statData[i].color, statData[i].attr, {brightBlack: 'inherit'});
+            var stat = this.create_text_element(statData[i].value, statData[i].color, statData[i].attr, {brightBlack: '#dddddd'});
             stat.className = 'stat';
             stat.style.display = "grid";
             stat.style.textAlign = "center";
@@ -772,7 +772,7 @@ class GameUIHandler {
         if(status.turn){
             var turn = document.createElement('i');
             turn.classList.add('fa', 'fa-hourglass-half', 'status-misc');
-            turn.innerHTML = ' ' + this.create_text_element(status.turn.value, status.turn.color, status.turn.attr, {brightBlack: 'inherit'}).outerHTML;
+            turn.innerHTML = ' ' + this.create_text_element(status.turn.value, status.turn.color, status.turn.attr, {brightBlack: '#dddddd'}).outerHTML;
             lastStatus.appendChild(turn);
         }
 
@@ -784,7 +784,7 @@ class GameUIHandler {
             }catch(e){
                 dlvlText = ' ' + status.location.value;
             }
-        dlvl.innerHTML = ' ' + this.create_text_element(dlvlText, status.location.color, status.location.attr, {brightBlack: 'inherit'}).outerHTML;
+        dlvl.innerHTML = ' ' + this.create_text_element(dlvlText, status.location.color, status.location.attr, {brightBlack: '#dddddd'}).outerHTML;
         lastStatus.appendChild(dlvl);
         // No turn in current status lines?
 
@@ -792,16 +792,16 @@ class GameUIHandler {
 
         var ac = document.createElement('i');
         ac.classList.add('fa', 'fa-shield', 'status-misc');
-        ac.innerHTML = ' ' + this.create_text_element(status.ac.value, status.ac.color, status.ac.attr, {brightBlack: 'inherit'}).outerHTML;
+        ac.innerHTML = ' ' + this.create_text_element(status.ac.value, status.ac.color, status.ac.attr, {brightBlack: '#dddddd'}).outerHTML;
         lastStatus.appendChild(ac);
         var gold = document.createElement('i');
         gold.classList.add('fa', 'fa-usd', 'status-misc');
-        gold.innerHTML = ' ' + this.create_text_element(status.gold.value, status.gold.color, status.gold.attr, {black: '#ffffff', brightBlack: 'inherit'}).outerHTML;
+        gold.innerHTML = ' ' + this.create_text_element(status.gold.value, status.gold.color, status.gold.attr, {black: '#ffffff', brightBlack: '#dddddd'}).outerHTML;
         lastStatus.appendChild(gold);
         if(status.xp){
             var xp = document.createElement('i');
             xp.classList.add('fa', 'fa-etsy', 'status-misc');
-            xp.innerHTML = ' ' + this.create_text_element(status.xp.value, status.xp.color, status.xp.attr, {brightBlack: 'inherit'}).outerHTML;
+            xp.innerHTML = ' ' + this.create_text_element(status.xp.value, status.xp.color, status.xp.attr, {brightBlack: '#dddddd'}).outerHTML;
             lastStatus.appendChild(xp);
         }
         win.appendChild(lastStatus);
@@ -856,7 +856,7 @@ class GameUIHandler {
                 data.o_str += '　';
             }
             if(!data.a_void){
-                if(data.attr === 7){
+                if(data.attr === 7 && !data.selector){
                     const itemHeader = $("<div/>").attr({
                         "class" : "item-header"
                     }).text(data.o_str);
@@ -870,7 +870,7 @@ class GameUIHandler {
                     menu.append(textMenu);
                 }
             }else{
-                if(data.attr === 7){
+                if(data.attr === 7 && !data.selector){
                     const itemHeader = $("<div/>").attr({
                         "class" : "item-header"
                     }).text(data.o_str);
@@ -891,7 +891,7 @@ class GameUIHandler {
                     const itemText = $("<div/>").attr({
                         "class" : "item-text item-col item-non-selectable"
                     })
-                    itemText.append(this.create_text_element(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`, data.color, data.text_attr, {brightBlack: 'inherit'},'atr'));
+                    itemText.append(this.create_text_element(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`, data.color, data.text_attr, {brightBlack: '#dddddd'},'atr'));
                     // !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
                     item.append(itemText);
                     menu.append(item);
@@ -900,6 +900,7 @@ class GameUIHandler {
         }
     }
     createMenu(menuData) {
+        console.log(menuData);
         this.menuMode = true;
         const menu = $('#menu');
         let selectorString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -909,7 +910,7 @@ class GameUIHandler {
                 data.o_str += '　';
             }
             if(!data.a_void){
-                if(data.attr === 7){
+                if(data.attr === 7 && !data.selector){
                     const itemHeader = $("<div/>").attr({
                         "class" : "item-header"
                     }).text(data.o_str);
@@ -923,7 +924,7 @@ class GameUIHandler {
                     menu.append(textMenu);
                 }
             }else{
-                if(data.attr === 7){
+                if(data.attr === 7 && !data.selector){
                     const itemHeader = $("<div/>").attr({
                         "class" : "item-header"
                     }).text(data.o_str);
@@ -959,7 +960,7 @@ class GameUIHandler {
                     }
                 });
 
-                    itemText.append(this.create_text_element(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`, data.color, data.text_attr,{brightBlack: 'inherit', black: '#444444'}, 'atr'));
+                    itemText.append(this.create_text_element(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`, data.color, data.text_attr,{brightBlack: '#dddddd', black: '#444444'}, 'atr'));
                     // !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
                     item.append(itemText);
                 menu.append(item);
