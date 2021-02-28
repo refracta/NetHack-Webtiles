@@ -28,7 +28,8 @@ class UDSServer {
         this.connectionInfoMap = {};
 
         this.socket.on('message', (message, socketInfo) => {
-            message = message.toString(UnixDgramSocket.payloadEncoding).substring(0, message.indexOf('\0'));
+            message = message.toString(UnixDgramSocket.payloadEncoding);
+            message = message.substring(0, message.indexOf('\0'));;
 
             let path = socketInfo.remoteSocket;
             let info = this.connectionInfoMap[path];
@@ -57,6 +58,7 @@ class UDSServer {
                 console.log('InitSocket:', path);
                 console.log(`SendSocketConnect: ${path}`);
                 info = {};
+                info.username = data.username;
                 info.socketInfo = socketInfo;
                 info.path = path;
                 info.pid = parseInt(path.split('-').pop());
@@ -85,6 +87,8 @@ class UDSServer {
                         msg: 'ping'
                     }, info);
                 }, Math.ceil(this.pingTimeout / 3));
+
+                this.connectionHandle(info);
             } else if (info) {
                 if (data.msg === 'ping') {
                     console.log(`Ping from ${path}`);

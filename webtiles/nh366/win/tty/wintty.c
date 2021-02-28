@@ -3827,6 +3827,9 @@ const char *str;
     if(get_print_error_mode()){
         send_error(str);
     }
+    if(!get_init_game()){
+        send_tty_raw_print(str);
+    }
 
     HUPSKIP();
     if (ttyDisplay)

@@ -105,6 +105,10 @@ class WSSender {
         this.server.sendToList({msg: 'terminal', data}, socketInfoList);
     }
 
+    terminalError(error, socketInfoList) {
+        this.server.sendToList({msg: 'terminal_error', error}, socketInfoList);
+    }
+
     initWatch(playData, terminalData, webRC, socketInfoList) {
         this.server.sendToList({msg: 'init_watch', playData, terminalData, webRC}, socketInfoList);
     }

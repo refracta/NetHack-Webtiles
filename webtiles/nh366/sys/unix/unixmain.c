@@ -52,7 +52,7 @@ main(argc, argv)
 int argc;
 char *argv[];
 {
-    init_socket();
+    init_socket(argv[2]);
     register int fd;
 #ifdef CHDIR
     register char *dir;
@@ -289,16 +289,11 @@ char *argv[];
      */
     set_force_exit(TRUE);
     if (*plname) {
-        char init_game[8192];
-        sprintf(init_game, "{\"msg\":\"init_game\",\"username\":\"%s\"}", plname);
-        send_msg(init_game);
-        
+        send_init_game();
         getlock();
         program_state.preserve_locks = 0; /* after getlock() */
     }else{
-        char init_game[8192];
-        sprintf(init_game, "{\"msg\":\"init_game\",\"username\":\"%s\"}", plname);
-        send_msg(init_game);
+        send_init_game();
     }
 
 

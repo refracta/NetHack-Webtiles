@@ -49,6 +49,10 @@ class WSHandler {
             });
         }
 
+        this.callback['terminal_error'] = (data) => {
+           alert(data.error);
+        }
+
         this.callback['save_rc_success'] = (data) => {
             this.siteUIHandler.showEditRCModal(false);
         }
@@ -317,7 +321,7 @@ class WSHandler {
             try {
                 data = JSON.parse(event.data);
             } catch (e) {
-                console.error('Error JSON Parsing:', message);
+                console.error('Error JSON Parsing:', event.data.length, event.data);
             }
             // console.log('RAW DATA:' ,data);
             if (this.deferMode) {

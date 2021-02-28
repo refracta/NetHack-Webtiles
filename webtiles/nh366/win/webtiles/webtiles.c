@@ -161,7 +161,18 @@ void send_msg(char *);
 
 void start_handle_socket_runner();
 
-void init_socket() {
+void send_init_socket(char * username){
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("init_socket"));
+    json_object_object_add(obj, "pid", json_object_new_int(getpid()));
+    json_object_object_add(obj, "username", json_object_new_string(username));
+
+    char *json = json_object_to_json_string(obj);
+    send_msg(json);
+    json_object_put(obj);
+}
+
+void init_socket(char * username) {
     char *game_path = GAME_UDS_PATH();
     game_address = get_path_address(game_path);
     free(game_path);
@@ -178,9 +189,7 @@ void init_socket() {
     int connect_status = get_connect_status(server_address);
     connect_status < 0 ? die("getConnectStatusError") : 0;
 
-    char init_socket_msg[STRING_BUFFER_SIZE];
-    sprintf(init_socket_msg, "{\"msg\":\"init_socket\", \"pid\":%d}", getpid());
-    send_msg(init_socket_msg);
+    send_init_socket(username);
 }
 
 
@@ -795,6 +804,19 @@ void send_close_sharp_input(){
     json_object_object_add(obj, "msg", json_object_new_string("close_sharp_input"));
     add_send_queue(obj);
 }
+char * stringify(char *);
+
+void send_tty_raw_print(char * text){
+        bool is_inited = init_current_data("tty_raw_print");
+
+        json_object * data = json_object_object_get(current_data, "list");
+        if(data == NULL) {
+            data = json_object_new_array();
+            json_object_object_add(current_data, "list", data);
+        }
+
+        json_object_array_add(data, json_object_new_string(text));
+}
 
 void send_text(char * text){
     if(screen_change){
@@ -808,6 +830,22 @@ void send_text(char * text){
 
     json_object_array_add(data, json_object_new_string(text));
     }
+}
+
+boolean init_game = FALSE;
+
+boolean get_init_game(){
+    return init_game;
+}
+
+void send_init_game(){
+    init_game = true;
+    json_object *obj = json_object_new_object();
+    json_object_object_add(obj, "msg", json_object_new_string("init_game"));
+
+    char *json = json_object_to_json_string(obj);
+    send_msg(json);
+    json_object_put(obj);
 }
 
 void send_error_start(){
