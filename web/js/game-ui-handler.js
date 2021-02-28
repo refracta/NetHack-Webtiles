@@ -643,7 +643,7 @@ class GameUIHandler {
 
         var alignLvl = document.createElement('span');
         alignLvl.className = 'highlight';
-        alignLvl.innerHTML = 'LV <b style="font-size:14pt;">' + outerHTML(lvl) + '</b>, ' + this.create_text_element(status.alignment.value.trim(), status.alignment.color, status.alignment.attr).outerHTML;
+        alignLvl.innerHTML = 'LV <b style="font-size:14pt;">' + outerHTML(lvl) + '</b>, ' + this.create_text_element(status.alignment.value.trim(), status.alignment.color, status.alignment.attr, {brightBlack: '#dddddd'}).outerHTML;
         if (status.hunger.value){
             alignLvl.innerHTML += ', ' + this.create_text_element(status.hunger.value.trim(), status.hunger.color, status.hunger.attr, ).outerHTML;
         }
@@ -900,7 +900,7 @@ class GameUIHandler {
         }
     }
     createMenu(menuData) {
-        console.log(menuData);
+        // console.log(menuData);
         this.menuMode = true;
         const menu = $('#menu');
         let selectorString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
