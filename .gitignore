@@ -1,6 +1,7 @@
 .idea/
 cmake-build-debug/
 unix-dgram-socket/
+node-crypt3/
 json-c/
 jsonc-build/
 node_modules/
