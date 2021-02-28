@@ -395,29 +395,29 @@ class GameUIHandler {
         const LOCATION_INDEX = 20;
         const XP_INDEX = 21;
         const CONDITION_INDEX = 22;
-        return {
-            title: {value: data[TITLE_INDEX].text},
-            st: {value: data[ST_INDEX].text, color: data[ST_INDEX].color, attr: data[ST_INDEX].attr},
-            dx: {value: data[DX_INDEX].text, color: data[DX_INDEX].color, attr: data[DX_INDEX].attr},
-            co: {value: data[CO_INDEX].text, color: data[CO_INDEX].color, attr: data[CO_INDEX].attr},
-            in: {value: data[IN_INDEX].text, color: data[IN_INDEX].color, attr: data[IN_INDEX].attr},
-            wi: {value: data[WI_INDEX].text, color: data[WI_INDEX].color, attr: data[WI_INDEX].attr},
-            ch: {value: data[CH_INDEX].text, color: data[CH_INDEX].color, attr: data[CH_INDEX].attr},
-            encumbrance: {value: data[ENCUMBRANCE_INDEX].text, color: data[ENCUMBRANCE_INDEX].color, attr: data[ENCUMBRANCE_INDEX].attr},
-            hunger: {value: data[HUNGER_INDEX].text, color: data[HUNGER_INDEX].color, attr: data[HUNGER_INDEX].attr},
-            alignment: {value: data[ALIGNMENT_INDEX].text, color: data[ALIGNMENT_INDEX].color, attr: data[ALIGNMENT_INDEX].attr},
-            gold: {value: parseInt(data[GOLD_INDEX].text.split(':').pop())},
-            pw: {value: parseInt(data[PW_INDEX].text), color: data[PW_INDEX].color, attr: data[PW_INDEX].attr},
-            maxPW: {value: parseInt(data[MAX_PW_INDEX].text), color: data[MAX_PW_INDEX].color, attr: data[MAX_PW_INDEX].attr},
-            hp: {value: parseInt(data[HP_INDEX].text), color: data[HP_INDEX].color, attr: data[HP_INDEX].attr},
-            maxHP: {value: parseInt(data[MAX_HP_INDEX].text), color: data[MAX_HP_INDEX].color, attr: data[MAX_HP_INDEX].attr},
-            ac: {value: parseInt(data[AC_INDEX].text), color: data[AC_INDEX].color, attr: data[AC_INDEX].attr},
-            level: {value: parseInt(data[LEVEL_INDEX].text), color: data[LEVEL_INDEX].color, attr: data[LEVEL_INDEX  ].attr},
-            turn: {value: parseInt(data[TURN_INDEX].text), color: data[TURN_INDEX].color, attr: data[TURN_INDEX].attr},
-            xp: {value: parseInt(data[XP_INDEX].text), color: data[XP_INDEX].color, attr: data[XP_INDEX].attr},
-            location: {value: data[LOCATION_INDEX].text, color: data[LOCATION_INDEX].color, attr: data[LOCATION_INDEX].attr},
-            condition: {value: data[CONDITION_INDEX].condition_list}
-        }
+        let obj = {};
+        data[TITLE_INDEX] ? obj.title = {value: data[TITLE_INDEX].text} : void 0;
+        data[ST_INDEX] ? obj.st = {value: data[ST_INDEX].text, color: data[ST_INDEX].color, attr: data[ST_INDEX].attr} : void 0;
+        data[DX_INDEX] ? obj.dx = {value: data[DX_INDEX].text, color: data[DX_INDEX].color, attr: data[DX_INDEX].attr} : void 0;
+        data[CO_INDEX] ? obj.co = {value: data[CO_INDEX].text, color: data[CO_INDEX].color, attr: data[CO_INDEX].attr} : void 0;
+        data[IN_INDEX] ? obj.in = {value: data[IN_INDEX].text, color: data[IN_INDEX].color, attr: data[IN_INDEX].attr} : void 0;
+        data[WI_INDEX] ? obj.wi = {value: data[WI_INDEX].text, color: data[WI_INDEX].color, attr: data[WI_INDEX].attr} : void 0;
+        data[CH_INDEX] ? obj.ch =  {value: data[CH_INDEX].text, color: data[CH_INDEX].color, attr: data[CH_INDEX].attr} : void 0;
+            data[ENCUMBRANCE_INDEX] ? obj.encumbrance = {value: data[ENCUMBRANCE_INDEX].text, color: data[ENCUMBRANCE_INDEX].color, attr: data[ENCUMBRANCE_INDEX].attr} : void 0;
+            data[HUNGER_INDEX] ? obj.hunger = {value: data[HUNGER_INDEX].text, color: data[HUNGER_INDEX].color, attr: data[HUNGER_INDEX].attr} : void 0;
+            data[ALIGNMENT_INDEX] ? obj.alignment = {value: data[ALIGNMENT_INDEX].text, color: data[ALIGNMENT_INDEX].color, attr: data[ALIGNMENT_INDEX].attr} : void 0;
+            data[GOLD_INDEX] ? obj.gold = {value: parseInt(data[GOLD_INDEX].text.split(':').pop())} : void 0;
+            data[PW_INDEX] ? obj.pw = {value: parseInt(data[PW_INDEX].text), color: data[PW_INDEX].color, attr: data[PW_INDEX].attr} : void 0;
+            data[MAX_PW_INDEX] ? obj.maxPW = {value: parseInt(data[MAX_PW_INDEX].text), color: data[MAX_PW_INDEX].color, attr: data[MAX_PW_INDEX].attr} : void 0;
+            data[HP_INDEX] ? obj.hp = {value: parseInt(data[HP_INDEX].text), color: data[HP_INDEX].color, attr: data[HP_INDEX].attr} : void 0;
+            data[MAX_HP_INDEX] ? obj.maxHP = {value: parseInt(data[MAX_HP_INDEX].text), color: data[MAX_HP_INDEX].color, attr: data[MAX_HP_INDEX].attr} : void 0;
+            data[AC_INDEX] ? obj.ac = {value: parseInt(data[AC_INDEX].text), color: data[AC_INDEX].color, attr: data[AC_INDEX].attr} : void 0;
+            data[LEVEL_INDEX] ? obj.level = {value: parseInt(data[LEVEL_INDEX].text), color: data[LEVEL_INDEX].color, attr: data[LEVEL_INDEX  ].attr} : void 0;
+            data[TURN_INDEX] ? obj.turn = {value: parseInt(data[TURN_INDEX].text), color: data[TURN_INDEX].color, attr: data[TURN_INDEX].attr} : void 0;
+            data[XP_INDEX] ? obj.xp = {value: parseInt(data[XP_INDEX].text), color: data[XP_INDEX].color, attr: data[XP_INDEX].attr} : void 0;
+            data[LOCATION_INDEX] ? obj.location = {value: data[LOCATION_INDEX].text, color: data[LOCATION_INDEX].color, attr: data[LOCATION_INDEX].attr} : void 0;
+            data[CONDITION_INDEX] ? obj.condition = {value: data[CONDITION_INDEX].condition_list} : void 0;
+        return obj;
     }
     create_text_element(text, color, attr, colorOverride, type = 'hl'){
         color = color & 0x00FF;
@@ -627,7 +627,14 @@ class GameUIHandler {
         name.className = 'name';
         name.textContent = status.title.value;
         td.appendChild(name);
-        // level, alignment and status effects
+        let defaultSize = 32;
+        for(let i = 0; i < 10; i++){
+            $('.name').css('font-size', (defaultSize-i*2)+'px');
+            if( $('.name').width() <= 390){
+                break;
+            }
+        }
+            // level, alignment and status effects
         tr = table.insertRow();
         td = tr.insertCell();
         td.style.textAlign = 'right';
@@ -762,11 +769,12 @@ class GameUIHandler {
         lastStatus.style.width = '400px';
         lastStatus.style.textAlign = 'center';
 
-        var turn = document.createElement('i');
-        turn.classList.add('fa', 'fa-hourglass-half', 'status-misc');
-        turn.innerHTML = ' ' + this.create_text_element(status.turn.value, status.turn.color, status.turn.attr, {brightBlack: 'inherit'}).outerHTML;
-        lastStatus.appendChild(turn);
-
+        if(status.turn){
+            var turn = document.createElement('i');
+            turn.classList.add('fa', 'fa-hourglass-half', 'status-misc');
+            turn.innerHTML = ' ' + this.create_text_element(status.turn.value, status.turn.color, status.turn.attr, {brightBlack: 'inherit'}).outerHTML;
+            lastStatus.appendChild(turn);
+        }
 
         var dlvl = document.createElement('i');
         dlvl.classList.add('fa', 'fa-compass', 'status-misc');
@@ -790,10 +798,12 @@ class GameUIHandler {
         gold.classList.add('fa', 'fa-usd', 'status-misc');
         gold.innerHTML = ' ' + this.create_text_element(status.gold.value, status.gold.color, status.gold.attr, {black: '#ffffff', brightBlack: 'inherit'}).outerHTML;
         lastStatus.appendChild(gold);
-        var xp = document.createElement('i');
-        xp.classList.add('fa', 'fa-etsy', 'status-misc');
-        xp.innerHTML = ' ' + this.create_text_element(status.xp.value, status.xp.color, status.xp.attr, {brightBlack: 'inherit'}).outerHTML;
-        lastStatus.appendChild(xp);
+        if(status.xp){
+            var xp = document.createElement('i');
+            xp.classList.add('fa', 'fa-etsy', 'status-misc');
+            xp.innerHTML = ' ' + this.create_text_element(status.xp.value, status.xp.color, status.xp.attr, {brightBlack: 'inherit'}).outerHTML;
+            lastStatus.appendChild(xp);
+        }
         win.appendChild(lastStatus);
         // update old status to current
         //old_status = [status1, status2];
