@@ -38,7 +38,7 @@ class WSServer {
                 try {
                     data = JSON.parse(message);
                 } catch (e) {
-                    console.error('Error JSON Parsing:', message);
+                    console.error('Error JSON Parsing:', message.length, message);
                 }
                 if (this.handler) {
                     try{
