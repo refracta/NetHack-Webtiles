@@ -1,5 +1,5 @@
 const low = require('lowdb');
-const crypt = require('crypt3/sync');
+const crypt = require('./node-crypt3/sync');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const db = low(adapter);
