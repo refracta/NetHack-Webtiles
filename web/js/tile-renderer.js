@@ -1,5 +1,5 @@
 function getDefaultTileConfig(tileImage, tileData) {
-    const maxWidth = 79;
+    const maxWidth = 80;
     const maxHeight = 21;
     const tileRows = Math.ceil(tileData.imageWidth / (tileData.tileWidth + (tileData.extruded ? 2 : 0)));
     const tileColumns = Math.ceil(tileData.imageHeight / (tileData.tileHeight + (tileData.extruded ? 2 : 0)));
