@@ -37,6 +37,15 @@ class UDSHandler {
             }
         }
 
+        this.callback['error_start'] = (data, info) => {
+            let safeUsername = info && info.room && info.room.player && info.room.player.username;
+            console.error(`Game Error [${safeUsername}]`);
+        }
+
+        this.callback['error'] = (data, info) => {
+            console.error(data.error);
+        }
+
         this.callback['tile'] = (data, info) => {
             let tileData = info.room.playData.tile;
             info.room.playData.tile = tileData ? {...tileData, ...data.data} : data.data;
