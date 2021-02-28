@@ -1971,7 +1971,11 @@ struct WinDesc *cw;
     tty_menu_item *currentItem;
     for(currentItem = cw->mlist; currentItem; currentItem = currentItem->next){
          // send_debug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, o_str:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), stringify(currentItem->o_str));
-         send_menu_item(currentItem);
+        int attr, color = NO_COLOR;
+        if (!iflags.use_menu_color
+            || !get_menu_coloring(currentItem->str, &color, &attr))
+            attr = currentItem->attr;
+        send_menu_item(currentItem, color, attr);
     }
     clear_current_data();
 
@@ -2498,7 +2502,11 @@ boolean blocking; /* with ttys, all windows are blocking */
         if(iflags.perm_invent){
             tty_menu_item *currentItem;
             for(currentItem = cw->mlist; currentItem; currentItem = currentItem->next){
-                send_built_in_menu_item(currentItem);
+                int attr, color = NO_COLOR;
+                if (!iflags.use_menu_color
+                    || !get_menu_coloring(currentItem->str, &color, &attr))
+                    attr = currentItem->attr;
+                send_built_in_menu_item(currentItem, color, attr);
             }
             clear_current_data();
         }
@@ -3809,8 +3817,17 @@ tty_raw_print(str)
 const char *str;
 {
     #if defined(WEBTILES_DEBUG)
+    if(!get_print_error_mode())
     send_debug("void tty_raw_print(str:%s)", stringify(str));
     #endif
+    if(str != NULL && strcmp(str, "Generating more information you may report:\n") == 0){
+        set_print_error_mode(TRUE);
+        send_error_start();
+    }
+    if(get_print_error_mode()){
+        send_error(str);
+    }
+
     HUPSKIP();
     if (ttyDisplay)
         ttyDisplay->rawprint++;
@@ -3828,8 +3845,9 @@ tty_raw_print_bold(str)
 const char *str;
 {
     #if defined(WEBTILES_DEBUG)
-    send_debug("void tty_raw_print_bold(str:%s)", stringify(str));
+    send_debug("void tty_raw_print_bold(str:%s) %d", stringify(str));
     #endif
+
     HUPSKIP();
     if (ttyDisplay)
         ttyDisplay->rawprint++;
@@ -4261,7 +4279,7 @@ unsigned long *colormasks;
     boolean reset_state = NO_RESET;
 
     // sendStatus(fldidx, percent, text);
-    send_status(fldidx, chg, percent, color, text);
+    send_status(fldidx, chg, percent, color, ptr);
     if ((fldidx < BL_RESET) || (fldidx >= MAXBLSTATS))
         return;
 
@@ -4288,6 +4306,25 @@ unsigned long *colormasks;
         tty_status[NOW][fldidx].dirty = TRUE;
         tty_status[NOW][fldidx].sanitycheck = TRUE;
         truncation_expected = FALSE;
+
+
+        // 내부에서
+        long bits = tty_condition_bits;
+        int coloridx = 0; int attrmask2 = 0; long mask;
+        for (int c = 0; c < SIZE(conditions) && bits != 0L; ++c) {
+            mask = conditions[c].mask;
+            if (bits & mask) {
+                const char *condtext;
+                if (iflags.hilite_delta) {
+                    attrmask2 = condattr(mask, tty_colormasks);
+                    coloridx = condcolor(mask, tty_colormasks);
+                }
+                condtext = conditions[c].text[0];
+                add_status_condition(fldidx,condtext, coloridx, attrmask2);
+                bits &= ~mask;
+            }
+        }
+
         break;
     case BL_GOLD:
         text = decode_mixed(goldbuf, text);
@@ -4311,6 +4348,7 @@ unsigned long *colormasks;
         tty_status[NOW][fldidx].idx = fldidx;
         tty_status[NOW][fldidx].color = (color & 0x00FF);
         tty_status[NOW][fldidx].attr = term_attr_fixup(attrmask);
+        add_status_attr(fldidx, tty_status[NOW][fldidx].attr);
         tty_status[NOW][fldidx].lth = strlen(status_vals[fldidx]);
         tty_status[NOW][fldidx].valid = TRUE;
         tty_status[NOW][fldidx].dirty = TRUE;
