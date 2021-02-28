@@ -3,7 +3,7 @@
 npm install
 git clone https://github.com/sendanor/node-crypt3
 cd node-crypt3
-npm install
+npm install --unsafe-perm
 cd ../
 git clone https://github.com/refracta/unix-dgram-socket
 cd unix-dgram-socket
