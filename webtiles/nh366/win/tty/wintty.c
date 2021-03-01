@@ -3973,7 +3973,7 @@ int *x, *y, *mod;
         if(i > -1){
             *x = to_2d_x(i);
             *y = to_2d_y(i);
-            *mod = 1;
+            *mod = get_click();
             set_travel_position(-1);
             return 0;
         }

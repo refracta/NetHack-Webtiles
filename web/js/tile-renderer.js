@@ -143,12 +143,24 @@ class TileRenderer {
 
         this.phaser.input.on('pointerdown', function (pointer) {
             if(this.eventHandlerMap.travelClick){
+                let click;
+                if(pointer.leftButtonDown()){
+                    click = 1;
+                }else if(pointer.rightButtonDown()){
+                    click = 2;
+                }else if(pointer.middleButtonDown()){
+                    click = 3;
+                }
+                if(!click){
+                    return;
+                }
+
                 let worldPoint = this.phaser.input.activePointer.positionToCamera(this.camera);
 
                 let pointerTileX = this.map.worldToTileX(worldPoint.x);
                 let pointerTileY = this.map.worldToTileY(worldPoint.y);
                 //console.log('CLICKED', pointerTileX, pointerTileY, to2DIndex(pointerTileX, pointerTileY));
-                this.eventHandlerMap.travelClick(to2DIndex(pointerTileX, pointerTileY));
+                this.eventHandlerMap.travelClick(to2DIndex(pointerTileX, pointerTileY), click);
             }
         }, this);
         this.setMarkerColor(1);

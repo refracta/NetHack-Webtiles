@@ -23,8 +23,8 @@ class WSSender {
         this.client.send({msg: 'select_index', index});
     }
 
-    travel(i) {
-        this.client.send({msg: 'travel', i});
+    travel(i, click) {
+        this.client.send({msg: 'travel', i, click});
     }
 
     loginBySessionKey(sessionKey) {

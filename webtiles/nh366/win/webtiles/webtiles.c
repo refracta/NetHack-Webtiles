@@ -98,6 +98,7 @@ void set_force_exit(boolean exit){
 bool is_key_triggered = false;
 int key_code = -1;
 int travel_position = -1;
+int click = 1;
 int exit_fail = 0;
 int exit_fail_count = 0;
 
@@ -333,6 +334,9 @@ void handle_msg(json_object *obj) {
 int get_travel_position(){
     return travel_position;
 }
+int get_click(){
+    return click;
+}
 void set_travel_position(int i){
     travel_position = i;
 }
@@ -374,37 +378,37 @@ void process_select_by_index(int sIndex){
     boolean is_current_page = 0;
     int current_page_index = 0;
 /*    if(menuStatus.page_start != 0 && menuStatus.page_end != 0){ */
-        tty_menu_item *cItem;
-        int csIndex = 0;
-        for(cItem = menuStatus.cw->mlist; cItem; cItem = cItem->next) {
-            if (menuStatus.page_start == cItem) {
-                is_current_page = TRUE;
-            } else if (menuStatus.page_end == cItem) {
-                is_current_page = FALSE;
-            }
-            if (cItem->identifier.a_void) {
-                if (csIndex == sIndex) {
-                    toggle_menu_curr(menuStatus.window, cItem, current_page_index, is_current_page, menuStatus.counting,
-                                     menuStatus.count);
-                    if (menuStatus.cw->how == PICK_ONE) {
-                        *(menuStatus.finished) = TRUE;
-                        key_code = 13;
-                        is_key_triggered = TRUE;
-                    }
-                    menuStatus.counting = FALSE;
-                    menuStatus.count = 0;
-                    //menuStatus.is_unused = FALSE;
-                    /*if(is_current_page){
-                        send_debug("cItem %s", cItem->o_str);
-                        //set_item_state(menuStatus.window, current_page_index, cItem);
-                    }*/
-                    break;
+    tty_menu_item *cItem;
+    int csIndex = 0;
+    for(cItem = menuStatus.cw->mlist; cItem; cItem = cItem->next) {
+        if (menuStatus.page_start == cItem) {
+            is_current_page = TRUE;
+        } else if (menuStatus.page_end == cItem) {
+            is_current_page = FALSE;
+        }
+        if (cItem->identifier.a_void) {
+            if (csIndex == sIndex) {
+                toggle_menu_curr(menuStatus.window, cItem, current_page_index, is_current_page, menuStatus.counting,
+                                 menuStatus.count);
+                if (menuStatus.cw->how == PICK_ONE) {
+                    *(menuStatus.finished) = TRUE;
+                    key_code = 13;
+                    is_key_triggered = TRUE;
                 }
-                csIndex++;
+                menuStatus.counting = FALSE;
+                menuStatus.count = 0;
+                //menuStatus.is_unused = FALSE;
+                /*if(is_current_page){
+                    send_debug("cItem %s", cItem->o_str);
+                    //set_item_state(menuStatus.window, current_page_index, cItem);
+                }*/
+                break;
             }
-            if (is_current_page) {
-                current_page_index++;
-            }
+            csIndex++;
+        }
+        if (is_current_page) {
+            current_page_index++;
+        }
 
 //        }
     }
@@ -429,6 +433,7 @@ void handle_core(char *msg, json_object *obj) {
         is_key_triggered = true;
     } else if (strcmp(msg, "travel") == 0) {
         travel_position = json_object_get_int(json_object_object_get(obj, "i"));
+        click = json_object_get_int(json_object_object_get(obj, "click"));
         key_code = 0;
         is_key_triggered = true;
     }  else if (strcmp(msg, "select_index") == 0) {
@@ -807,20 +812,7 @@ void send_close_sharp_input(){
 char * stringify(char *);
 
 void send_tty_raw_print(char * text){
-        bool is_inited = init_current_data("tty_raw_print");
-
-        json_object * data = json_object_object_get(current_data, "list");
-        if(data == NULL) {
-            data = json_object_new_array();
-            json_object_object_add(current_data, "list", data);
-        }
-
-        json_object_array_add(data, json_object_new_string(text));
-}
-
-void send_text(char * text){
-    if(screen_change){
-    bool is_inited = init_current_data("text");
+    bool is_inited = init_current_data("tty_raw_print");
 
     json_object * data = json_object_object_get(current_data, "list");
     if(data == NULL) {
@@ -829,6 +821,19 @@ void send_text(char * text){
     }
 
     json_object_array_add(data, json_object_new_string(text));
+}
+
+void send_text(char * text){
+    if(screen_change){
+        bool is_inited = init_current_data("text");
+
+        json_object * data = json_object_object_get(current_data, "list");
+        if(data == NULL) {
+            data = json_object_new_array();
+            json_object_object_add(current_data, "list", data);
+        }
+
+        json_object_array_add(data, json_object_new_string(text));
     }
 }
 

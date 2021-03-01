@@ -39,8 +39,8 @@ class WSHandler {
             }
             let roomInfo = this.getGameRoomByUsername(info.username);
             if (roomInfo && roomInfo.udsInfo) {
-                    if(typeof data.i === 'number'){
-                        this.udsSender.data({msg:'travel', i: data.i}, [roomInfo.udsInfo]);
+                    if(typeof data.i === 'number' && typeof data.click === 'number' && (1<= data.click && data.click <= 3)){
+                        this.udsSender.data({msg:'travel', i: data.i, click: data.click}, [roomInfo.udsInfo]);
                     }
                 }
         }

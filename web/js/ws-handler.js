@@ -95,7 +95,7 @@ class WSHandler {
             } else {
                 tileData = data.tileData;
             }
-            this.gameUIHandler.initTileRenderer(data.filePath, tileData, {travelClick:(i)=>this.sender.travel(i)});
+            this.gameUIHandler.initTileRenderer(data.filePath, tileData, {travelClick:(i, click)=>this.sender.travel(i, click)});
         }
 
         this.callback['lobby_add'] = (data) => {
