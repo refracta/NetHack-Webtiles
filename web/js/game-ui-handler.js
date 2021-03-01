@@ -198,6 +198,11 @@ class GameUIHandler {
             this.terminalStatus = 'off';
             $('#terminal-content').hide();
         }
+        $(document).off('contextmenu').on('contextmenu', function(e) {
+            if($('#tile-content > canvas')[0] == e.target){
+                e.preventDefault();
+            }
+        });
         let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8];
         $('body').keydown(e => {
             if(e.key === 'F8' || e.key === 'F9' || e.key === 'F10' || e.key === 'F12'){
@@ -814,6 +819,8 @@ class GameUIHandler {
         win.appendChild(lastStatus);
         // update old status to current
         //old_status = [status1, status2];
+        $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
+
         }catch(e){
             console.error(e);
         }
@@ -903,7 +910,8 @@ class GameUIHandler {
                 }
             }
         }
-        $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
+
+            $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
     }
     createMenu(menuData) {
         // console.log(menuData);
