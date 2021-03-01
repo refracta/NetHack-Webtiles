@@ -196,7 +196,7 @@ class GameUIHandler {
         });
         if(!this.terminalStatus){
             this.terminalStatus = 'off';
-            $('#terminal-content').css('opacity', 0);
+            $('#terminal-content').hide();
         }
         let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8];
         $('body').keydown(e => {
