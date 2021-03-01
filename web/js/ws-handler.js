@@ -256,6 +256,14 @@ class WSHandler {
             this.siteUIHandler.updateWatchers(data.userList, data.numberOfWatchers);
         }
 
+        this.callback['start_yn_function'] = (data) => {
+            this.gameUIHandler.start_yn_function();
+        }
+
+        this.callback['end_yn_function'] = (data) => {
+            this.gameUIHandler.end_yn_function();
+        }
+
         this.callback['more'] = (data) => {
             this.gameUIHandler.more(data.prompt);
         }

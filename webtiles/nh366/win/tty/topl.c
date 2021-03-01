@@ -417,6 +417,7 @@ char def;
     if(query != NULL && strcmp(query, "Overwrite the old file?") == 0 && get_exit_mode()){
         return 'y';
     }
+
     register char q;
     char rtmp[40];
     boolean digit_ok, allow_num, preserve_case = FALSE;
@@ -460,11 +461,13 @@ char def;
         /* preserve_case = TRUE; -- moot since we're jumping to the end */
         Sprintf(prompt, "%s ", query);
         custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s", prompt);
+        send_start_yn_function(query, resp, def);
         q = readchar();
         goto clean_up;
     }
 
     do { /* loop until we get valid input */
+        send_start_yn_function(query, resp, def);
         q = readchar();
         if (!preserve_case)
             q = lowc(q);
@@ -581,6 +584,8 @@ char def;
     if (wins[WIN_MESSAGE]->cury)
         tty_clear_nhwindow(WIN_MESSAGE);
 
+
+    end_start_yn_function();
     return q;
 }
 

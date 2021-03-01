@@ -521,6 +521,13 @@ class GameUIHandler {
        return outerSpan.get(0);
     }
 
+    start_yn_function(){
+        $('.ingame-text:nth-last-child(1)').css('background-color', '#2198e7');
+    }
+    end_yn_function(){
+        $('.ingame-text:nth-last-child(1)').css('background-color', '');
+    }
+
     update_status(data) {
 
         try{
@@ -849,8 +856,6 @@ class GameUIHandler {
         const menu = $('#built-in-inventory');
         menu.html('');
         $('#built-in-inventory').css('background', '#101d42');
-
-        $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
         for(let data of menuData){
             if(data.o_str === ''){
                 data.o_str += '　';
@@ -898,6 +903,7 @@ class GameUIHandler {
                 }
             }
         }
+        $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
     }
     createMenu(menuData) {
         // console.log(menuData);

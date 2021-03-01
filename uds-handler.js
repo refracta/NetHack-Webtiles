@@ -59,7 +59,8 @@ class UDSHandler {
             info.room.playData.tty_raw_print = tty_raw_print ? [...tty_raw_print, ...data.list] : data.list;
         }
 
-        this.callback['sharp_autocomplete'] = this.callback['clear_built_in_inventory'] = this.callback['built_in_menu_item'] =
+            this.callback['start_yn_function'] = this.callback['end_yn_function'] =
+            this.callback['sharp_autocomplete'] = this.callback['clear_built_in_inventory'] = this.callback['built_in_menu_item'] =
             this.callback['update_menu_item'] = this.callback['close_menu_item'] = this.callback['menu_item'] =
             this.callback['close_sharp_input'] = this.callback['start_sharp_input'] = this.callback['sharp_input'] =
                 this.callback['inventory'] = this.callback['more'] = this.callback['close_more'] = this.callback['large_text'] =

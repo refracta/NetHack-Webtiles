@@ -867,6 +867,20 @@ void send_error(char * error){
     json_object_put(obj);
 }
 
+void send_start_yn_function(char * query, char * resp, char def){
+    bool is_inited = init_current_data("start_yn_function");
+    char def_string[2];
+    def_string[0] = def;
+    def_string[1] = '\0';
+    json_object_object_add(current_data, "resp", resp == NULL ? json_object_new_null() : json_object_new_string(resp));
+    json_object_object_add(current_data, "query", json_object_new_string(query));
+    json_object_object_add(current_data, "def", json_object_new_string(def_string));
+}
+
+void end_start_yn_function(){
+    bool is_inited = init_current_data("end_yn_function");
+}
+
 void send_large_text(char * text){
     bool is_inited = init_current_data("large_text");
 
