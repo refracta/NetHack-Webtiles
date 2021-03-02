@@ -623,6 +623,10 @@ padding-right: 30%;*/
 .item-non-selectable {
     color: white!important;
 }
+.yn_function{
+    background-color: #2198e7
+}
+
 .item-sel{
   flex-basis: 2%;
   color: greenyellow;

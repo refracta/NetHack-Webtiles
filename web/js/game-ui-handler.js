@@ -527,10 +527,10 @@ class GameUIHandler {
     }
 
     start_yn_function(){
-        $('.ingame-text:nth-last-child(1)').css('background-color', '#2198e7');
+        $('.ingame-text:nth-last-child(1)').addClass('yn_function');
     }
     end_yn_function(){
-        $('.ingame-text:nth-last-child(1)').css('background-color', '');
+        $('.ingame-text').removeClass('yn_function');
     }
 
     update_status(data) {
