@@ -5,6 +5,31 @@
     display: none;
 }
 
+@media (-webkit-min-device-pixel-ratio: 1.5) {
+    .auto-zoom {
+        zoom: 1.25
+    }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2) {
+    .auto-zoom {
+        zoom: 1.7
+    }
+}
+
+/*@media (-webkit-min-device-pixel-ratio: 2) {
+    .auto-zoom {
+        zoom: 2
+    }
+}
+
+@media (-webkit-min-device-pixel-ratio: 4) {
+    .auto-zoom {
+        zoom: 2.3
+    }
+}*/
+
+
 #chat_public {
     height: 80px;
     overflow-y: hidden;
@@ -562,7 +587,31 @@ padding-right: 30%;*/
 #game .ui-popup-inner .bg0 {
   background-color: transparent;
 }
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
 
+.mobile-menu{
+    max-height:100%;
+    font-size: 28pt;
+    color: white;
+    background-color: black;
+    border: 3px solid gold;
+    overflow-y: auto;
+    position: absolute;
+    z-index: 99;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    font-family: Hack;
+}
 .menu {
   font-family: Hack;
   /*position: absolute;*/
@@ -623,10 +672,6 @@ padding-right: 30%;*/
 .item-non-selectable {
     color: white!important;
 }
-.yn_function{
-    background-color: #2198e7
-}
-
 .item-sel{
   flex-basis: 2%;
   color: greenyellow;
@@ -714,3 +759,108 @@ padding-right: 30%;*/
     visibility: hidden;
 }
 
+#mobile-ui{
+
+}
+.mobile-button-line{
+    position: fixed;
+    white-space: nowrap;
+    position: relative;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    margin-top: 0.2em;
+}
+
+#mobile-status {
+    font-family: Hack;
+    white-space: pre;
+    width: 100%;
+}
+#mobile-message-content {
+    width: 100%;
+    font-family: Hack;
+    overflow-y:auto;
+    word-break: break-word;
+}
+#mobile-chat {
+    width: 100%;
+    color:#93a1a1;
+    overflow-y:auto;
+    word-break: break-word;
+}
+
+#mobile-button-ui {
+    bottom: 0;
+    z-index: 99;
+    position: absolute;
+    width: 100%;
+    font-size: 24pt;
+    overflow-x: scroll;
+}
+
+
+
+
+@media (-webkit-min-device-pixel-ratio: 2) {
+    #mobile-chat{
+        font-size: 24pt;
+        height: 5vh;
+    }
+    #mobile-status{
+        font-size: 24pt;
+    }
+    #mobile-message-content {
+        font-size: 24pt;
+        height: 5vh;
+    }
+    .text-popup-content {
+        font-size: 24pt;
+    }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1280px) {
+    #mobile-chat{
+        font-size: 20pt;
+        height: 5vh;
+    }
+    #mobile-status{
+        font-size: 20pt;
+    }
+    #mobile-message-content {
+        font-size: 20pt;
+        height: 8vh;
+    }
+    #mobile-button-ui{
+        font-size: 20px;
+    }
+    #mobile-menu{
+        font-size:20px;
+    }
+    .text-popup-content {
+        font-size: 20pt;
+    }
+}
+
+
+@media (-webkit-min-device-pixel-ratio: 2) and (orientation:landscape) {
+    #mobile-chat{
+        font-size: 11pt;
+        height: 5vh;
+    }
+    #mobile-status{
+        font-size: 11pt;
+    }
+    #mobile-message-content {
+        font-size: 11pt;
+        height: 7vh;
+    }
+    #mobile-button-ui{
+        font-size: 11px;
+    }
+    #mobile-menu{
+        font-size:12px;
+    }
+    .text-popup-content {
+        font-size: 12pt;
+    }
+}

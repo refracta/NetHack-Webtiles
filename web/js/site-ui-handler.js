@@ -32,11 +32,19 @@ class SiteUIHandler {
         }
     }
 
-    roomChat(username, text){
-        this.system_chat( username, text);
+    roomChat(username, text, isMobile = false){
+        if(!isMobile){
+            this.system_chat( username, text);
+        }else{
+            this.mobile_system_chat(username, text);
+        }
     }
-    publicChat(username, text){
-        this.system_chat('§'  + username, text);
+    publicChat(username, text, isMobile = false){
+        if(!isMobile){
+            this.system_chat('§'  + username, text);
+        }else{
+            this.mobile_system_chat('§' +username, text);
+        }
     }
     updateLatency(){
         $('#latency-info').text(`${new Date().getTime() - this.requestPingTime}MS`);
@@ -205,6 +213,14 @@ class SiteUIHandler {
         return this.getGameTrByData(data).length !== 0;
     }
 
+    clearZoom(){
+        $('body').removeClass('auto-zoom');
+    }
+
+    addZoom(){
+        $('body').addClass('auto-zoom');
+    }
+
     appendGameTr(data) {
         if (!(data instanceof HTMLElement)) {
             data = this.generateGameTr(data);
@@ -252,6 +268,20 @@ class SiteUIHandler {
         $('#login-form').hide();
         $('#register-btn').hide();
         $('#logout-btn').show();
+    }
+    mobile_system_chat(sender, msg){
+        $("#mobile-chat").append($('<span/>', {
+            class: 'chat_sender',
+            text: sender
+        }));
+        ;
+        $("#mobile-chat").append(": ");
+        $("#mobile-chat").append($('<span/>', {
+            class: 'chat_msg',
+            text: msg
+        }));
+        $('#mobile-chat').scrollTop($('#mobile-chat')[0].scrollHeight);
+        $("#mobile-chat").append("<br>");
     }
 
     system_chat(sender, msg) {

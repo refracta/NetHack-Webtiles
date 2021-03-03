@@ -62,9 +62,10 @@ class WSHandler {
             this.siteUIHandler.extendMode(false);
             this.siteUIHandler.clearMainContent();
             this.siteUIHandler.clearLoading();
-           
+            this.siteUIHandler.addZoom();
 
             this.gameUIHandler.showTileContent(false);
+            this.gameUIHandler.clearMobileButton();
             this.gameUIHandler.clearTerminal();
             this.gameUIHandler.clearTileContent();
             this.gameUIHandler.close_more();
@@ -138,6 +139,9 @@ class WSHandler {
 
         this.callback['init_watch'] = (data) => {
             this.deferMode = true;
+            this.siteUIHandler.clearZoom();
+            this.gameUIHandler.showTileContent(true);
+            this.gameUIHandler.showGameContent(true);
             setTimeout(async _ => {
                 await this.gameUIHandler.waitTileRendererInit();
                 let queue = this.deferQueue;
@@ -145,8 +149,6 @@ class WSHandler {
                 this.deferMode = false;
 
                 this.siteUIHandler.clearLoading();
-                this.gameUIHandler.showTileContent(true);
-                this.gameUIHandler.showGameContent(true);
 
                 this.gameUIHandler.initTerminal();
 
@@ -180,6 +182,14 @@ class WSHandler {
 
         this.callback['init_game'] = (data) => {
             this.deferMode = true;
+            // this.sender.key(32);
+            this.siteUIHandler.clearZoom();
+            if(this.gameUIHandler.isMobile){
+                this.gameUIHandler.applyMobileInterface();
+            }
+
+            this.gameUIHandler.showTileContent(true);
+            this.gameUIHandler.showGameContent(true);
             setTimeout(async _ => {
                 await this.gameUIHandler.waitTileRendererInit();
                 let queue = this.deferQueue;
@@ -187,15 +197,95 @@ class WSHandler {
                 this.deferMode = false;
 
                 this.siteUIHandler.clearLoading();
-                // this.sender.key(32);
-                this.gameUIHandler.showTileContent(true);
-                this.gameUIHandler.showGameContent(true);
+
                 // FOR DEBUG
                  this.gameUIHandler.openTerminal();
                 
                 if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
                     this.gameUIHandler.applyFontPatch();
                 }
+                 let addButtonLine = (btnText)=>{
+                    let buttons = btnText.split(/(?<!\\) /).map(e=>{
+                        let s = e.split('|');
+                        let button = {};
+                        if(s.length >= 2){
+                            button.key = s[0];
+                            button.text = s[1];
+                        }else if(s.length == 1){
+                            button.key = s[0];
+                            button.text = s[0];
+                        }
+                        let match = button.key.match(/\[\d{1,4}\]/g);
+                        if(match){
+                            for(let e of match){
+                                button.key = button.key.replace(e, String.fromCharCode(parseInt(e.split(/[\[\]]/)[1])));
+                            }
+                        }
+
+                        if(button.key == '%FULL_SCREEN%'){
+                            button.action = 'FULL_SCREEN';
+                        }else if(button.key == '%PUBLIC_CHAT%'){
+                            button.action = 'PUBLIC_CHAT';
+                        }else if(button.key == '%ROOM_CHAT%'){
+                            button.action = 'ROOM_CHAT';
+                        }else if(button.key == '%KEY%'){
+                            button.action = 'KEY';
+                        }
+                        button.text = button.text.replace(/\\\\ /g, ' ');
+                        button.key = button.key.replace(/\\r/g, '\r');
+                        return button;
+                    });
+                    let buttonLine = $('<div>');
+                    buttonLine.addClass('mobile-button-line');
+                    buttons.forEach(b=>{
+
+                        let btn = $('<button type="button" className="mbtn btn btn-light" style="margin-right: 0.2em; min-width: 3em; min-height: 3em;"></button>');
+                        btn.click(_=>{
+                            if(b.action){
+                                switch (b.action){
+                                    case 'FULL_SCREEN':
+                                       document.body.requestFullscreen();
+                                       break;
+                                    case 'PUBLIC_CHAT':
+                                        this.sender.chatMsg(prompt("Public Chat?"), true);
+                                        break;
+                                    case 'ROOM_CHAT':
+                                        this.sender.chatMsg(prompt("Room Chat?"), false);
+                                        break;
+                                    case 'KEY':
+                                        let key = prompt("KEY?");
+                                        let match = key.match(/\[\d{1,4}\]/g);
+                                        if(match){
+                                            for(let e of match){
+                                                key = key.replace(e, String.fromCharCode(parseInt(e.split(/[\[\]]/)[1])));
+                                            }
+                                        }
+                                        key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
+                                        break;
+                                }
+                                return;
+                            }
+                            b.key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
+
+                        });
+                        btn.text(b.text);
+                        btn.data('key', b.key);
+                        buttonLine.append(btn);
+                    });
+                    $('#mobile-button-ui').append(buttonLine);
+                }
+
+            if(this.gameUIHandler.isMobile){
+                for(let i = 11; i > 0; i--){
+                    let btnText = data.webRC[`MOBILE_BUTTON_LINE${i}`];
+                    if(btnText){
+                        addButtonLine(btnText);
+                    }
+                }
+                $('#mobile-button-ui').show();
+            }else{
+                $('#mobile-button-ui').hide();
+            }
                 queue.forEach(d => this.handle(d));
                 this.gameUIHandler.initKeyHandler();
             }, 1000);
@@ -289,7 +379,7 @@ class WSHandler {
         }
 
         this.callback['chat_msg'] = (data) => {
-            data.isPublic ? this.siteUIHandler.publicChat(data.username, data.text) : this.siteUIHandler.roomChat(data.username, data.text);
+                data.isPublic ? this.siteUIHandler.publicChat(data.username, data.text, this.gameUIHandler.isMobile) : this.siteUIHandler.roomChat(data.username, data.text, this.gameUIHandler.isMobile);
         }
         this.gameUIHandler.initResizeMessageHandler();
     }
