@@ -801,6 +801,29 @@ padding-right: 30%;*/
 
 
 
+@media (-webkit-min-device-pixel-ratio: 1) {
+    #mobile-chat{
+        font-size: 20pt;
+        height: 5vh;
+    }
+    #mobile-status{
+        font-size: 20pt;
+    }
+    #mobile-message-content {
+        font-size: 20pt;
+        height: 8vh;
+    }
+    #mobile-button-ui{
+        font-size: 20px;
+    }
+    #mobile-menu{
+        font-size:20px;
+    }
+    .text-popup-content {
+        font-size: 20pt;
+    }
+}
+
 @media (-webkit-min-device-pixel-ratio: 2) {
     #mobile-chat{
         font-size: 24pt;
@@ -815,6 +838,15 @@ padding-right: 30%;*/
     }
     .text-popup-content {
         font-size: 24pt;
+    }
+    #mobile-button-ui{
+        font-size: 36px;
+    }
+    #mobile-menu{
+        font-size:36px;
+    }
+    #mobile-menu canvas{
+        zoom:2;
     }
 }
 
