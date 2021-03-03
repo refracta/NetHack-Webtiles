@@ -90,6 +90,7 @@
 #browserhack-status {
     display: grid;
     white-space: normal;
+    width: 400px;
 }
 
 #tile-content {
@@ -821,9 +822,10 @@ padding-right: 30%;*/
         font-size:20px;
     }
     .text-popup-content {
-        font-size: 20pt;
+        font-size: 13pt;
     }
 }
+
 
 @media (-webkit-min-device-pixel-ratio: 2) {
     #mobile-chat{
