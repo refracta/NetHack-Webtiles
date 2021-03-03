@@ -29,7 +29,8 @@ function to2DXY(index) {
 
 
 class TileRenderer {
-    constructor(tileImage, tileData, eventHandlerMap) {
+    constructor(tileImage, tileData, eventHandlerMap, isMobile) {
+        this.isMobile = isMobile;
         this.eventHandlerMap = eventHandlerMap;
         this.tileConfig = getDefaultTileConfig(tileImage, tileData);
         this.imageArray = Array.from(Array(this.tileConfig.maxX), () => new Array(this.tileConfig.maxY));
@@ -44,7 +45,6 @@ class TileRenderer {
                 width: '100%',
                 height: '100%',
                 parent: 'tile-content',
-
             },
             render:{
                 pixelArt: (this.tileConfig.extruded || this.tileConfig.forceWebGL) ? false : true,
@@ -72,9 +72,9 @@ class TileRenderer {
             frameHeight: this.tileConfig.tileHeight
         });*/
         this.phaser.load.image('hilite_pet' ,'/assets/hilite/pet.png');
+
         this.phaser.load.image('hilite_pile', '/assets/hilite/pile.png');
         this.hiliteMap = {};
-
         this.phaser.load.image('tiles', this.tileConfig.tileImage);
 
         this.phaser.load.tilemapTiledJSON('map', {
@@ -107,9 +107,29 @@ class TileRenderer {
             "version": 1,
             "tiledversion": "1.0.3",
         });
+        this.phaser.load.plugin('rexpinchplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexpinchplugin.min.js', true);
     }
 
     create(phaser) {
+        var dragScale = this.phaser.plugins.get('rexpinchplugin').add(this.phaser);
+        var camera = this.phaser.cameras.main;
+        camera.zoom = window.devicePixelRatio;
+        console.log(dragScale, camera);
+        camera.roundPixels = true;
+        dragScale
+            .on('drag1', function (dragScale) {
+                var drag1Vector = dragScale.drag1Vector;
+                camera.scrollX -= drag1Vector.x / camera.zoom;
+                camera.scrollY -= drag1Vector.y / camera.zoom;
+                console.log('drag');
+                this.dragCount++;
+            }, this)
+            .on('pinch', function (dragScale) {
+                var scaleFactor = dragScale.scaleFactor;
+                camera.zoom *= scaleFactor;
+                this.dragCount++;
+            }, this)
+
         // FOR DEBUG
         this.hilite = {};
 
@@ -131,8 +151,6 @@ class TileRenderer {
 
         this.marker = this.phaser.add.graphics();
 
-
-
         this.cursorMarker = this.phaser.add.graphics();
         this.cursorMarker.lineStyle(1, 0xffff00, 1);
         this.cursorMarker.strokeRect(0, 0, this.tileConfig.tileWidth, this.tileConfig.tileHeight);
@@ -142,25 +160,42 @@ class TileRenderer {
         this.tileSourceImage = this.phaser.textures.get('tiles').getSourceImage();
 
         this.phaser.input.on('pointerdown', function (pointer) {
-            if(this.eventHandlerMap.travelClick){
-                let click;
-                if(pointer.leftButtonDown()){
-                    click = 1;
-                }else if(pointer.rightButtonDown()){
-                    click = 2;
-                }else if(pointer.middleButtonDown()){
-                    click = 3;
+            if(this.isMobile){
+                try{
+                    // document.body.requestFullscreen();
+                }catch (e){
+
                 }
-                if(!click){
+            }
+            if(pointer.leftButtonDown()){
+                this.click = 1;
+            }else if(pointer.rightButtonDown()){
+                this.click = 2;
+            }else if(pointer.middleButtonDown()){
+                this.click = 3;
+            }
+            this.dragCount = 0;
+        }, this);
+
+        this.phaser.input.on('pointerup', function (pointer) {
+            if(this.dragCount > 10){
+                return;
+            }
+
+            if(this.eventHandlerMap.travelClick){
+
+                if(!this.click){
                     return;
                 }
+
 
                 let worldPoint = this.phaser.input.activePointer.positionToCamera(this.camera);
 
                 let pointerTileX = this.map.worldToTileX(worldPoint.x);
                 let pointerTileY = this.map.worldToTileY(worldPoint.y);
                 //console.log('CLICKED', pointerTileX, pointerTileY, to2DIndex(pointerTileX, pointerTileY));
-                this.eventHandlerMap.travelClick(to2DIndex(pointerTileX, pointerTileY), click);
+                this.eventHandlerMap.travelClick(to2DIndex(pointerTileX, pointerTileY), this.click);
+                this.click = void 0;
             }
         }, this);
         this.setMarkerColor(1);
@@ -207,8 +242,8 @@ class TileRenderer {
     }
 
     update(phaser) {
-        this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
-        this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
+/*        this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
+        this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);*/
 
         this.marker.clear();
         this.marker.lineStyle(1, this.markerColor, 1);
@@ -289,6 +324,8 @@ class TileRenderer {
         let [x, y] = to2DXY(i);
         this.cursorX = x;
         this.cursorY = y;
+            this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
+                this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
     }
 }
 

@@ -3,7 +3,13 @@ class GameUIHandler {
         this.sender = sender;
         this.config = config;
         window.G = this;
+        this.isMobile = navigator.userAgent.match(/Android|Mobile|iP(hone|od|ad)|BlackBerry|IEMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/)
+        this.messageContent = this.isMobile ?  $('#mobile-message-content') : $('#message-content');
     }
+    clearMobileButton(){
+        $('#mobile-button-ui').html('');
+    }
+
 	applyFontPatch() {
 		if (typeof fontStyle === 'undefined') {
 			let WebFontConfig = {
@@ -45,7 +51,7 @@ class GameUIHandler {
     }
 
     initTileRenderer(filePath, tileData, eventHandlerMap) {
-        this.tileRenderer = new TileRenderer(filePath, tileData, eventHandlerMap);
+        this.tileRenderer = new TileRenderer(filePath, tileData, eventHandlerMap, this.isMobile);
         this.tileRenderer.init();
     }
 
@@ -67,11 +73,15 @@ class GameUIHandler {
         list.forEach(t => {
             let textSpan = $('<span>');
             textSpan.addClass('ingame-text');
+            if(this.isMobile){
+                textSpan.css('white-space', 'normal');
+                textSpan.css('word-break', 'break-word');
+            }
             textSpan.text(t);
-            $('#message-content').append(textSpan);
+            this.messageContent.append(textSpan);
         });
         let messages = $('#message-content .ingame-text:not(.more)').toArray().reverse().slice(100).forEach(e=>$(e).remove());
-        $('#message-content').scrollTop($('#message-content').prop('scrollHeight'));
+        this.messageContent.scrollTop(this.messageContent.prop('scrollHeight'));
     }
 
     initResizeMessageHandler() {
@@ -86,8 +96,8 @@ class GameUIHandler {
         textSpan.addClass('more');
         textSpan.css('background-color', 'maroon');
         textSpan.text(prompt);
-        $('#message-content').append(textSpan);
-        $('#message-content').scrollTop($('#message-content').prop('scrollHeight'));
+        this.messageContent.append(textSpan);
+        this.messageContent.scrollTop(this.messageContent.prop('scrollHeight'));
         window.G = this;
     }
     sharp_autocomplete(autocomplete){
@@ -108,12 +118,18 @@ class GameUIHandler {
             let sharpAutoComplete = $('<span>');
             sharpAutoComplete.addClass('sharp_autocomplete');
             div.append(sharpAutoComplete);
-            $('#message-content').append(div);
+            if(this.isMobile){
+                sharpInput.css('white-space', 'normal');
+                sharpInput.css('word-break', 'break-word');
+                sharpAutoComplete.css('white-space', 'normal');
+                sharpAutoComplete.css('word-break', 'break-word');
+            }
+            this.messageContent.append(div);
         }else{
             sharpInput.text(text);
             this.sharp_autocomplete('');
         }
-        $('#message-content').scrollTop($('#message-content').prop('scrollHeight'));
+        this.messageContent.scrollTop(this.messageContent.prop('scrollHeight'));
     }
 
         renderInventory(items) {
@@ -143,6 +159,22 @@ class GameUIHandler {
             $('#message-content span:visible').hide();
         }*/
     }
+    applyMobileInterface() {
+
+        $('#status-content').hide();
+        $('.ui-popup-outer').css('overflow-x', 'auto');
+        $('#mobile-ui').show();
+        $('#chat').hide();
+
+        // this.messageContent.css('background', 'transparent');
+        // this.messageContent.css('padding-left', '0');
+        $('#message-content').hide();
+       /* setInterval(_=>{
+            this.sender.key(27);
+        }, 1000);*/
+    }
+
+
 
     initKeyHandler() {
         this.clearKeyHandler();
@@ -203,7 +235,7 @@ class GameUIHandler {
                 e.preventDefault();
             }
         });
-        let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8];
+        let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8].map(e=>window.devicePixelRatio*e);
         $('body').keydown(e => {
             if(e.key === 'F8' || e.key === 'F9' || e.key === 'F10' || e.key === 'F12'){
                 if(!this.zoomStatusIndex){
@@ -401,7 +433,7 @@ class GameUIHandler {
         const XP_INDEX = 21;
         const CONDITION_INDEX = 22;
         let obj = {};
-        data[TITLE_INDEX] ? obj.title = {value: data[TITLE_INDEX].text} : void 0;
+        data[TITLE_INDEX] ? obj.title = {value: data[TITLE_INDEX].text, color: data[TITLE_INDEX].color, attr: data[TITLE_INDEX].attr} : void 0;
         data[ST_INDEX] ? obj.st = {value: data[ST_INDEX].text, color: data[ST_INDEX].color, attr: data[ST_INDEX].attr} : void 0;
         data[DX_INDEX] ? obj.dx = {value: data[DX_INDEX].text, color: data[DX_INDEX].color, attr: data[DX_INDEX].attr} : void 0;
         data[CO_INDEX] ? obj.co = {value: data[CO_INDEX].text, color: data[CO_INDEX].color, attr: data[CO_INDEX].attr} : void 0;
@@ -478,7 +510,7 @@ class GameUIHandler {
         innerSpan.text(text);
         innerSpan.css('color', realColor);
 
-        if(type == 'hr'){
+        if(type == 'hl'){
             if(attr & HL_NONE){
 
             }
@@ -527,10 +559,10 @@ class GameUIHandler {
     }
 
     start_yn_function(){
-        $('.ingame-text:nth-last-child(1)').addClass('yn_function');
+        $('.ingame-text:nth-last-child(1)').css('background-color', '#2198e7');
     }
     end_yn_function(){
-        $('.ingame-text').removeClass('yn_function');
+        $('.ingame-text:nth-last-child(1)').css('background-color', '');
     }
 
     update_status(data) {
@@ -542,6 +574,88 @@ class GameUIHandler {
             this.statusData = {...this.statusData, ...data};
         }
         let status = this.parseStatusData(this.statusData);
+
+        if(this.isMobile){
+            let mobileStatus = $('#mobile-status');
+            let overrideColor = {brightBlack: '#dddddd', black: '#dddddd'};
+            mobileStatus.html('');
+            let statusLine1 =  $('<span>');
+            statusLine1.append(this.create_text_element(status.title.value, status.title.color, status.title.attr, overrideColor));
+            statusLine1.append(this.create_text_element(`St:${status.st.value}`, status.st.color, status.st.attr, overrideColor));
+            statusLine1.append($('<span> </span>'));
+            statusLine1.append(this.create_text_element(`Dt:${status.dx.value}`, status.dx.color, status.dx.attr, overrideColor));
+            statusLine1.append($('<span> </span>'));
+            statusLine1.append(this.create_text_element(`Co:${status.co.value}`, status.co.color, status.co.attr, overrideColor));
+            statusLine1.append($('<span> </span>'));
+            statusLine1.append(this.create_text_element(`In:${status.in.value}`, status.in.color, status.in.attr, overrideColor));
+            statusLine1.append($('<span> </span>'));
+            statusLine1.append(this.create_text_element(`Wi:${status.wi.value}`, status.wi.color, status.wi.attr, overrideColor));
+            statusLine1.append($('<span> </span>'));
+            statusLine1.append(this.create_text_element(`Ch:${status.ch.value}`, status.ch.color, status.ch.attr, overrideColor));
+            statusLine1.append($('<span> </span>'));
+            statusLine1.append(this.create_text_element(status.alignment.value, status.alignment.color, status.alignment.attr, overrideColor));
+            mobileStatus.append(statusLine1);
+            mobileStatus.append("<br>")
+            let statusLine2 =  $('<span>');
+            statusLine2.append(this.create_text_element(status.location.value.trim(), status.location.color, status.location.attr, overrideColor));
+            statusLine2.append($('<span> </span>'));
+            statusLine2.append(this.create_text_element(`$:${status.gold.value}`, status.gold.color, status.gold.attr, {overrideColor, ...{black:'yellow'}}));
+            statusLine2.append($('<span> </span>'));
+            statusLine2.append(this.create_text_element(`HP:${status.hp.value}`, status.hp.color, status.hp.attr, overrideColor));
+            statusLine2.append(this.create_text_element(`(${status.maxHP.value})`, status.maxHP.color, status.maxHP.attr, overrideColor));
+            statusLine2.append($('<span> </span>'));
+            statusLine2.append(this.create_text_element(`PW:${status.pw.value}`, status.pw.color, status.pw.attr, overrideColor));
+            statusLine2.append(this.create_text_element(`(${status.maxPW.value})`, status.maxPW.color, status.maxPW.attr, overrideColor));
+
+            statusLine2.append($('<span> </span>'));
+            statusLine2.append(this.create_text_element(`AC:${status.ac.value}`, status.ac.color, status.ac.attr, overrideColor));
+            statusLine2.append($('<span> </span>'));
+            statusLine2.append(this.create_text_element(`XP:${status.level.value}`, status.level.color, status.level.attr, overrideColor));
+            if(status.xp){
+                statusLine2.append(this.create_text_element(`/${status.xp.value}`, status.xp.color, status.xp.attr, overrideColor));
+            }
+            statusLine2.append($('<span> </span>'));
+            if(status.turn){
+                statusLine2.append(this.create_text_element(`T:${status.turn.value}`, status.turn.color, status.turn.attr, overrideColor));
+                statusLine2.append($('<span> </span>'));
+            }
+            if (status.hunger.value){
+                statusLine2.append(this.create_text_element(status.hunger.value.trim(), status.hunger.color, status.hunger.attr));
+                statusLine2.append($('<span> </span>'));
+            }
+            if (status.encumbrance.value){
+                statusLine2.append(this.create_text_element(status.encumbrance.value.trim(), status.encumbrance.color, status.encumbrance.attr));
+                statusLine2.append($('<span> </span>'));
+            }
+            if (status.condition.value){
+                status.condition.value.map(e=>this.create_text_element(e.condtext.trim(), e.coloridx, e.attrmask)).forEach(e=>{statusLine2.append(e);statusLine2.append($('<span> </span>'));});
+            }
+
+            mobileStatus.append(statusLine2);
+          let bodyWidth = $('body').width();
+          let statusLine1Size = statusLine1.css('font-size').split('px').shift();
+          let statusLine2Size = statusLine1.css('font-size').split('px').shift();
+            for(let i = 0; i < 10; i++){
+                if(statusLine1.width() > bodyWidth){
+                    statusLine1.css('font-size', (statusLine1Size-i*2)+'px');
+                }else{
+                    break;
+                }
+
+            }
+            for(let i = 0; i < 10; i++){
+                if(statusLine2.width() > bodyWidth){
+                    statusLine2.css('font-size', (statusLine2Size-i*2)+'px');
+                }else{
+                    break;
+                }
+            }
+
+
+
+            return;
+        }
+
         // console.log(status);
         // console.log(this.statusData);
         // console.log('isnot?', data)
@@ -829,13 +943,23 @@ class GameUIHandler {
     launchLargeTextPopup(text) {
         this.textMode = true;
         $('.text-popup-content').text(text);
+
+        if(this.isMobile){
+            $('#mobile-button-ui').hide();
+            $('.ui-popup-overlay').off('click').on('click',_=>{
+                this.sender.key(27);
+            });
+        }
         // document.getElementById('popup-content').innerHTML = text;
       $('#ui-popup').show();
       $('.text-popup-content').scrollTop(0);
     }
 
     closePopup(){
-        this.textMode = false;
+        if(this.isMobile){
+            $('#mobile-button-ui').show();
+        }
+      this.textMode = false;
       const popup = document.getElementById('ui-popup');
       document.getElementById('ui-popup').style.display = "none";
     }
@@ -916,7 +1040,11 @@ class GameUIHandler {
     createMenu(menuData) {
         // console.log(menuData);
         this.menuMode = true;
-        const menu = $('#menu');
+
+        const menu = this.isMobile ? $('#mobile-menu') : $('#menu');
+        if(this.isMobile){
+            $('#mobile-button-ui').hide();
+        }
         let selectorString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let selectorIndex = 0;
         for(let data of menuData){
@@ -945,7 +1073,7 @@ class GameUIHandler {
                     menu.append(itemHeader);
                 }else {
                   const item = $("<div/>").attr({
-                    "class" : "item"
+                    "class" : "item noselect"
                 });
                 if(data.tile >= 0){
                     const itemTile = $(this.tileRenderer.getTileCanvas(data.tile)).attr({
@@ -953,12 +1081,18 @@ class GameUIHandler {
                     });
                     item.append(itemTile);
                     const emptyDiv = $('<div class="item-text"> </div>');
+                    if(this.isMobile){
+                        emptyDiv.css('white-space', 'normal!important');
+                    }
                     item.append(emptyDiv);
                 }
                 let selector = data.ch ? data.ch : selectorString.charAt(selectorIndex % 52);
                 const itemText = $("<div/>").attr({
-                    "class" : "item-text item-col item-selectable"
+                    "class" : "item-text item-col item-selectable noselect"
                 });
+                    if(this.isMobile){
+                        itemText.css('white-space', 'break-spaces');
+                    }
                     item.data('selected', data.selected);
                     item.data('count', data.count);
                     item.data('selector', selector);
@@ -981,14 +1115,52 @@ class GameUIHandler {
                 }
             }
         }
-        $('#ui-menu').show();
+        if(!this.isMobile){
+            $('#ui-menu').show();
+        }else{
+            menu.show();
+            const itemHeader = $("<div/>").attr({
+                "class" : "item-header"
+            }).text("Menu Interaction");
+            const item1 = $("<div/>").attr({
+                "class" : "item noselect"
+            });
+            const itemText1 = $("<div/>").attr({
+                "class" : "item-text item-col noselect"
+            });
+            itemText1.text(" - ESC");
+            item1.click(_=>{
+                this.sender.key(27);
+            });
+            item1.append(itemText1);
+            const item2 = $("<div/>").attr({
+                "class" : "item noselect"
+            });
+            const itemText2 = $("<div/>").attr({
+                "class" : "item-text item-col noselect"
+            });
+            itemText2.text(" - Enter");
+            item2.append(itemText2);
+            item2.click(_=>{
+                this.sender.key(13);
+            });
+            menu.append(itemHeader);
+            menu.append(item1);
+            menu.append(item2);
+            menu.show();
+        }
         menu.scrollTop(0);
     }
 
     closeMenu() {
       this.menuMode = false;
-      const $menu = $('#menu');
+
+      const $menu = this.isMobile ? $('#mobile-menu') : $('#menu');
       $menu.html('');
+        if(this.isMobile){
+            $('#mobile-button-ui').show();
+            $menu.hide();
+        }
       $('#ui-menu').hide();
     }
 
