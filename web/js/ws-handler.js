@@ -178,6 +178,7 @@ class WSHandler {
 
                 let btn = $('<button type="button" className="mbtn btn btn-light" style="margin-right: 0.2em; min-width: 3em; min-height: 3em;"></button>');
                 btn.click(_=>{
+                    this.isRunningButtonKey = true;
                     if(b.action){
                         switch (b.action){
                             case 'FULL_SCREEN':
@@ -195,22 +196,24 @@ class WSHandler {
                             case 'KEY':
                             case 'KEY_ENTER':
                                 let key = prompt("KEY?");
-                                let match = key.match(/\[\d{1,4}\]/g);
-                                if(match){
-                                    for(let e of match){
-                                        key = key.replace(e, String.fromCharCode(parseInt(e.split(/[\[\]]/)[1])));
+                                if(key){
+                                    let match = key.match(/\[\d{1,4}\]/g);
+                                    if(match){
+                                        for(let e of match){
+                                            key = key.replace(e, String.fromCharCode(parseInt(e.split(/[\[\]]/)[1])));
+                                        }
                                     }
-                                }
-                                key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
-                                if(b.action == 'KEY_ENTER'){
-                                    this.sender.key(13);
+                                    key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
+                                    if(b.action == 'KEY_ENTER'){
+                                        this.sender.key(13);
+                                    }
                                 }
                                 break;
                         }
                         return;
                     }
                     b.key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
-
+                    this.isRunningButtonKey = false;
                 });
                 btn.text(b.text);
                 btn.data('key', b.key);
@@ -333,7 +336,7 @@ class WSHandler {
             this.sharp_query = data.query + ' ';
             this.sharp_input_text = '';
             this.gameUIHandler.sharp_input(this.sharp_query + this.sharp_input_text);
-            if(this.gameUIHandler.isMobile){
+            if(this.gameUIHandler.isMobile && this.gameUIHandler.isRunningButtonKey){
                     let key = prompt(this.sharp_query);
                     if(key !== ''){
                     let match = key.match(/\[\d{1,4}\]/g);
