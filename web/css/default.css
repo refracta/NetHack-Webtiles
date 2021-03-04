@@ -832,7 +832,7 @@ padding-right: 30%;*/
     }
 }
 
-@media (-webkit-min-device-pixel-ratio: 1) and (min-width: 800px)  {
+@media (-webkit-min-device-pixel-ratio: 1) and (min-width: 800px) and (orientation:portrait) {
     #mobile-chat{
         font-size: 24pt;
         height: 5vh;
@@ -865,7 +865,7 @@ padding-right: 30%;*/
     background-color : #2198e7;
 }
 
-@media (-webkit-min-device-pixel-ratio: 2) {
+@media (-webkit-min-device-pixel-ratio: 2) and (orientation:portrait){
     #mobile-chat{
         font-size: 24pt;
         height: 5vh;
@@ -895,7 +895,7 @@ padding-right: 30%;*/
     }
 }
 
-@media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1280px) {
+@media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1280px) and (orientation:portrait) {
     #mobile-chat{
         font-size: 20pt;
         height: 5vh;
