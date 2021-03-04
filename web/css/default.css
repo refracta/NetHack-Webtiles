@@ -599,18 +599,17 @@ padding-right: 30%;*/
 }
 
 .mobile-menu{
-    max-height:100%;
+    max-height:99%;
     font-size: 28pt;
+    top: 50%;
+    transform: translateY(-50%);
     color: white;
     background-color: black;
     border: 3px solid gold;
     overflow-y: auto;
     position: absolute;
     z-index: 99;
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
+
     font-family: Hack;
 }
 .menu {
@@ -824,6 +823,10 @@ padding-right: 30%;*/
     .text-popup-content {
         font-size: small;
     }
+    .ui-popup-outer{
+        margin:0;
+        max-height: 90vh;
+    }
 }
 
 
@@ -851,6 +854,10 @@ padding-right: 30%;*/
     #mobile-menu canvas{
         zoom:2;
     }
+    .ui-popup-outer{
+        margin:0;
+        max-height: 90vh;
+    }
 }
 
 @media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1280px) {
@@ -873,6 +880,10 @@ padding-right: 30%;*/
     }
     .text-popup-content {
         font-size: 20pt;
+    }
+    .ui-popup-outer{
+        margin:0;
+        max-height: 90vh;
     }
 }
 
@@ -897,5 +908,9 @@ padding-right: 30%;*/
     }
     .text-popup-content {
         font-size: 12pt;
+    }
+    .ui-popup-outer{
+        margin:0;
+        max-height: 90vh;
     }
 }

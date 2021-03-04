@@ -1145,8 +1145,8 @@ class GameUIHandler {
                 this.sender.key(13);
             });
             menu.append(itemHeader);
-            menu.append(item1);
             menu.append(item2);
+            menu.append(item1);
             menu.show();
         }
         menu.scrollTop(0);
