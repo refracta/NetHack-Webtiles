@@ -178,7 +178,6 @@ class WSHandler {
 
                 let btn = $('<button type="button" className="mbtn btn btn-light" style="margin-right: 0.2em; min-width: 3em; min-height: 3em;"></button>');
                 btn.click(_=>{
-                    this.isRunningButtonKey = true;
                     if(b.action){
                         switch (b.action){
                             case 'FULL_SCREEN':
@@ -213,7 +212,7 @@ class WSHandler {
                         return;
                     }
                     b.key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
-                    this.isRunningButtonKey = false;
+                    this.gameUIHandler.ignoreSharpInput = true;
                 });
                 btn.text(b.text);
                 btn.data('key', b.key);
@@ -336,7 +335,7 @@ class WSHandler {
             this.sharp_query = data.query + ' ';
             this.sharp_input_text = '';
             this.gameUIHandler.sharp_input(this.sharp_query + this.sharp_input_text);
-            if(this.gameUIHandler.isMobile && this.gameUIHandler.isRunningButtonKey){
+            if(this.gameUIHandler.isMobile && !this.gameUIHandler.ignoreSharpInput){
                     let key = prompt(this.sharp_query);
                     if(key !== ''){
                     let match = key.match(/\[\d{1,4}\]/g);
@@ -349,6 +348,8 @@ class WSHandler {
                         this.sender.key(13);
                     }
             }
+            this.gameUIHandler.ignoreSharpInput = false;
+            setTimeout(_=>{this.gameUIHandler.ignoreSharpInput = false}, 500);
         }
 
         this.callback['sharp_autocomplete'] = (data) => {
