@@ -341,11 +341,12 @@ class WSHandler {
                     if(key !== ''){
                     let match = key.match(/\[\d{1,4}\]/g);
                     if(match){
+                        match = match.replace(/ /g, '');
                         for(let e of match){
                             key = key.replace(e, String.fromCharCode(parseInt(e.split(/[\[\]]/)[1])));
                         }
                     }
-                        key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
+                    [...new Set(match.split(''))].forEach(k=>this.sender.key(k.charCodeAt(0)));
                         this.sender.key(13);
                     }
             }
