@@ -609,6 +609,8 @@ padding-right: 30%;*/
     overflow-y: auto;
     position: absolute;
     z-index: 99;
+    left: 0;
+    right: 0;
 
     font-family: Hack;
 }

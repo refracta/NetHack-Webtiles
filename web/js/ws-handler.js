@@ -363,7 +363,7 @@ class WSHandler {
         }
 
         this.callback['start_yn_function'] = (data) => {
-            this.gameUIHandler.start_yn_function();
+            this.gameUIHandler.start_yn_function(data);
         }
 
         this.callback['end_yn_function'] = (data) => {

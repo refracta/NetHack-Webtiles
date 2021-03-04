@@ -558,11 +558,54 @@ class GameUIHandler {
        return outerSpan.get(0);
     }
 
-    start_yn_function(){
+    start_yn_function(data){
         $('.ingame-text:nth-last-child(1)').css('background-color', '#2198e7');
+        if(this.isMobile){
+            this.closeMenu();
+            let resp = data.resp;
+            let originalResp = true;
+            if(!resp || resp == null){
+                let reg = data.query.match(/\[.+?\]/g);
+                if(reg){
+                    resp = reg.pop();
+                    originalResp = false;
+                    resp = resp.substring(1, resp.length-1);
+                    resp = resp.replace(' or ', '');
+                }
+            }
+           let menuData = [];
+           let menuStart = {
+                "selector": "",
+                "ch": "",
+                "a_void": false,
+                "count": -1,
+                "o_str": data.query,
+                "attr": 7,
+                "selected": false,
+                "tile": -1,
+                "color": 8,
+                "text_attr": 0
+            }
+            menuData.push(menuStart);
+           resp.split('').forEach(k=>{
+              let copyMenu = JSON.parse(JSON.stringify(menuStart));
+              copyMenu.o_str = `${k}`;
+              if(data.def == k){
+                  copyMenu.o_str += ' (default)';
+              }
+              copyMenu.forceSelector = true;
+              copyMenu.a_void = true;
+              copyMenu.attr = 0;
+              copyMenu.ch = k;
+              menuData.push(copyMenu);
+           });
+
+           this.createMenu(menuData);
+        }
     }
     end_yn_function(){
         $('.ingame-text:nth-last-child(1)').css('background-color', '');
+        this.closeMenu();
     }
 
     update_status(data) {
@@ -1038,7 +1081,6 @@ class GameUIHandler {
             $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
     }
     createMenu(menuData) {
-        // console.log(menuData);
         this.menuMode = true;
 
         const menu = this.isMobile ? $('#mobile-menu') : $('#menu');
@@ -1096,11 +1138,16 @@ class GameUIHandler {
                     item.data('selected', data.selected);
                     item.data('count', data.count);
                     item.data('selector', selector);
+                    item.data('forceSelector', data.forceSelector);
                     // !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
                     item.data('selectIndex', selectorIndex);
                 selectorIndex++;
                 item.click(e=>{
                     e = $(e.currentTarget);
+                    if(e.data('forceSelector')){
+                        this.sender.key(e.data('selector').charCodeAt(0));
+                        return;
+                    }
                     if(typeof e.data('selectIndex') === 'number'){
                         this.sender.selectIndex(e.data('selectIndex'));
                     }else if(e.data('selector')){
