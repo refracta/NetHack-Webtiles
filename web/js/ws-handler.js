@@ -258,7 +258,7 @@ class WSHandler {
                 if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
                     this.gameUIHandler.applyFontPatch();
                 }
-
+                this.gameUIHandler.spectorMode=true;
                 if(this.gameUIHandler.isMobile){
                      addButtonLine("%ROOM_CHAT%|RoomChat %PUBLIC_CHAT%|PublicChat %CLEAR_CHAT%|ClearChat");
                     $('#mobile-button-ui').show();
@@ -299,7 +299,7 @@ class WSHandler {
                 if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
                     this.gameUIHandler.applyFontPatch();
                 }
-
+                this.gameUIHandler.spectorMode = false;
             if(this.gameUIHandler.isMobile){
                 for(let i = 11; i > 0; i--){
                     let btnText = data.webRC[`MOBILE_BUTTON_LINE${i}`];
@@ -336,7 +336,7 @@ class WSHandler {
             this.sharp_query = data.query + ' ';
             this.sharp_input_text = '';
             this.gameUIHandler.sharp_input(this.sharp_query + this.sharp_input_text);
-            if(this.gameUIHandler.isMobile && !this.gameUIHandler.ignoreSharpInput){
+            if(this.gameUIHandler.isMobile && !this.gameUIHandler.ignoreSharpInput && !this.gameUIHandler.spectorMode){
                     let key = prompt(this.sharp_query);
                     if(key !== ''){
                     let match = key.match(/\[\d{1,4}\]/g);
