@@ -561,6 +561,10 @@ class GameUIHandler {
     start_yn_function(data){
         $('.ingame-text:nth-last-child(1)').css('background-color', '#2198e7');
         if(this.isMobile){
+            let query = data.query;
+            if(query.endsWith(' (in what direction)') || query.startsWith('In what direction?') || query.startsWith('Loot in what direction?') || query.startsWith('Talk to whom? (in what direction)')){
+                return;
+            }
             this.closeMenu();
             let resp = data.resp;
             let originalResp = true;
@@ -573,6 +577,8 @@ class GameUIHandler {
                     resp = resp.replace(' or ', '');
                     resp = resp.replace(/ /g, '');
                 }
+            }else{
+
             }
            let menuData = [];
            let menuStart = {
