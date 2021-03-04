@@ -875,13 +875,13 @@ padding-right: 30%;*/
     }
     #mobile-message-content {
         font-size: 24pt;
-        height: 5vh;
+        height: 6vh;
     }
     .text-popup-content {
         font-size: 24pt;
     }
     #mobile-button-ui{
-        font-size: 32px;
+        font-size: 26px;
     }
     #mobile-menu{
         font-size:36px;
@@ -933,7 +933,7 @@ padding-right: 30%;*/
     }
     #mobile-message-content {
         font-size: 11pt;
-        height: 7vh;
+        height: 9vh;
     }
     #mobile-button-ui{
         font-size: 11px;
