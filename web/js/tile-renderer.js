@@ -146,7 +146,7 @@ class TileRenderer {
         this.camera = this.phaser.cameras.main;
 
         this.mapOutline = this.phaser.add.graphics();
-        this.mapOutline.lineStyle(1, 0x101010, 1);
+        this.mapOutline.lineStyle(1, 0x505050, 1);
         this.mapOutline.strokeRect(this.tileConfig.tileWidth, 0, this.tileConfig.tileWidth * this.tileConfig.maxWidth, this.tileConfig.tileHeight * this.tileConfig.maxHeight);
 
         this.marker = this.phaser.add.graphics();
