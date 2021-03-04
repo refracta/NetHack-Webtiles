@@ -213,7 +213,7 @@ class WSHandler {
                     }
                     this.gameUIHandler.ignoreSharpInput = true;
                     b.key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
-                    setTimeout(_=>{this.gameUIHandler.ignoreSharpInput = false}, 500);
+                    setTimeout(_=>{this.gameUIHandler.ignoreSharpInput = false}, 2000);
                 });
                 btn.text(b.text);
                 btn.data('key', b.key);
