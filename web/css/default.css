@@ -861,7 +861,9 @@ padding-right: 30%;*/
         max-height: 90vh;
     }
 }
-
+.yn_function {
+    background-color : #2198e7;
+}
 
 @media (-webkit-min-device-pixel-ratio: 2) {
     #mobile-chat{

@@ -559,7 +559,7 @@ class GameUIHandler {
     }
 
     start_yn_function(data){
-        $('.ingame-text:nth-last-child(1)').css('background-color', '#2198e7');
+        $('.ingame-text:nth-last-child(1)').addClass('yn_function');
         if(this.isMobile){
             let query = data.query;
             if(query.endsWith(' (in what direction)') || query.startsWith('In what direction?') || query.startsWith('Loot in what direction?') || query.startsWith('Talk to whom? (in what direction)')){
@@ -624,7 +624,7 @@ class GameUIHandler {
         }
     }
     end_yn_function(){
-        $('.ingame-text:nth-last-child(1)').css('background-color', '');
+        $('.yn_function').removeClass('yn_function');
         this.closeMenu();
     }
 
