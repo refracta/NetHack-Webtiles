@@ -211,8 +211,9 @@ class WSHandler {
                         }
                         return;
                     }
-                    b.key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
                     this.gameUIHandler.ignoreSharpInput = true;
+                    b.key.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
+                    setTimeout(_=>{this.gameUIHandler.ignoreSharpInput = false}, 500);
                 });
                 btn.text(b.text);
                 btn.data('key', b.key);
@@ -349,7 +350,6 @@ class WSHandler {
                     }
             }
             this.gameUIHandler.ignoreSharpInput = false;
-            setTimeout(_=>{this.gameUIHandler.ignoreSharpInput = false}, 500);
         }
 
         this.callback['sharp_autocomplete'] = (data) => {
