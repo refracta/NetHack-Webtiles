@@ -541,7 +541,7 @@ tty_player_selection()
         int echoline;
         char *prompt = build_plselection_prompt(pbuf, QBUFSZ,
                                                 ROLE, RACE, GEND, ALGN);
-
+        send_start_yn_function(pbuf, "ynaq", "");
         /* this prompt string ends in "[ynaq]?":
            y - game picks role,&c then asks player to confirm;
            n - player manually chooses via menu selections;
@@ -556,6 +556,9 @@ tty_player_selection()
             if (index(quitchars, pick4u))
                 pick4u = 'y';
         } while (!index(ynaqchars, pick4u));
+
+        send_end_yn_function();
+
         if ((int) strlen(prompt) + 1 < CO) {
             /* Echo choice and move back down line */
             tty_putsym(BASE_WINDOW, (int) strlen(prompt) + 1, echoline,
