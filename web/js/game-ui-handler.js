@@ -571,6 +571,7 @@ class GameUIHandler {
                     originalResp = false;
                     resp = resp.substring(1, resp.length-1);
                     resp = resp.replace(' or ', '');
+                    resp = resp.replace(/ /g, '');
                 }
             }
            let menuData = [];
@@ -586,10 +587,23 @@ class GameUIHandler {
                 "color": 8,
                 "text_attr": 0
             }
+
             menuData.push(menuStart);
-           resp.split('').forEach(k=>{
+           [...new Set(resp)].forEach(k=>{
               let copyMenu = JSON.parse(JSON.stringify(menuStart));
               copyMenu.o_str = `${k}`;
+              if(originalResp){
+                  if(k == 'y'){
+                      copyMenu.o_str = `Yes`;
+                  }else if(k == 'n'){
+                      copyMenu.o_str = `No`;
+                  }else if(k == 'a'){
+                      copyMenu.o_str = `All`;
+                  }else if(k == 'q'){
+                      copyMenu.o_str = `Quit`;
+                  }
+
+              }
               if(data.def == k){
                   copyMenu.o_str += ' (default)';
               }

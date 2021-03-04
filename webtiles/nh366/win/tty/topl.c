@@ -585,7 +585,7 @@ char def;
         tty_clear_nhwindow(WIN_MESSAGE);
 
 
-    end_start_yn_function();
+    send_end_yn_function();
     return q;
 }
 

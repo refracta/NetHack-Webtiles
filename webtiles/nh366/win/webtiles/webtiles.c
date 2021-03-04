@@ -882,7 +882,7 @@ void send_start_yn_function(char * query, char * resp, char def){
     json_object_object_add(current_data, "def", json_object_new_string(def_string));
 }
 
-void end_start_yn_function(){
+void send_end_yn_function(){
     bool is_inited = init_current_data("end_yn_function");
 }
 
