@@ -894,7 +894,11 @@ padding-right: 30%;*/
         max-height: 90vh;
     }
 }
-
+@media (-webkit-min-device-pixel-ratio: 2) and (min-height: 1500px) and (orientation:portrait) {
+    #mobile-message-content {
+        height: 5vh;
+    }
+}
 @media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1280px) and (orientation:portrait) {
     #mobile-chat{
         font-size: 20pt;
@@ -947,5 +951,11 @@ padding-right: 30%;*/
     .ui-popup-outer{
         margin:0;
         max-height: 90vh;
+    }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2) and (orientation:landscape) and (min-height: 400px) {
+    #mobile-message-content {
+        height: 8vh;
     }
 }
