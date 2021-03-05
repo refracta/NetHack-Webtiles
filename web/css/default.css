@@ -881,7 +881,7 @@ padding-right: 30%;*/
         font-size: 24pt;
     }
     #mobile-button-ui{
-        font-size: 36px;
+        font-size: 26px;
     }
     #mobile-menu{
         font-size:36px;
@@ -899,7 +899,7 @@ padding-right: 30%;*/
         height: 5vh;
     }
     #mobile-button-ui{
-        font-size: 26px;
+        font-size: 36px;
     }
 }
 @media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1280px) and (orientation:portrait) {
