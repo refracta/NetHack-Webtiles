@@ -121,7 +121,6 @@ class TileRenderer {
                 var drag1Vector = dragScale.drag1Vector;
                 camera.scrollX -= drag1Vector.x / camera.zoom;
                 camera.scrollY -= drag1Vector.y / camera.zoom;
-                console.log('drag');
                 this.dragCount++;
             }, this)
             .on('pinch', function (dragScale) {
@@ -178,7 +177,7 @@ class TileRenderer {
         }, this);
 
         this.phaser.input.on('pointerup', function (pointer) {
-            if(this.dragCount > 10){
+            if(this.dragCount > 5){
                 return;
             }
 
