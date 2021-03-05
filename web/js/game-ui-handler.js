@@ -3,7 +3,7 @@ class GameUIHandler {
         this.sender = sender;
         this.config = config;
         window.G = this;
-        this.isMobile = navigator.userAgent.match(/Android|Mobile|iP(hone|od|ad)|BlackBerry|IEMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/)
+        this.isMobile = navigator.userAgent.match(/Android|Mobile|iP(hone|od|ad)|BlackBerry|IEMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/) || localStorage.forceMobile === 'true'
         this.messageContent = this.isMobile ?  $('#mobile-message-content') : $('#message-content');
     }
     clearMobileButton(){
