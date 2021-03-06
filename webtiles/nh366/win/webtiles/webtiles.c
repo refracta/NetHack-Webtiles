@@ -20,6 +20,8 @@
 
 #include "hack.h"
 #include "wintty.h"
+#include <termios.h>
+
 
 #define STRING_BUFFER_SIZE 131072
 #define STRING_BUFFER_SIZE_HALF 65536
@@ -173,6 +175,8 @@ void send_init_socket(char * username){
     json_object_put(obj);
 }
 
+void init_keyboard();
+
 void init_socket(char * username) {
     char *game_path = GAME_UDS_PATH();
     game_address = get_path_address(game_path);
@@ -190,6 +194,7 @@ void init_socket(char * username) {
     int connect_status = get_connect_status(server_address);
     connect_status < 0 ? die("getConnectStatusError") : 0;
 
+    init_keyboard();
     send_init_socket(username);
 }
 
@@ -448,6 +453,37 @@ void handle_core(char *msg, json_object *obj) {
     }
 }
 
+static struct termios initial_settings, new_settings;
+
+int kbhit() {
+    struct timeval tv = {0L, 0L};
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(0, &fds);
+    return select(1, &fds, NULL, NULL, &tv);
+}
+
+int getch() {
+    int r;
+    unsigned char c;
+    if ((r = read(0, &c, sizeof(c))) < 0) {
+        return r;
+    } else {
+        return c;
+    }
+}
+
+void init_keyboard() {
+    tcgetattr(0, &initial_settings);
+    new_settings = initial_settings;
+    new_settings.c_lflag &= ~ICANON;
+    new_settings.c_lflag &= ~ECHO;
+    new_settings.c_lflag &= ~ISIG;
+    new_settings.c_cc[VMIN] = 1;
+    new_settings.c_cc[VTIME] = 0;
+    tcsetattr(0, TCSANOW, &new_settings);
+}
+
 /* KEY EMULATION */
 int getch_by_webtiles() {
     while (true) {
@@ -462,6 +498,9 @@ int getch_by_webtiles() {
         if (is_key_triggered) {
             is_key_triggered = false;
             return key_code;
+        }
+        if(kbhit()){
+            return getch();
         }
     }
 }
