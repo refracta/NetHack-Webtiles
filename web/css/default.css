@@ -17,6 +17,12 @@
     }
 }
 
+@media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1024px){
+    .auto-zoom {
+        zoom: 1
+    }
+}
+
 /*@media (-webkit-min-device-pixel-ratio: 2) {
     .auto-zoom {
         zoom: 2
