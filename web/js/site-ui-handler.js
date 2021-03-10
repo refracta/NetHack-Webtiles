@@ -373,7 +373,7 @@ class SiteUIHandler {
         else if (e.which == 27) {
             e.preventDefault();
             e.stopPropagation();
-            this.toggle();
+            // this.toggle();
             $(document.activeElement).blur();
         }
         return true;
