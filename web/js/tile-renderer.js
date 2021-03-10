@@ -159,13 +159,6 @@ class TileRenderer {
         this.tileSourceImage = this.phaser.textures.get('tiles').getSourceImage();
 
         this.phaser.input.on('pointerdown', function (pointer) {
-            if(this.isMobile){
-                try{
-                    // document.body.requestFullscreen();
-                }catch (e){
-
-                }
-            }
             if(pointer.leftButtonDown()){
                 this.click = 1;
             }else if(pointer.rightButtonDown()){
@@ -323,8 +316,10 @@ class TileRenderer {
         let [x, y] = to2DXY(i);
         this.cursorX = x;
         this.cursorY = y;
+        if(this.dragCount === 0){
             this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
                 this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
+        }
     }
 }
 
