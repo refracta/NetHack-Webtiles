@@ -204,8 +204,8 @@ class GameUIHandler {
                     }else if(selected.data('selector')){
                         this.sender.key(selected.data('selector').charCodeAt(0));
                     }
+                    return;
                 }
-                return;
             }else if(this.textMode){
                 if(e.key === '>'){
                     $('.ui-popup-outer').scrollTop($('.ui-popup-outer').scrollTop()+$('.ui-popup-outer').height());
