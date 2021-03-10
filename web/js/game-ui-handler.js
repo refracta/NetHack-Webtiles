@@ -5,6 +5,11 @@ class GameUIHandler {
         window.G = this;
         this.isMobile = navigator.userAgent.match(/Android|Mobile|iP(hone|od|ad)|BlackBerry|IEMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/) || localStorage.forceMobile === 'true'
         this.messageContent = this.isMobile ?  $('#mobile-message-content') : $('#message-content');
+        window.onbeforeunload = (e) => {
+            if (this.sharpInputStatus) {
+                return true;
+            }
+        }
     }
     clearMobileButton(){
         $('#mobile-button-ui').html('');
@@ -66,6 +71,7 @@ class GameUIHandler {
     }
 
     close_sharp_input() {
+        this.sharpInputStatus = false;
         $('.sharp-container').remove();
     }
 
@@ -105,6 +111,7 @@ class GameUIHandler {
     }
 
     sharp_input(text) {
+        this.sharpInputStatus = true;
         let sharpInput = $('.sharp_input');
         if(sharpInput.length == 0){
             let div = $('<div>');
