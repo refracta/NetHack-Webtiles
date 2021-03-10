@@ -190,10 +190,8 @@ class GameUIHandler {
             if(this.menuMode && 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ<>'.includes(e.key)){
                 if(e.key === '>'){
                     $('.menu').scrollTop($('.menu').scrollTop()+$('.menu').height());
-                    return;
                 }else if(e.key === '<'){
                     $('.menu').scrollTop($('.menu').scrollTop()-$('.menu').height());
-                    return;
                 }
                 let menuScroll = $('.menu').scrollTop();
                 let selected = [...$('.item').toArray().filter(x => x.offsetTop >= menuScroll).slice(0, 52), ...$('.item').toArray().filter(x => x.offsetTop < menuScroll).reverse()].find(l=>$(l).data('selector') == e.key);
