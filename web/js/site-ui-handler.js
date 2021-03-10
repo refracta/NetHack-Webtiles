@@ -284,6 +284,35 @@ class SiteUIHandler {
         $("#mobile-chat").append("<br>");
     }
 
+    linkify(text){
+        let ALLOWED_PROTOCOLS = ["http", "https", "ftp", "irc"];
+
+        let ba_linkify = window.linkify;
+
+        function escape_html(str) {
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        return (function (text)
+        {
+            return ba_linkify(text,
+                {
+                    callback: function (text, href)
+                    {
+                        if (!href)
+                            return escape_html(text);
+                        if (!ALLOWED_PROTOCOLS.some(function (p) {
+                            return href.indexOf(p+ "://") === 0; }))
+                        {
+                            return escape_html(text);
+                        }
+                        return $("<a>").attr("href", href).attr("target", "_blank")
+                            .text(text)[0].outerHTML;
+                    }
+                });
+        })(text);
+    }
+
     system_chat(sender, msg) {
         $("#chat_history").append($('<span/>', {
             class: 'chat_sender',
@@ -291,10 +320,11 @@ class SiteUIHandler {
         }));
         ;
         $("#chat_history").append(": ");
-        $("#chat_history").append($('<span/>', {
-            class: 'chat_msg',
-            text: msg
-        }));
+        let chat_msg = $('<span/>', {
+            class: 'chat_msg'
+        });
+        chat_msg.html(this.linkify(msg));
+        $("#chat_history").append(chat_msg);
         $("#chat_history").append("<br>");
         $('#chat_history_container').scrollTop($('#chat_history_container')[0].scrollHeight);
         if ($("#chat_body").css("display") === "none") {
