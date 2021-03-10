@@ -167,7 +167,6 @@ class GameUIHandler {
         }*/
     }
     applyMobileInterface() {
-
         $('#status-content').hide();
         $('.ui-popup-outer').css('overflow-x', 'auto');
         $('#mobile-ui').show();
@@ -242,6 +241,9 @@ class GameUIHandler {
         });
         let zoomArray = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8].map(e=>window.devicePixelRatio*e);
         $('body').keydown(e => {
+            if(document.activeElement.id === 'chat'){
+                return;
+            }
             if(e.key === 'F8' || e.key === 'F9' || e.key === 'F10' || e.key === 'F12'){
                 if(!this.zoomStatusIndex){
                     this.zoomStatusIndex = 0;

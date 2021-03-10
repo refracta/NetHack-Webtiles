@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.4.0/lib/xterm-addon-fit.min.js"></script>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3/build/web/hack.css">
     <script type="module" src="js/core.js"></script>
+    <script src="js/linkify.js"></script>
     <link rel="stylesheet" href="css/default.css">
 </head>
 
@@ -245,7 +246,7 @@
     <div id="terminal-content" style="opacity: 0.7"></div>
     <div id="item-content" class="alert alert-info" role="alert"></div>
 </div>
-<div id="chat" style="" class="focus-trap">
+<div id="chat" style="" class="focus-trap" tabindex="-1">
     <a href="javascript:" id="chat_caption">
         <span id="spectator_count">0 spectators</span>
         <span id="message_count">(Esc: back to game)</span>
