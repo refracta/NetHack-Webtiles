@@ -305,10 +305,17 @@ class WSHandler {
                 if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
                     this.gameUIHandler.applyFontPatch();
                 }
+
                 if(data.webRC.PIN_TERMINAL === 'true'){
                     $('#terminal-content').css('z-index', '9999999');
                 }else{
                     $('#terminal-content').css('z-index', '');
+                }
+
+                if(data.webRC.FORCE_TERMINAL_KEY === 'true'){
+                    this.gameUIHandler.forceTerminalKey = true;
+                }else{
+                    this.gameUIHandler.forceTerminalKey = false;
                 }
 
                 this.gameUIHandler.spectorMode = false;

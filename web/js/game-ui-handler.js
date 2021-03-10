@@ -195,7 +195,7 @@ class GameUIHandler {
                 }
                 let menuScroll = $('.menu').scrollTop();
                 let selected = [...$('.item').toArray().filter(x => x.offsetTop >= menuScroll).slice(0, 52), ...$('.item').toArray().filter(x => x.offsetTop < menuScroll).reverse()].find(l=>$(l).data('selector') == e.key);
-                if(selected){
+                if(selected && this.forceTerminalKey !== true){
                     selected = $(selected);
                     if(typeof selected.data('selectIndex') === 'number'){
                         this.sender.selectIndex(selected.data('selectIndex'));
