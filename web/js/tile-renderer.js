@@ -170,16 +170,16 @@ class TileRenderer {
         }, this);
 
         this.phaser.input.on('pointerup', function (pointer) {
-            if(this.dragCount > 5){
+            let dragCount = this.dragCount;
+            this.dragCount = 0;
+            if(dragCount > 5){
                 return;
             }
 
             if(this.eventHandlerMap.travelClick){
-
                 if(!this.click){
                     return;
                 }
-
 
                 let worldPoint = this.phaser.input.activePointer.positionToCamera(this.camera);
 
@@ -316,7 +316,7 @@ class TileRenderer {
         let [x, y] = to2DXY(i);
         this.cursorX = x;
         this.cursorY = y;
-        if(this.dragCount != 0){
+        if(!(this.dragCount && this.dragCount > 0)){
             this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
                 this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
         }
