@@ -122,11 +122,13 @@ class TileRenderer {
                 camera.scrollX -= drag1Vector.x / camera.zoom;
                 camera.scrollY -= drag1Vector.y / camera.zoom;
                 this.dragCount++;
+                this.nDragCount++;
             }, this)
             .on('pinch', function (dragScale) {
                 var scaleFactor = dragScale.scaleFactor;
                 camera.zoom *= scaleFactor;
                 this.dragCount++;
+                this.nDragCount++;
             }, this)
 
         // FOR DEBUG
@@ -167,12 +169,12 @@ class TileRenderer {
                 this.click = 3;
             }
             this.dragCount = 0;
+            this.nDragCount = 0;
         }, this);
 
         this.phaser.input.on('pointerup', function (pointer) {
-            let dragCount = this.dragCount;
-            this.dragCount = 0;
-            if(dragCount > 5){
+            this.nDragCount = 0;
+            if(this.dragCount > 5){
                 return;
             }
 
@@ -316,7 +318,7 @@ class TileRenderer {
         let [x, y] = to2DXY(i);
         this.cursorX = x;
         this.cursorY = y;
-        if(!(this.dragCount && this.dragCount > 0)){
+        if(!(this.nDragCount && this.nDragCount > 0)){
             this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
                 this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
         }
