@@ -114,7 +114,6 @@ class TileRenderer {
         var dragScale = this.phaser.plugins.get('rexpinchplugin').add(this.phaser);
         var camera = this.phaser.cameras.main;
         camera.zoom = window.devicePixelRatio;
-        console.log(dragScale, camera);
         camera.roundPixels = true;
         dragScale
             .on('drag1', function (dragScale) {
