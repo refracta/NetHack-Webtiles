@@ -48,10 +48,13 @@ class GameUIHandler {
     clearTerminal() {
         if (this.terminal) {
             this.terminal.dispose();
+            delete this.terminalStatus;
+            delete this.terminal;
         }
     }
 
     openTerminal() {
+        $('#terminal-content').show();
         this.terminal.open($('#terminal-content').get(0));
     }
 
