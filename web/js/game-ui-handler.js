@@ -328,6 +328,7 @@ class GameUIHandler {
 
                 code += 96;
                 this.sender.key(code | 0x80);
+                e.preventDefault();
                 return;
             }
 
