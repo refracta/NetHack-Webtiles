@@ -2491,7 +2491,6 @@ boolean blocking; /* with ttys, all windows are blocking */
     #if defined(WEBTILES_DEBUG)
     send_debug("void tty_display_nhwindow(window:%d, blocking:%d)", window, blocking);
     #endif
-
     register struct WinDesc *cw = 0;
     short s_maxcol;
 
@@ -3396,6 +3395,9 @@ menu_item **menu_list;
     #if defined(WEBTILES_DEBUG)
     send_debug("void tty_select_menu(window:%d, how:%d, menu_list:?)", window, how);
     #endif
+    if(how != PICK_NONE){
+        set_built_in_menu_lock(TRUE);
+    }
     register struct WinDesc *cw = 0;
     tty_menu_item *curr;
     menu_item *mi;
@@ -3429,7 +3431,7 @@ menu_item **menu_list;
                 mi++;
             }
     }
-
+    set_built_in_menu_lock(FALSE);
     return n;
 }
 
@@ -3478,7 +3480,7 @@ tty_update_inventory()
     #endif
 
     if(iflags.perm_invent){
-        if(get_update_inventory_mode() == FALSE){
+        if(get_update_inventory_mode() == FALSE && get_built_in_menu_lock() == FALSE){
             set_update_inventory_mode(TRUE);
             display_inventory(NULL, FALSE);
             set_update_inventory_mode(FALSE);

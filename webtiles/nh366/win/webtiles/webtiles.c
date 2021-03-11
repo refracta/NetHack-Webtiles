@@ -816,6 +816,15 @@ void send_close_more() {
 int cursor = -1;
 int last_send_cursor = -1;
 boolean screen_change = TRUE;
+boolean built_in_menu_lock = FALSE;
+
+void set_built_in_menu_lock(boolean flag){
+    built_in_menu_lock = flag;
+}
+
+boolean get_built_in_menu_lock(){
+    return built_in_menu_lock;
+}
 
 void set_screen_change(boolean flag){
     screen_change = flag;
