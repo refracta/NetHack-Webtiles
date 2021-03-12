@@ -10,6 +10,33 @@ class GameUIHandler {
                 return true;
             }
         }
+        this.terminalColor = {
+            "name" : "Campbell",
+
+            "cursorColor": "#FFFFFF",
+            "selectionBackground": "#FFFFFF",
+
+            "background" : "#0C0C0C",
+            "foreground" : "#CCCCCC",
+            "pureWhite" : "#ffffff",
+
+            "black" : "#0C0C0C",
+            "blue" : "#0037DA",
+            "cyan" : "#3A96DD",
+            "green" : "#13A10E",
+            "purple" : "#881798",
+            "red" : "#C50F1F",
+            "white" : "#CCCCCC",
+            "yellow" : "#C19C00",
+            "brightBlack" : "#767676",
+            "brightBlue" : "#3B78FF",
+            "brightCyan" : "#61D6D6",
+            "brightGreen" : "#16C60C",
+            "brightPurple" : "#B4009E",
+            "brightRed" : "#E74856",
+            "brightWhite" : "#F2F2F2",
+            "brightYellow" : "#F9F1A5"
+        };
     }
     clearMobileButton(){
         $('#mobile-button-ui').html('');
@@ -475,34 +502,7 @@ class GameUIHandler {
     }
     getRealColor(color, colorOverride){
         color = color & 0x00FF;
-        let terminalColor = {
-            "name" : "Campbell",
-
-            "cursorColor": "#FFFFFF",
-            "selectionBackground": "#FFFFFF",
-
-            "background" : "#0C0C0C",
-            "foreground" : "#CCCCCC",
-            "pureWhite" : "#ffffff",
-
-            "black" : "#0C0C0C",
-            "blue" : "#0037DA",
-            "cyan" : "#3A96DD",
-            "green" : "#13A10E",
-            "purple" : "#881798",
-            "red" : "#C50F1F",
-            "white" : "#CCCCCC",
-            "yellow" : "#C19C00",
-            "brightBlack" : "#767676",
-            "brightBlue" : "#3B78FF",
-            "brightCyan" : "#61D6D6",
-            "brightGreen" : "#16C60C",
-            "brightPurple" : "#B4009E",
-            "brightRed" : "#E74856",
-            "brightWhite" : "#F2F2F2",
-            "brightYellow" : "#F9F1A5"
-        };
-        terminalColor = {...terminalColor, ...colorOverride};
+        let terminalColor = {...this.terminalColor, ...colorOverride};
         const colorOrder = ["black", "red", "green", "yellow", "blue", "purple", "cyan", "white", "brightBlack", "brightRed", "brightGreen", "brightYellow", "brightBlue","brightPurple","brightCyan","brightWhite"];
         return terminalColor[colorOrder[color]];
     }
@@ -524,7 +524,7 @@ class GameUIHandler {
         const HL_DIM     = 0x20;
 
         let realColor = this.getRealColor(color, colorOverride);
-
+        let terminalColor = {...this.terminalColor, ...colorOverride};
         let outerSpan = $('<span/>');
         let innerSpan = $('<span/>');
         outerSpan.append(innerSpan);
@@ -761,10 +761,11 @@ class GameUIHandler {
             div.style.minHeight = minHeight + 'px';
             // var textColor = percent < 40 ? 'black': 'white';
             var textColor = percent < 75 ? 'black': 'white';
+            var backgroundColor = percent >= 75 ? 'black': 'white';
             div.innerHTML = '<div class="progress-bar" role="progressbar" aria-valuenow="'
                 + value + '" aria-valuemin="0" aria-valuemax="'
                 + max + `" style="background-color:${this.getRealColor(rawValue.color)}; width:` + percent + `%"><span style="color: ${textColor}; width: 390px; position: absolute; ">`
-                + text + rawValue.value + ' / ' + rawMax.value + '</span></div>';
+                + this.create_text_element(text + rawValue.value + ' / ' + rawMax.value, 8, rawValue.attr, {brightBlack: textColor, background: backgroundColor}).outerHTML + '</span></div>';
             return div;
         };
 
