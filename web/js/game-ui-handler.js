@@ -104,6 +104,9 @@ class GameUIHandler {
         textSpan.addClass('ingame-text');
         textSpan.addClass('more');
         textSpan.css('background-color', 'maroon');
+        if(this.isMobile){
+            textSpan.css('width', '100vw');
+        }
         textSpan.text(prompt);
         this.messageContent.append(textSpan);
         this.messageContent.scrollTop(this.messageContent.prop('scrollHeight'));
@@ -470,7 +473,7 @@ class GameUIHandler {
             data[CONDITION_INDEX] ? obj.condition = {value: data[CONDITION_INDEX].condition_list} : void 0;
         return obj;
     }
-    create_text_element(text, color, attr, colorOverride, type = 'hl'){
+    getRealColor(color, colorOverride){
         color = color & 0x00FF;
         let terminalColor = {
             "name" : "Campbell",
@@ -501,7 +504,11 @@ class GameUIHandler {
         };
         terminalColor = {...terminalColor, ...colorOverride};
         const colorOrder = ["black", "red", "green", "yellow", "blue", "purple", "cyan", "white", "brightBlack", "brightRed", "brightGreen", "brightYellow", "brightBlue","brightPurple","brightCyan","brightWhite"];
-        const ATR_NONE = 0;
+        return terminalColor[colorOrder[color]];
+    }
+
+    create_text_element(text, color, attr, colorOverride, type = 'hl'){
+         const ATR_NONE = 0;
         const ATR_BOLD = 1;
         const ATR_DIM = 2;
         const ATR_ULINE = 4;
@@ -516,7 +523,7 @@ class GameUIHandler {
         const HL_BLINK   = 0x10;
         const HL_DIM     = 0x20;
 
-        let realColor = terminalColor[colorOrder[color]];
+        let realColor = this.getRealColor(color, colorOverride);
 
         let outerSpan = $('<span/>');
         let innerSpan = $('<span/>');
@@ -657,7 +664,7 @@ class GameUIHandler {
             let overrideColor = {brightBlack: '#dddddd', black: '#dddddd'};
             mobileStatus.html('');
             let statusLine1 =  $('<span>');
-            statusLine1.append(this.create_text_element(status.title.value, status.title.color, status.title.attr, overrideColor));
+            statusLine1.append(this.create_text_element(status.title.value.trim() + '   ', status.title.color, status.title.attr, overrideColor));
             statusLine1.append(this.create_text_element(`St:${status.st.value}`, status.st.color, status.st.attr, overrideColor));
             statusLine1.append($('<span> </span>'));
             statusLine1.append(this.create_text_element(`Dt:${status.dx.value}`, status.dx.color, status.dx.attr, overrideColor));
@@ -678,18 +685,18 @@ class GameUIHandler {
             statusLine2.append($('<span> </span>'));
             statusLine2.append(this.create_text_element(`$:${status.gold.value}`, status.gold.color, status.gold.attr, {overrideColor, ...{black:'yellow'}}));
             statusLine2.append($('<span> </span>'));
-            statusLine2.append(this.create_text_element(`HP:${status.hp.value}`, status.hp.color, status.hp.attr, overrideColor));
-            statusLine2.append(this.create_text_element(`(${status.maxHP.value})`, status.maxHP.color, status.maxHP.attr, overrideColor));
+            statusLine2.append(this.create_text_element(`HP:${status.hp.value}(${status.maxHP.value})`, status.hp.color, status.hp.attr, overrideColor));
             statusLine2.append($('<span> </span>'));
-            statusLine2.append(this.create_text_element(`PW:${status.pw.value}`, status.pw.color, status.pw.attr, overrideColor));
-            statusLine2.append(this.create_text_element(`(${status.maxPW.value})`, status.maxPW.color, status.maxPW.attr, overrideColor));
+            statusLine2.append(this.create_text_element(`PW:${status.pw.value}(${status.maxPW.value})`, status.pw.color, status.pw.attr, overrideColor));
 
             statusLine2.append($('<span> </span>'));
             statusLine2.append(this.create_text_element(`AC:${status.ac.value}`, status.ac.color, status.ac.attr, overrideColor));
             statusLine2.append($('<span> </span>'));
-            statusLine2.append(this.create_text_element(`XP:${status.level.value}`, status.level.color, status.level.attr, overrideColor));
+
             if(status.xp){
-                statusLine2.append(this.create_text_element(`/${status.xp.value}`, status.xp.color, status.xp.attr, overrideColor));
+                statusLine2.append(this.create_text_element(`XP:${status.level.value}/${status.xp.value}`, status.level.color, status.level.attr, overrideColor));
+            }else{
+                statusLine2.append(this.create_text_element(`XP:${status.level.value}`, status.level.color, status.level.attr, overrideColor));
             }
             statusLine2.append($('<span> </span>'));
             if(status.turn){
@@ -754,11 +761,10 @@ class GameUIHandler {
             div.style.minHeight = minHeight + 'px';
             // var textColor = percent < 40 ? 'black': 'white';
             var textColor = percent < 75 ? 'black': 'white';
-            div.innerHTML = '<div class="progress-bar bg-'
-                + style + '" role="progressbar" aria-valuenow="'
+            div.innerHTML = '<div class="progress-bar" role="progressbar" aria-valuenow="'
                 + value + '" aria-valuemin="0" aria-valuemax="'
-                + max + `" style="width:` + percent + `%"><span style="width: 390px; position: absolute; color:${textColor};px">`
-                + text + this.create_text_element(rawValue.value, rawValue.color, rawValue.attr).outerHTML + ' / ' + this.create_text_element(rawMax.value, rawMax.color, rawMax.attr, {brightBlack: textColor}).outerHTML + '</span></div>';
+                + max + `" style="background-color:${this.getRealColor(rawValue.color)}; width:` + percent + `%"><span style="color: ${textColor}; width: 390px; position: absolute; ">`
+                + text + rawValue.value + ' / ' + rawMax.value + '</span></div>';
             return div;
         };
 
@@ -830,13 +836,6 @@ class GameUIHandler {
         name.className = 'name';
         name.textContent = status.title.value;
         td.appendChild(name);
-        let defaultSize = 32;
-        for(let i = 0; i < 10; i++){
-            $('.name').css('font-size', (defaultSize-i*2)+'px');
-            if( $('.name').width() <= 390){
-                break;
-            }
-        }
             // level, alignment and status effects
         tr = table.insertRow();
         td = tr.insertCell();
@@ -876,6 +875,14 @@ class GameUIHandler {
         td = tr.insertCell();
         td.appendChild(getProgressBar(status.maxPW, status.pw, 'info', 'PW: '));
         win.appendChild(table);
+
+        let defaultSize = 32;
+        for(let i = 0; i < 10; i++){
+            $('.name').css('font-size', (defaultSize-i*2)+'px');
+            if( $('.name').width() <= 390){
+                break;
+            }
+        }
 
         var statDiv =  document.createElement('div');
         // list of stats in order, for hexagon

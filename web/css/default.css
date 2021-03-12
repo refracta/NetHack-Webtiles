@@ -159,6 +159,7 @@
     /* solarized */
     color: #ffffff;
     font-size: 24pt;
+    white-space: nowrap;
 }
 
 #browserhack-status .status-table {
@@ -833,7 +834,6 @@ padding-right: 30%;*/
         font-size: small;
     }
     .ui-popup-outer{
-        margin:0;
         max-height: 90vh;
     }
 }
@@ -863,7 +863,6 @@ padding-right: 30%;*/
         zoom:2;
     }
     .ui-popup-outer{
-        margin:0;
         max-height: 90vh;
     }
 }
@@ -884,7 +883,7 @@ padding-right: 30%;*/
         height: 7vh;
     }
     .text-popup-content {
-        font-size: 24pt;
+        font-size: 16pt;
     }
     #mobile-button-ui{
         font-size: 26px;
@@ -896,7 +895,6 @@ padding-right: 30%;*/
         zoom:2;
     }
     .ui-popup-outer{
-        margin:0;
         max-height: 90vh;
     }
 }
@@ -927,10 +925,9 @@ padding-right: 30%;*/
         font-size:20px;
     }
     .text-popup-content {
-        font-size: 20pt;
+        font-size: 14pt;
     }
     .ui-popup-outer{
-        margin:0;
         max-height: 90vh;
     }
 }
@@ -958,7 +955,6 @@ padding-right: 30%;*/
         font-size: 12pt;
     }
     .ui-popup-outer{
-        margin:0;
         max-height: 90vh;
     }
 }
