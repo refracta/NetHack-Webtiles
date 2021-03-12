@@ -324,4 +324,4 @@ class TileRenderer {
     }
 }
 
-export default TileRenderer;
+// export default TileRenderer;
