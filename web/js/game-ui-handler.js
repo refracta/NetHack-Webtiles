@@ -174,6 +174,9 @@ class GameUIHandler {
         $('.ui-popup-outer').css('overflow-x', 'auto');
         $('#mobile-ui').show();
         $('#chat').hide();
+        $('#terminal-content').css('bottom', '7em');
+        $('#terminal-content').css('right', '');
+        $('#terminal-content').css('left', '0');
 
         // this.messageContent.css('background', 'transparent');
         // this.messageContent.css('padding-left', '0');

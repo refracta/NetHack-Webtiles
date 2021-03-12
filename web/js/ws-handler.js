@@ -255,11 +255,6 @@ class WSHandler {
                 if(data.playData.status){
                     this.gameUIHandler.update_status(data.playData.status);
                 }
-                if(data.webRC.PIN_TERMINAL === 'true'){
-                    $('#terminal-content').css('z-index', '9999999');
-                }else{
-                    $('#terminal-content').css('z-index', '');
-                }
 
                 if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
                     this.gameUIHandler.applyFontPatch();
