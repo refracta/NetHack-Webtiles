@@ -10,13 +10,15 @@ $.getScriptSync = function (url){
 }
 if(!self.moduleLoadComplete){
     !async function(){
-        await $.getScriptSync("./js/core-utils.js");
-        await $.getScriptSync("./js/tile-renderer.js");
-        await $.getScriptSync("./js/site-ui-handler.js");
-        await $.getScriptSync("./js/game-ui-handler.js");
-        await $.getScriptSync("./js/ws-client.js");
-        await $.getScriptSync("./js/ws-sender.js");
-        await $.getScriptSync("./js/ws-handler.js");
+        await Promise.all([
+            $.getScriptSync("./js/core-utils.js"),
+            $.getScriptSync("./js/tile-renderer.js"),
+            $.getScriptSync("./js/site-ui-handler.js"),
+            $.getScriptSync("./js/game-ui-handler.js"),
+            $.getScriptSync("./js/ws-client.js"),
+            $.getScriptSync("./js/ws-sender.js"),
+            $.getScriptSync("./js/ws-handler.js")
+        ]);
         self.moduleLoadComplete = true;
     }();
 }
