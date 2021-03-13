@@ -1138,8 +1138,16 @@ class GameUIHandler {
             if(!data.a_void){
                 if(data.attr === 7 && !data.selector){
                     const itemHeader = $("<div/>").attr({
-                        "class" : "item-header"
+                        "class" : "item-header noselect"
                     }).text(data.o_str);
+                    let category = data.o_str.match(/\('.'\)$/g);
+                    if(category){
+                        itemHeader.css('cursor', 'pointer');
+                        category = category[0];
+                        itemHeader.click(e=>{
+                            this.sender.key(category.charCodeAt(2));
+                        });
+                    }
                     menu.append(itemHeader);
                 }else{
                     // text element
@@ -1184,7 +1192,8 @@ class GameUIHandler {
                     // !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
                     item.data('selectIndex', selectorIndex);
                 selectorIndex++;
-                item.click(e=>{
+
+                let selectElement = (e)=>{
                     e = $(e.currentTarget);
                     if(e.data('forceSelector')){
                         this.sender.key(e.data('selector').charCodeAt(0));
@@ -1195,7 +1204,36 @@ class GameUIHandler {
                     }else if(e.data('selector')){
                         this.sender.key(e.data('selector').charCodeAt(0));
                     }
-                });
+                };
+                    let pressTimer1;
+                    item.mouseup((e)=>{
+                        clearTimeout(pressTimer1);
+                        selectElement(e);
+                        return false;
+                    }).mousedown((e)=>{
+                        // Set timeout
+                            pressTimer1 = setTimeout(() => {
+                                let number = prompt('Number?');
+                                if(!isNaN(number)){
+                                    number.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
+                                    selectElement(e);
+                                }
+                            },500);
+                        return false;
+                    });
+                    let pressTimer2;
+                    item.bind('touchstart', (e)=>{
+                        pressTimer2 = setTimeout(() => {
+                            let number = prompt('Number?');
+                            if(!isNaN(number)){
+                                number.split('').forEach(k=>this.sender.key(k.charCodeAt(0)));
+                                selectElement(e);
+                            }
+                        },500);
+                    });
+                    item.bind('touchend', (e)=>{
+                        clearTimeout(pressTimer2);
+                    });
 
                     itemText.append(this.create_text_element(`${selector} ${!data.selected ? '-' : (data.count != -1 ? '#' : '+')} ${data.o_str}`, data.color, data.text_attr,{brightBlack: '#dddddd', black: '#444444'}, 'atr'));
                     // !data.ch ? item.data('selectIndex', selectorIndex) : item.data('selectIndex', null);
@@ -1208,34 +1246,40 @@ class GameUIHandler {
             $('#ui-menu').show();
         }else{
             menu.show();
-            const itemHeader = $("<div/>").attr({
-                "class" : "item-header"
-            }).text("Menu Interaction");
-            const item1 = $("<div/>").attr({
-                "class" : "item noselect"
-            });
-            const itemText1 = $("<div/>").attr({
-                "class" : "item-text item-col noselect"
-            });
-            itemText1.text(" - ESC");
-            item1.click(_=>{
-                this.sender.key(27);
-            });
-            item1.append(itemText1);
-            const item2 = $("<div/>").attr({
-                "class" : "item noselect"
-            });
-            const itemText2 = $("<div/>").attr({
-                "class" : "item-text item-col noselect"
-            });
-            itemText2.text(" - Enter");
-            item2.append(itemText2);
-            item2.click(_=>{
-                this.sender.key(13);
-            });
-            menu.append(itemHeader);
-            menu.append(item2);
-            menu.append(item1);
+            let iArray = [{title: "Menu Interaction", click: (e)=>{
+                    $('.menu-interaction').toggle();
+                }},
+                {text:' - Select All', key:46, class: 'menu-interaction', hide: true},{text:' - Deselect All', key:45, class: 'menu-interaction', hide: true}, {text:' - Invert All',key:64, class: 'menu-interaction', hide: true},{title: "Menu Selection"},{text:' - Enter',key:13},{text:' - ESC',key:27}];
+            for(let e of iArray){
+                if(e.title){
+                    const itemHeader = $("<div/>").attr({
+                        "class" : "item-header noselect"
+                    }).text(e.title);
+                    menu.append(itemHeader);
+                    if(e.click){
+                        itemHeader.click(e.click);
+                    }
+                    continue;
+                }
+                const item = $("<div/>").attr({
+                    "class" : "item noselect"
+                });
+                const itemText = $("<div/>").attr({
+                    "class" : "item-text item-col noselect"
+                });
+                itemText.text(e.text);
+                item.click(_=>{
+                    this.sender.key(e.key);
+                });
+                item.append(itemText);
+                if(e.class){
+                    item.addClass(e.class);
+                }
+                if(e.hide){
+                    item.hide();
+                }
+                menu.append(item);
+            }
             menu.show();
         }
         menu.scrollTop(0);
