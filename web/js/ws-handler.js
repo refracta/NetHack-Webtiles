@@ -138,7 +138,23 @@ class WSHandler {
         }
 
         let addButtonLine = (btnText)=>{
-            let buttons = btnText.split(/(?<!\\) /).map(e=>{
+            let splitWithoutSlashSpace = (str) => {
+                let queue = [];
+                let regex = /(\\)? /gi;
+                let matcher;
+                let index = 0;
+                while (matcher = regex.exec(str)) {
+                    if (!matcher[1]) {
+                        console.log(index, matcher.index)
+                        queue.push(str.substring(index, matcher.index));
+                        index = matcher.index;
+                    }
+                }
+                queue.push(str.substring(index, str.length));
+                return queue;
+            };
+            // Equivalent to btnText.split(/(?<!\\) /)
+            let buttons = splitWithoutSlashSpace(btnText).map(e=>{
                 let s = e.split('|');
                 let button = {};
                 if(s.length >= 2){
