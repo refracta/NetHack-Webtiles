@@ -122,12 +122,14 @@ class TileRenderer {
                 camera.scrollY -= drag1Vector.y / camera.zoom;
                 this.dragCount++;
                 this.nDragCount++;
+                this.isPincing = true;
             }, this)
             .on('pinch', function (dragScale) {
                 var scaleFactor = dragScale.scaleFactor;
                 camera.zoom *= scaleFactor;
                 this.dragCount++;
                 this.nDragCount++;
+                this.isPincing = false;
             }, this)
 
         // FOR DEBUG
@@ -249,8 +251,12 @@ class TileRenderer {
         let pointerTileX = this.map.worldToTileX(worldPoint.x);
         let pointerTileY = this.map.worldToTileY(worldPoint.y);
 
+        if(this.isMobile && !this.isPincing){
+            return;
+        }
         this.cursorMarker.x = this.map.tileToWorldX(pointerTileX);
         this.cursorMarker.y = this.map.tileToWorldY(pointerTileY);
+
     }
 
     drawTileByData(data) {
