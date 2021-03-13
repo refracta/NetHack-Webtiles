@@ -1175,7 +1175,7 @@ class GameUIHandler {
                     "class" : "item-text item-col item-selectable noselect"
                 });
                     if(this.isMobile){
-                        itemText.css('white-space', 'break-spaces');
+                        itemText.css('white-space', 'pre-line');
                     }
                     item.data('selected', data.selected);
                     item.data('count', data.count);
