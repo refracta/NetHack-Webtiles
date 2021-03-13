@@ -145,7 +145,6 @@ class WSHandler {
                 let index = 0;
                 while (matcher = regex.exec(str)) {
                     if (!matcher[1]) {
-                        console.log(index, matcher.index)
                         queue.push(str.substring(index, matcher.index));
                         index = matcher.index;
                     }
