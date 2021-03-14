@@ -964,3 +964,20 @@ padding-right: 30%;*/
         height: 8vh;
     }
 }
+
+.navbar-nav {
+    flex-direction: row;
+}
+
+@media (max-width: 768px) {
+    .navbar-nav > .nav-item{
+        padding-right: 0.4em;
+    }
+    .navbar1 {
+        float: left;
+    }
+    .navbar2 {
+        float: right;
+        margin-top: 5px;
+    }
+}
