@@ -118,7 +118,8 @@
     padding-left: 0.8em;
     background: #111111;
     overflow-y:auto;
-    height: 105px;
+    height: 100px;
+    min-height: 100px;
     top: 0;
     /*padding-bottom: 5px;*/
 }
