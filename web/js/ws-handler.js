@@ -150,7 +150,7 @@ class WSHandler {
                     }
                 }
                 queue.push(str.substring(index, str.length));
-                return queue;
+                return queue.map(s=>s.trim());
             };
             // Equivalent to btnText.split(/(?<!\\) /)
             let buttons = splitWithoutSlashSpace(btnText).map(e=>{
