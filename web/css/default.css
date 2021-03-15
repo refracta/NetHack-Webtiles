@@ -99,8 +99,9 @@
     width: 400px;
 }
 
-#tile-content {
+#tile-content-wrapper {
     flex-grow: 1;
+    max-height: calc(100% - 100px);
 }
 
 .sharp_autocomplete {
