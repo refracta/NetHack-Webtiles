@@ -26,7 +26,7 @@ class WSHandler {
             this.loginInfo = data;
             this.siteUIHandler.setLocalSessionKey(data.sessionKey);
             this.siteUIHandler.setLoginUI();
-            this.siteUIHandler.setSubInfo(`Welcome to Hacktiles ${this.loginInfo.username}! XD`);
+            this.siteUIHandler.setWelcomeMessage(this.loginInfo.username);
             let playUserName = this.siteUIHandler.getPlayUsernameFromHash();
             if (playUserName) {
                 this.sender.play(playUserName);

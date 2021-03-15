@@ -350,6 +350,9 @@ class SiteUIHandler {
             $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
         },300);
     }
+    setWelcomeMessage(username){
+        this.setSubInfo(this.config.welcomeMessage.replace(/%USERNAME%/g, username));
+    }
 
     chat_message_send(e) {
         // console.log(e);
