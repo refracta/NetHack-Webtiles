@@ -207,7 +207,7 @@ class GameUIHandler {
         $('#terminal-content').css('bottom', '7em');
         $('#terminal-content').css('right', '');
         $('#terminal-content').css('left', '0');
-
+        $('#tile-content-wrapper').css('max-height', '100%');
         // this.messageContent.css('background', 'transparent');
         // this.messageContent.css('padding-left', '0');
         $('#message-content').hide();
