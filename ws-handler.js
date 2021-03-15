@@ -419,7 +419,6 @@ class WSHandler {
         this.udsHandle = initHandle.udsHandle;
         this.udsSender = initHandle.udsSender;
         this.config = initHandle.config;
-        this.config = initHandle.config;
         this.games = initHandle.games;
         this.db = initHandle.db;
 
