@@ -1814,7 +1814,7 @@ tty_menu_item *item;
     send_debug("void set_item_state(window:%d, lineno:%d, item:%s)", window, lineno, item->o_str);
     #endif
     char ch = item->selected ? (item->count == -1L ? '+' : '#') : '-';
-//    send_debug("SEL DATA %c", ch);
+
     HUPSKIP();
     tty_curs(window, 4, lineno);
     term_start_attr(item->attr);
@@ -1973,7 +1973,6 @@ struct WinDesc *cw;
 
     tty_menu_item *currentItem;
     for(currentItem = cw->mlist; currentItem; currentItem = currentItem->next){
-         // send_debug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, o_str:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), stringify(currentItem->o_str));
         int attr, color = NO_COLOR;
         if (!iflags.use_menu_color
             || !get_menu_coloring(currentItem->str, &color, &attr))
@@ -2106,54 +2105,6 @@ struct WinDesc *cw;
                 page_lines = 0;
             }
 
-
-/*    tty_menu_item *currentItem;
-    int n;
-
-    for (n = 0, currentItem = page_start; currentItem != page_end; n++, currentItem = currentItem->next)
-        if (currentItem->identifier.a_void && (acc == 0 || currentItem->gselector == acc)) {
-            if (currentItem->selected) {
-                currentItem->selected = FALSE;
-                currentItem->count = -1L;
-            } else
-                currentItem->selected = TRUE;
-            set_item_state(window, n, currentItem);
-        }
-
-    tty_menu_item *cItem;
-    int sIndex = 0;
-    for(cItem = cw->mlist; cItem; cItem = cItem->next){
-
-
-        if(cItem->identifier.a_void){
-            send_update_menu_item(cItem);
-            sIndex++;
-         }
-         // send_debug("{msg:\"ItemData\", count:%d, selected:%d, selector:\"%d\", gselector:\"%d\", attr:%d, str:%s, o_str:%s}", currentItem->count, currentItem->selected, currentItem->selector, currentItem->gselector, currentItem->attr, stringify(currentItem->str), stringify(currentItem->o_str));
-    }*/
-
-            // CP PE
-            // SAVE THE SELECTION
-/*    invert_all_on_page(window, page_start, page_end, acc);
-
-    *//* invert the rest *//*
-    for (on_curr_page = FALSE, curr = cw->mlist; curr; curr = curr->next) {
-        if (curr == page_start)
-            on_curr_page = TRUE;
-        else if (curr == page_end)
-            on_curr_page = FALSE;
-
-        if (!on_curr_page && curr->identifier.a_void
-            && (acc == 0 || curr->gselector == acc)) {
-            if (curr->selected) {
-                curr->selected = FALSE;
-                curr->count = -1;
-            } else
-                curr->selected = TRUE;
-        }
-    }*/
-
-
             *rp = 0;
             /* remember how many explicit menu choices there are */
             resp_len = (int) strlen(resp);
@@ -2197,9 +2148,6 @@ struct WinDesc *cw;
         }
 
 
-
-        // WinDesc *cw
-//        save_menu_status(window, page_start, page_end, counting, count, cw, &finished);
         really_morc = morc; /* (only used with MENU_EXPLICIT_CHOICE */
         if ((rp = index(resp, morc)) != 0 && rp < resp + resp_len)
             /* explicit menu selection; don't override it if it also
@@ -2208,8 +2156,6 @@ struct WinDesc *cw;
             morc = MENU_EXPLICIT_CHOICE;
         else
             morc = map_menu_cmd(morc);
-//  clear_menu_status();
-
         switch (morc) {
         case '0':
             /* special case: '0' is also the default ball class */
@@ -2648,7 +2594,6 @@ winid window;
                  * leave the ending window on the screen, we don't want to
                  * erase it anyway.
                  */
-                // 커서 백업
                 set_screen_change(FALSE);
                 erase_menu_or_text(window, cw, FALSE);
                 set_screen_change(TRUE);
@@ -2991,7 +2936,9 @@ const char *str;
         break;
     case NHW_MENU:
     case NHW_TEXT:
-/*#ifdef H2344_BROKEN
+
+/*
+#ifdef H2344_BROKEN
         if (cw->type == NHW_TEXT
             && (cw->cury + cw->offy) == ttyDisplay->rows - 1)
 #else
@@ -3007,7 +2954,9 @@ const char *str;
                     cw->data[i] = 0;
                 }
             cw->maxrow = cw->cury = 0;
-        }*/
+        }
+*/
+
         /* always grows one at a time, but alloc 12 at a time */
         if (cw->cury >= cw->rows) {
             char **tmp;
@@ -3043,10 +2992,6 @@ const char *str;
                 tty_putstr(window, attr, &str[i]);
             }
         }
-
-//         send_debug("{type:\"nhtextFromRaw2\", s:%s}", stringify(str));
-
-
         break;
     }
 }
@@ -3328,11 +3273,6 @@ const char *prompt; /* prompt to for menu */
         }
         if (len > cw->cols)
             cw->cols = len;
-        /*
-        char msg[8192];
-        sprintf(msg, "{\"msg\":\"putstr\", \"str\":\"%s\"}", curr->str);
-        sendMsg(msg);
-        */
 
     }
     cw->plist[cw->npages] = 0; /* plist terminator */
@@ -3370,20 +3310,6 @@ const char *prompt; /* prompt to for menu */
         cw->maxrow = cw->rows = lmax + 1;
     else
         cw->maxrow = cw->rows = cw->nitems + 1;
-
-
-    /*
-    int jesi;
-    json_object *array = json_object_new_array();
-    json_object *result = json_object_new_object();
-    for (jesi = 0, curr=cw->mlist; curr; jesi++, curr = curr->next) {
-        append_json_array(array, curr->str);
-    }
-    char *msg = make_json_msg(result, array);
-    sendMsg(msg);
-    free(array);
-    free(result);
-     */
 }
 
 int
@@ -3717,12 +3643,6 @@ int bkglyph UNUSED;
     #if defined(WEBTILES_DEBUG)
     send_debug("void tty_print_glyph(window:%d, x:%d, y:%d, glyph:%d, bkglyph:%d)", window, x, y, glyph, bkglyph);
     #endif
-    /*
-    char msg[8192];
-    sprintf(msg, "{\"msg\":\"print_glyph\",\"window\":%d, \"x\":%d, \"y\":%d, \"glyph\":%d, \"bkglyph\":%d}", window, x, y, glyph, bkglyph);
-    sendMsg(msg);
-    */
-
 
     int ch;
     boolean reverse_on = FALSE;
@@ -3747,14 +3667,7 @@ int bkglyph UNUSED;
     print_vt_code3(AVTC_GLYPH_START, glyph2tile[glyph], special);
 
     #if defined(WEBTILES_GRAPHICS)
-    /*
-        char updateTile[8192];
-        sprintf(updateTile, "{\"msg\":\"update_tile\",\"tile\":%d,\"x\":%d,\"y\":%d}", );
-        sendMsg(updateTile);
-     */
-    // sendTile(x, y, glyph2tile[glyph]);
      send_tile(x, y, glyph2tile[glyph]);
-     // send_debug("UPDATE_TILE (%d, %d, #%d)", x, y, glyph2tile[glyph]);
     #endif
 
 #ifndef NO_TERMS
@@ -4315,8 +4228,6 @@ unsigned long *colormasks;
         tty_status[NOW][fldidx].sanitycheck = TRUE;
         truncation_expected = FALSE;
 
-
-        // 내부에서
         long bits = tty_condition_bits;
         int coloridx = 0; int attrmask2 = 0; long mask;
         for (int c = 0; c < SIZE(conditions) && bits != 0L; ++c) {

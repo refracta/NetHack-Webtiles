@@ -7,9 +7,9 @@ class WSServer {
     }
 
     send(data, socketInfo) {
-        if(socketInfo.send){
+        if (socketInfo.send) {
             socket.send(JSON.stringify(data));
-        }else{
+        } else {
             socketInfo.socket.send(JSON.stringify(data));
         }
     }
@@ -18,7 +18,7 @@ class WSServer {
         socketInfoList.forEach(s => this.send(data, s));
     }
 
-    sendAll(data){
+    sendAll(data) {
         this.sendToList(data, Object.values(this.connectionInfoMap));
     }
 
@@ -33,6 +33,7 @@ class WSServer {
 
             let address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
             console.log('WebSocket Connection Start:', address);
+
             socket.on("message", (message) => {
                 let data;
                 try {
@@ -41,30 +42,33 @@ class WSServer {
                     console.error('Error JSON Parsing:', message.length, message);
                 }
                 if (this.handler) {
-                    try{
+                    try {
                         this.handler(data, info);
-                    }catch(e){
+                    } catch (e) {
                         console.error('WSHandling Error!');
                         console.error(e);
                         console.error(data);
                     }
                 }
             });
+
             socket.on("error", (error) => {
                 console.error(`WebSocketError${address}: ${error}`);
-                if(this.errorHandler){
+                if (this.errorHandler) {
                     info.error = error;
                     this.errorHandler(info);
                 }
                 socket.close();
             });
+
             socket.on("close", () => {
                 console.error(`WebSocket Connection Close: ${address}`);
                 delete this.connectionInfoMap[info.socket.id];
-                if(this.closeHandler){
+                if (this.closeHandler) {
                     this.closeHandler(info);
                 }
             });
+
         });
     }
 }

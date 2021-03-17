@@ -61,27 +61,27 @@ void die(char *errmsg) {
 
 boolean print_error_mode = FALSE;
 
-int get_print_error_mode(){
+int get_print_error_mode() {
     return print_error_mode;
 }
 
-int set_print_error_mode(boolean mode){
+int set_print_error_mode(boolean mode) {
     print_error_mode = mode;
 }
 
 boolean update_inventory_mode = FALSE;
 
-int get_update_inventory_mode(){
+int get_update_inventory_mode() {
     return update_inventory_mode;
 }
 
-int set_update_inventory_mode(boolean mode){
+int set_update_inventory_mode(boolean mode) {
     update_inventory_mode = mode;
 }
 
 boolean exit_mode = FALSE;
 
-int get_exit_mode(){
+int get_exit_mode() {
     return exit_mode;
 }
 
@@ -89,11 +89,11 @@ void send_debug(char *format, ...);
 
 boolean force_exit = FALSE;
 
-int get_force_exit(){
+int get_force_exit() {
     return force_exit;
 }
 
-void set_force_exit(boolean exit){
+void set_force_exit(boolean exit) {
     force_exit = exit;
 }
 
@@ -105,20 +105,20 @@ int exit_fail = 0;
 int exit_fail_count = 0;
 
 void exit_with_save() {
-    if(force_exit){
+    if (force_exit) {
         clearlocks();
         nh_terminate(EXIT_SUCCESS);
-    }else{
+    } else {
         exit_mode = TRUE;
-        for(int i = 0; i < 10; i++){
-            if(dosave0()){
+        for (int i = 0; i < 10; i++) {
+            if (dosave0()) {
                 nh_terminate(EXIT_SUCCESS);
             }
         }
         is_key_triggered = true;
         key_code = 27;
     }
-    if(exit_fail_count++ > 100) {
+    if (exit_fail_count++ > 100) {
         // clearlocks();
         nh_terminate(EXIT_SUCCESS);
     }
@@ -164,7 +164,7 @@ void send_msg(char *);
 
 void start_handle_socket_runner();
 
-void send_init_socket(char * username){
+void send_init_socket(char *username) {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("init_socket"));
     json_object_object_add(obj, "pid", json_object_new_int(getpid()));
@@ -177,7 +177,7 @@ void send_init_socket(char * username){
 
 void init_keyboard();
 
-void init_socket(char * username) {
+void init_socket(char *username) {
     char *game_path = GAME_UDS_PATH();
     game_address = get_path_address(game_path);
     free(game_path);
@@ -215,13 +215,13 @@ int add_send_queue(json_object *obj) {
 void send_msg(char *msg) {
     while (true) {
         int length = strlen(msg);
-        if(length > (STRING_BUFFER_SIZE - 1)){
+        if (length > (STRING_BUFFER_SIZE - 1)) {
             int split = length / (STRING_BUFFER_SIZE - 1) + 1;
             char big_msg[STRING_BUFFER_SIZE];
             sprintf(big_msg, "{\"msg\":\"big_msg\", \"split\":%d}", split);
             send_msg(big_msg);
             char *ptr = msg;
-            for(int i = 0; i < split - 1; i++){
+            for (int i = 0; i < split - 1; i++) {
                 char buffer[STRING_BUFFER_SIZE];
                 strncpy(buffer, ptr, STRING_BUFFER_SIZE - 1);
                 buffer[STRING_BUFFER_SIZE - 1] = '\0';
@@ -286,7 +286,8 @@ void handle_core(char *, json_object *);
 void handle_socket() {
     char receive_buffer[STRING_BUFFER_SIZE];
     int server_address_size = sizeof(server_address);
-    int recv = recvfrom(sockfd, (void *) &receive_buffer, sizeof(receive_buffer), 0, (struct sockaddr *) &server_address,
+    int recv = recvfrom(sockfd, (void *) &receive_buffer, sizeof(receive_buffer), 0,
+                        (struct sockaddr *) &server_address,
                         &server_address_size);
     if (recv != -1) {
         json_object *obj = json_tokener_parse(receive_buffer);
@@ -336,20 +337,22 @@ void handle_msg(json_object *obj) {
 
 // handleSocket -> handleMsg -> <handle_core>
 
-int get_travel_position(){
+int get_travel_position() {
     return travel_position;
 }
-int get_click(){
+
+int get_click() {
     return click;
 }
-void set_travel_position(int i){
+
+void set_travel_position(int i) {
     travel_position = i;
 }
 
 typedef struct {
     winid window;
-    tty_menu_item* page_start;
-    tty_menu_item* page_end;
+    tty_menu_item *page_start;
+    tty_menu_item *page_end;
     int page_lines;
     int counting;
     int count;
@@ -358,8 +361,10 @@ typedef struct {
     boolean is_unused;
 } MenuStatus;
 
-MenuStatus menuStatus = { 0, };
-void save_menu_status(winid window, tty_menu_item* page_start, tty_menu_item* page_end, int page_lines, int counting, int count, struct WinDesc *cw, boolean *finished) {
+MenuStatus menuStatus = {0,};
+
+void save_menu_status(winid window, tty_menu_item *page_start, tty_menu_item *page_end, int page_lines, int counting,
+                      int count, struct WinDesc *cw, boolean *finished) {
     menuStatus.window = window;
     menuStatus.page_start = page_start;
     menuStatus.page_end = page_end;
@@ -376,16 +381,17 @@ void clear_menu_status() {
 }
 
 bool clear_current_data();
-bool init_current_data(char * type);
+
+bool init_current_data(char *type);
+
 void send_delayed_msg();
 
-void process_select_by_index(int sIndex){
+void process_select_by_index(int sIndex) {
     boolean is_current_page = 0;
     int current_page_index = 0;
-/*    if(menuStatus.page_start != 0 && menuStatus.page_end != 0){ */
     tty_menu_item *cItem;
     int csIndex = 0;
-    for(cItem = menuStatus.cw->mlist; cItem; cItem = cItem->next) {
+    for (cItem = menuStatus.cw->mlist; cItem; cItem = cItem->next) {
         if (menuStatus.page_start == cItem) {
             is_current_page = TRUE;
         } else if (menuStatus.page_end == cItem) {
@@ -402,11 +408,6 @@ void process_select_by_index(int sIndex){
                 }
                 menuStatus.counting = FALSE;
                 menuStatus.count = 0;
-                //menuStatus.is_unused = FALSE;
-                /*if(is_current_page){
-                    send_debug("cItem %s", cItem->o_str);
-                    //set_item_state(menuStatus.window, current_page_index, cItem);
-                }*/
                 break;
             }
             csIndex++;
@@ -414,16 +415,14 @@ void process_select_by_index(int sIndex){
         if (is_current_page) {
             current_page_index++;
         }
-
-//        }
     }
 
     tty_curs(menuStatus.window, (int) strlen(menuStatus.cw->morestr) + 2, menuStatus.page_lines);
     (void) fflush(stdout);
 
     tty_menu_item *cItem1;
-    for(cItem1 = menuStatus.cw->mlist; cItem1; cItem1 = cItem1->next){
-        if(cItem1->identifier.a_void){
+    for (cItem1 = menuStatus.cw->mlist; cItem1; cItem1 = cItem1->next) {
+        if (cItem1->identifier.a_void) {
             send_update_menu_item(cItem1);
         }
     }
@@ -441,15 +440,15 @@ void handle_core(char *msg, json_object *obj) {
         click = json_object_get_int(json_object_object_get(obj, "click"));
         key_code = 0;
         is_key_triggered = true;
-    }  else if (strcmp(msg, "select_index") == 0) {
-        if(menuStatus.is_unused) {
+    } else if (strcmp(msg, "select_index") == 0) {
+        if (menuStatus.is_unused) {
             int select_index = json_object_get_int(json_object_object_get(obj, "index"));
             process_select_by_index(select_index);
         }
     } else if (strcmp(msg, "debug") == 0) {
 
     } else {
-        // printf("Unknown Request!");
+        // Unknown Request!
     }
 }
 
@@ -488,7 +487,7 @@ void init_keyboard() {
 int getch_by_webtiles() {
     while (true) {
         usleep(1);
-        if(exit_mode){
+        if (exit_mode) {
             exit_with_save();
         }
         clear_current_data();
@@ -499,7 +498,7 @@ int getch_by_webtiles() {
             is_key_triggered = false;
             return key_code;
         }
-        if(kbhit()){
+        if (kbhit()) {
             return getch();
         }
     }
@@ -508,18 +507,18 @@ int getch_by_webtiles() {
 #define MATRIX_COL 256
 json_object *current_data;
 
-bool clear_current_data(){
-    if(current_data != NULL){
+bool clear_current_data() {
+    if (current_data != NULL) {
         add_send_queue(current_data);
         current_data = NULL;
     }
 }
 
-bool init_current_data(char * type){
-    if(current_data != NULL){
-        if(strcmp(type, json_object_get_string(json_object_object_get(current_data, "msg"))) == 0){
+bool init_current_data(char *type) {
+    if (current_data != NULL) {
+        if (strcmp(type, json_object_get_string(json_object_object_get(current_data, "msg"))) == 0) {
             return false;
-        }else{
+        } else {
             add_send_queue(current_data);
         }
     }
@@ -527,7 +526,6 @@ bool init_current_data(char * type){
     json_object_object_add(current_data, "msg", json_object_new_string(type));
     return true;
 }
-
 
 
 int to_2d_index(x, y) {
@@ -542,15 +540,11 @@ int to_2d_x(index) {
     return index - to_2d_y(index) * MATRIX_COL;
 }
 
-
-
-void send_close_large_text(){
+void send_close_large_text() {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("close_large_text"));
     add_send_queue(obj);
 }
-
-
 
 void send_character_pos(int x, int y) {
     json_object *obj = json_object_new_object();
@@ -558,7 +552,6 @@ void send_character_pos(int x, int y) {
     json_object_object_add(obj, "msg", json_object_new_string("tile"));
     json_object_object_add(obj, "i", json_object_new_int(i));
     json_object_object_add(obj, "u", json_object_new_boolean(1));
-    // addsend_queue(obj);
 }
 
 void send_tile(int x, int y, int t) {
@@ -566,17 +559,17 @@ void send_tile(int x, int y, int t) {
 
     int i = to_2d_index(x, y);
     char i_string[5];
-    // ceil(log(79 * 21)) + 1
+
     sprintf(i_string, "%d", i);
 
-    json_object * data = json_object_object_get(current_data, "data");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "data");
+    if (data == NULL) {
         data = json_object_new_object();
         json_object_object_add(current_data, "data", data);
     }
 
-    json_object * tile_data = json_object_object_get(data, i_string);
-    if(tile_data == NULL) {
+    json_object *tile_data = json_object_object_get(data, i_string);
+    if (tile_data == NULL) {
         tile_data = json_object_new_object();
         json_object_object_add(data, i_string, tile_data);
     }
@@ -590,37 +583,37 @@ void send_tile_flag(int x, int y, char *f) {
 
     int i = to_2d_index(x, y);
     char i_string[5];
-    // ceil(log(79 * 21)) + 1
     sprintf(i_string, "%d", i);
 
-    json_object * data = json_object_object_get(current_data, "data");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "data");
+    if (data == NULL) {
         data = json_object_new_object();
         json_object_object_add(current_data, "data", data);
     }
 
-    json_object * tile_data = json_object_object_get(data, i_string);
-    if(tile_data == NULL) {
+    json_object *tile_data = json_object_object_get(data, i_string);
+    if (tile_data == NULL) {
         tile_data = json_object_new_object();
         json_object_object_add(data, i_string, tile_data);
     }
 
     json_object_object_add(tile_data, "f", json_object_new_string(f));
 }
-void send_close_menu_item(){
+
+void send_close_menu_item() {
     bool is_inited = init_current_data("close_menu_item");
 }
 
 void send_update_menu_item(tty_menu_item *menu_item) {
     bool is_inited = init_current_data("update_menu_item");
 
-    json_object * data = json_object_object_get(current_data, "list");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "list");
+    if (data == NULL) {
         data = json_object_new_array();
         json_object_object_add(current_data, "list", data);
     }
 
-    json_object * menu_item_data = json_object_new_object();
+    json_object *menu_item_data = json_object_new_object();
 
     json_object_object_add(menu_item_data, "count", json_object_new_int64(menu_item->count));
     json_object_object_add(menu_item_data, "selected", json_object_new_boolean(menu_item->selected));
@@ -630,36 +623,20 @@ void send_update_menu_item(tty_menu_item *menu_item) {
 void send_built_in_menu_item(tty_menu_item *menu_item, int color, int attr) {
     bool is_inited = init_current_data("built_in_menu_item");
 
-    json_object * data = json_object_object_get(current_data, "list");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "list");
+    if (data == NULL) {
         data = json_object_new_array();
         json_object_object_add(current_data, "list", data);
     }
 
-/*    *//* menu structure *//*
-    typedef struct tty_mi {
-        struct tty_mi *next;
-        anything identifier; *//* user identifier *//*
-        long count;          *//* user count *//*
-        char *str;           *//* description string (including accelerator) *//*
-        char *o_str;           *//* description string (including accelerator) *//*
-        int attr;            *//* string attribute *//*
-        boolean selected;    *//* TRUE if selected by user *//*
-        char selector;       *//* keyboard accelerator *//*
-        char gselector;      *//* group accelerator *//*
-    } tty_menu_item;*/
-
-    json_object * menu_item_data = json_object_new_object();
-//    char gselector_string[2];
-//    gselector_string[0] = menu_item->gselector;
-//    gselector_string[1] = '\0';
+    json_object *menu_item_data = json_object_new_object();
     char selector_string[2];
     selector_string[0] = menu_item->selector;
     selector_string[1] = '\0';
     char ch_string[2];
     ch_string[0] = menu_item->ch;
     ch_string[1] = '\0';
-//    json_object_object_add(menu_item_data, "gselector", json_object_new_string(gselector_string));
+
     json_object_object_add(menu_item_data, "selector", json_object_new_string(selector_string));
     json_object_object_add(menu_item_data, "ch", json_object_new_string(ch_string));
     json_object_object_add(menu_item_data, "a_void", json_object_new_boolean(menu_item->identifier.a_void != 0 ? TRUE : FALSE));
@@ -677,36 +654,20 @@ void send_built_in_menu_item(tty_menu_item *menu_item, int color, int attr) {
 void send_menu_item(tty_menu_item *menu_item, int color, int attr) {
     bool is_inited = init_current_data("menu_item");
 
-    json_object * data = json_object_object_get(current_data, "list");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "list");
+    if (data == NULL) {
         data = json_object_new_array();
         json_object_object_add(current_data, "list", data);
     }
 
-/*    *//* menu structure *//*
-    typedef struct tty_mi {
-        struct tty_mi *next;
-        anything identifier; *//* user identifier *//*
-        long count;          *//* user count *//*
-        char *str;           *//* description string (including accelerator) *//*
-        char *o_str;           *//* description string (including accelerator) *//*
-        int attr;            *//* string attribute *//*
-        boolean selected;    *//* TRUE if selected by user *//*
-        char selector;       *//* keyboard accelerator *//*
-        char gselector;      *//* group accelerator *//*
-    } tty_menu_item;*/
-
-    json_object * menu_item_data = json_object_new_object();
-//    char gselector_string[2];
-//    gselector_string[0] = menu_item->gselector;
-//    gselector_string[1] = '\0';
+    json_object *menu_item_data = json_object_new_object();
     char selector_string[2];
     selector_string[0] = menu_item->selector;
     selector_string[1] = '\0';
     char ch_string[2];
     ch_string[0] = menu_item->ch;
     ch_string[1] = '\0';
-//    json_object_object_add(menu_item_data, "gselector", json_object_new_string(gselector_string));
+
     json_object_object_add(menu_item_data, "selector", json_object_new_string(selector_string));
     json_object_object_add(menu_item_data, "ch", json_object_new_string(ch_string));
     json_object_object_add(menu_item_data, "a_void", json_object_new_boolean(menu_item->identifier.a_void != 0 ? TRUE : FALSE));
@@ -720,29 +681,29 @@ void send_menu_item(tty_menu_item *menu_item, int color, int attr) {
     json_object_array_add(data, menu_item_data);
 }
 
-void add_status_condition(int fldidx, char * condtext, int coloridx, int attrmask) {
+void add_status_condition(int fldidx, char *condtext, int coloridx, int attrmask) {
     bool is_inited = init_current_data("status");
     char fldidx_string[3];
     sprintf(fldidx_string, "%d", fldidx);
 
-    json_object * data = json_object_object_get(current_data, "data");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "data");
+    if (data == NULL) {
         data = json_object_new_object();
         json_object_object_add(current_data, "data", data);
     }
 
-    json_object * status_data = json_object_object_get(data, fldidx_string);
-    if(status_data == NULL) {
+    json_object *status_data = json_object_object_get(data, fldidx_string);
+    if (status_data == NULL) {
         status_data = json_object_new_object();
         json_object_object_add(data, fldidx_string, status_data);
     }
 
-    json_object * condition_list = json_object_object_get(status_data, "condition_list");
-    if(condition_list == NULL) {
+    json_object *condition_list = json_object_object_get(status_data, "condition_list");
+    if (condition_list == NULL) {
         condition_list = json_object_new_array();
         json_object_object_add(status_data, "condition_list", condition_list);
     }
-    json_object * condition_data = json_object_new_object();
+    json_object *condition_data = json_object_new_object();
     json_object_object_add(condition_data, "condtext", json_object_new_string(condtext));
     json_object_object_add(condition_data, "coloridx", json_object_new_int(coloridx));
     json_object_object_add(condition_data, "attrmask", json_object_new_int(attrmask));
@@ -755,14 +716,14 @@ void add_status_attr(int fldidx, int attr) {
     char fldidx_string[3];
     sprintf(fldidx_string, "%d", fldidx);
 
-    json_object * data = json_object_object_get(current_data, "data");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "data");
+    if (data == NULL) {
         data = json_object_new_object();
         json_object_object_add(current_data, "data", data);
     }
 
-    json_object * status_data = json_object_object_get(data, fldidx_string);
-    if(status_data == NULL) {
+    json_object *status_data = json_object_object_get(data, fldidx_string);
+    if (status_data == NULL) {
         status_data = json_object_new_object();
         json_object_object_add(data, fldidx_string, status_data);
     }
@@ -776,14 +737,14 @@ void send_status(int fldidx, int chg, int percent, int color, genericptr_t *ptr)
     char fldidx_string[3];
     sprintf(fldidx_string, "%d", fldidx);
 
-    json_object * data = json_object_object_get(current_data, "data");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "data");
+    if (data == NULL) {
         data = json_object_new_object();
         json_object_object_add(current_data, "data", data);
     }
 
-    json_object * status_data = json_object_object_get(data, fldidx_string);
-    if(status_data == NULL) {
+    json_object *status_data = json_object_object_get(data, fldidx_string);
+    if (status_data == NULL) {
         status_data = json_object_new_object();
         json_object_object_add(data, fldidx_string, status_data);
     }
@@ -793,14 +754,13 @@ void send_status(int fldidx, int chg, int percent, int color, genericptr_t *ptr)
     json_object_object_add(status_data, "percent", json_object_new_int(percent));
     json_object_object_add(status_data, "color", json_object_new_int(color));
     if (fldidx != BL_CONDITION && ptr != NULL) {
-        char * text = (char *) ptr;
+        char *text = (char *) ptr;
         json_object_object_add(status_data, "text", json_object_new_string(text));
     } else {
-        long * condition = (long *) ptr;
+        long *condition = (long *) ptr;
         json_object_object_add(status_data, "condition", json_object_new_int64(condition));
     }
 }
-
 
 
 void send_more(char *prompt) {
@@ -812,32 +772,31 @@ void send_close_more() {
     bool is_inited = init_current_data("close_more");
 }
 
-
 int cursor = -1;
 int last_send_cursor = -1;
 boolean screen_change = TRUE;
 boolean built_in_menu_lock = FALSE;
 
-void set_built_in_menu_lock(boolean flag){
+void set_built_in_menu_lock(boolean flag) {
     built_in_menu_lock = flag;
 }
 
-boolean get_built_in_menu_lock(){
+boolean get_built_in_menu_lock() {
     return built_in_menu_lock;
 }
 
-void set_screen_change(boolean flag){
+void set_screen_change(boolean flag) {
     screen_change = flag;
 }
 
-void send_start_sharp_input(char * query){
+void send_start_sharp_input(char *query) {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("start_sharp_input"));
     json_object_object_add(obj, "query", json_object_new_string(query));
     add_send_queue(obj);
 }
 
-void send_sharp_autocomplete(char* autocomplete){
+void send_sharp_autocomplete(char *autocomplete) {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("sharp_autocomplete"));
     json_object_object_add(obj, "autocomplete", json_object_new_string(autocomplete));
@@ -845,25 +804,26 @@ void send_sharp_autocomplete(char* autocomplete){
 }
 
 
-void send_sharp_input(char c){
+void send_sharp_input(char c) {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("sharp_input"));
     json_object_object_add(obj, "c", json_object_new_int(c));
     add_send_queue(obj);
 }
 
-void send_close_sharp_input(){
+void send_close_sharp_input() {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("close_sharp_input"));
     add_send_queue(obj);
 }
-char * stringify(char *);
 
-void send_tty_raw_print(char * text){
+char *stringify(char *);
+
+void send_tty_raw_print(char *text) {
     bool is_inited = init_current_data("tty_raw_print");
 
-    json_object * data = json_object_object_get(current_data, "list");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "list");
+    if (data == NULL) {
         data = json_object_new_array();
         json_object_object_add(current_data, "list", data);
     }
@@ -871,12 +831,12 @@ void send_tty_raw_print(char * text){
     json_object_array_add(data, json_object_new_string(text));
 }
 
-void send_text(char * text){
-    if(screen_change){
+void send_text(char *text) {
+    if (screen_change) {
         bool is_inited = init_current_data("text");
 
-        json_object * data = json_object_object_get(current_data, "list");
-        if(data == NULL) {
+        json_object *data = json_object_object_get(current_data, "list");
+        if (data == NULL) {
             data = json_object_new_array();
             json_object_object_add(current_data, "list", data);
         }
@@ -887,11 +847,11 @@ void send_text(char * text){
 
 boolean init_game = FALSE;
 
-boolean get_init_game(){
+boolean get_init_game() {
     return init_game;
 }
 
-void send_init_game(){
+void send_init_game() {
     init_game = true;
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("init_game"));
@@ -901,7 +861,7 @@ void send_init_game(){
     json_object_put(obj);
 }
 
-void send_error_start(){
+void send_error_start() {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("error_start"));
 
@@ -910,7 +870,7 @@ void send_error_start(){
     json_object_put(obj);
 }
 
-void send_error(char * error){
+void send_error(char *error) {
     json_object *obj = json_object_new_object();
     json_object_object_add(obj, "msg", json_object_new_string("error"));
     json_object_object_add(obj, "error", json_object_new_string(error));
@@ -920,7 +880,7 @@ void send_error(char * error){
     json_object_put(obj);
 }
 
-void send_start_yn_function(char * query, char * resp, char def){
+void send_start_yn_function(char *query, char *resp, char def) {
     bool is_inited = init_current_data("start_yn_function");
     char def_string[2];
     def_string[0] = def;
@@ -930,15 +890,15 @@ void send_start_yn_function(char * query, char * resp, char def){
     json_object_object_add(current_data, "def", json_object_new_string(def_string));
 }
 
-void send_end_yn_function(){
+void send_end_yn_function() {
     bool is_inited = init_current_data("end_yn_function");
 }
 
-void send_large_text(char * text){
+void send_large_text(char *text) {
     bool is_inited = init_current_data("large_text");
 
-    json_object * data = json_object_object_get(current_data, "list");
-    if(data == NULL) {
+    json_object *data = json_object_object_get(current_data, "list");
+    if (data == NULL) {
         data = json_object_new_array();
         json_object_object_add(current_data, "list", data);
     }
@@ -951,19 +911,19 @@ void send_clear_built_in_inventory() {
 }
 
 void send_clear_tile() {
-    if(screen_change){
+    if (screen_change) {
         bool is_inited = init_current_data("clear_tile");
     }
 }
 
-void set_cursor(int x, int y){
-    if(screen_change){
+void set_cursor(int x, int y) {
+    if (screen_change) {
         cursor = to_2d_index(x, y);
     }
 }
 
 void send_cursor() {
-    if(last_send_cursor != cursor){
+    if (last_send_cursor != cursor) {
         json_object *obj = json_object_new_object();
         json_object_object_add(obj, "msg", json_object_new_string("cursor"));
         json_object_object_add(obj, "i", json_object_new_int(cursor));
@@ -972,7 +932,7 @@ void send_cursor() {
     }
 }
 
-void send_delayed_msg(){
+void send_delayed_msg() {
     send_cursor();
 }
 
@@ -994,7 +954,7 @@ void send_debug(char *format, ...) {
 }
 
 char *stringify(char *str) {
-    if(str != NULL){
+    if (str != NULL) {
         return json_object_to_json_string(json_object_new_string(str));
     } else {
         return NULL;

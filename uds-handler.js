@@ -12,10 +12,10 @@ class UDSHandler {
         }
 
         this.callback['debug'] = (data, info) => {
-            if(data.debug){
-                try{
+            if (data.debug) {
+                try {
                     console.log('DebugMsg:', JSON.parse(data.debug));
-                }catch(e){
+                } catch (e) {
                     console.log('DebugMsg:', data.debug);
                 }
             }
@@ -59,27 +59,27 @@ class UDSHandler {
             info.room.playData.tty_raw_print = tty_raw_print ? [...tty_raw_print, ...data.list] : data.list;
         }
 
-            this.callback['start_yn_function'] = this.callback['end_yn_function'] =
+        this.callback['start_yn_function'] = this.callback['end_yn_function'] =
             this.callback['sharp_autocomplete'] = this.callback['clear_built_in_inventory'] = this.callback['built_in_menu_item'] =
-            this.callback['update_menu_item'] = this.callback['close_menu_item'] = this.callback['menu_item'] =
-            this.callback['close_sharp_input'] = this.callback['start_sharp_input'] = this.callback['sharp_input'] =
-                this.callback['inventory'] = this.callback['more'] = this.callback['close_more'] = this.callback['large_text'] =
-                    this.callback['close_large_text'] = (data, info) => {
-            info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
-        }
+                this.callback['update_menu_item'] = this.callback['close_menu_item'] = this.callback['menu_item'] =
+                    this.callback['close_sharp_input'] = this.callback['start_sharp_input'] = this.callback['sharp_input'] =
+                        this.callback['inventory'] = this.callback['more'] = this.callback['close_more'] = this.callback['large_text'] =
+                            this.callback['close_large_text'] = (data, info) => {
+                                info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
+                            }
     }
 
     handle(data, info) {
         let targetCallback = this.callback[data.msg];
-            if (targetCallback) {
-                targetCallback(data, info);
-            }
+        if (targetCallback) {
+            targetCallback(data, info);
+        }
     }
 
-    connectionHandle(info){
+    connectionHandle(info) {
         let username = info.username;
         let roomInfo = this.wsHandler.getGameRoomByUsername(username);
-        if(roomInfo){
+        if (roomInfo) {
             info.room = roomInfo;
             roomInfo.udsInfo = info;
             info.closeHandler = (info) => {

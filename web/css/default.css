@@ -17,24 +17,11 @@
     }
 }
 
-@media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1024px){
+@media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1024px) {
     .auto-zoom {
         zoom: 1
     }
 }
-
-/*@media (-webkit-min-device-pixel-ratio: 2) {
-    .auto-zoom {
-        zoom: 2
-    }
-}
-
-@media (-webkit-min-device-pixel-ratio: 4) {
-    .auto-zoom {
-        zoom: 2.3
-    }
-}*/
-
 
 #chat_public {
     height: 80px;
@@ -73,10 +60,11 @@
 #left-content {
     height: 100%;
     flex-grow: 1;
-    display:flex;
+    display: flex;
     flex-direction: column;
     min-width: 400px;
 }
+
 #left-content-wrapper {
 
 }
@@ -106,23 +94,21 @@
 
 .sharp_autocomplete {
     white-space: pre;
-    color:#17a2b8;
+    color: #17a2b8;
 }
+
 .sharp_input {
     white-space: pre;
 }
 
 #message-content {
     font-family: Hack;
-    /*position: fixed;*/
-    /*bottom: 0;*/
     padding-left: 0.8em;
     background: #111111;
-    overflow-y:auto;
+    overflow-y: auto;
     height: 100px;
     min-height: 100px;
     top: 0;
-    /*padding-bottom: 5px;*/
 }
 
 #built-in-inventory {
@@ -181,7 +167,6 @@
     color: #ffffff;
     display: block;
 }
-
 
 
 .ui-darkblue {
@@ -418,7 +403,6 @@ body {
 }
 
 
-
 /*CHAT*/
 #chat {
     background: rgba(0, 0, 0, 0.85);
@@ -515,100 +499,100 @@ body {
 }
 
 .ui-popup-overlay {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  bottom: 0px;
-  right: 0px;
-  background-color: rgba(0,0,0,0.7);
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .ui-popup {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  bottom: 0px;
-  right: 0px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
 
-/*padding-left: 30%;
-padding-right: 30%;*/
+    /*padding-left: 30%;
+    padding-right: 30%;*/
 
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: start;
-  -ms-flex-align: start;
-  align-items: start;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  overflow: hidden;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: start;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 /* progressively indent nested popups: four levels deel is probably enough */
-.ui-popup + .ui-popup { padding-top: calc(20px + 5vh) }
-/*.ui-popup + .ui-popup { padding-top: 20px; }*/
-/*.ui-popup + .ui-popup + .ui-popup { padding-top: 40px; }*/
-/*.ui-popup + .ui-popup + .ui-popup + .ui-popup { padding-top: 60px; }*/
+.ui-popup + .ui-popup {
+    padding-top: calc(20px + 5vh)
+}
 
 .ui-popup.centred {
-  padding-top: 0;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
+    padding-top: 0;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
 }
 
 .ui-popup-outer {
-  overflow-y: scroll !important;
-  overflow-x: hidden;
-  /* overflow-y: hidden !im?portant; */
-  /*margin-top: 200px !important;*/
-  margin: 50px;
-  max-height: 80vh;
+    overflow-y: scroll !important;
+    overflow-x: hidden;
 
-  padding: 20px;
-  background-color: #040204;
-  border: 1px solid black;
-  outline: 2px solid #7d623c;
+    margin: 50px;
+    max-height: 80vh;
 
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  z-index: 0;
-  position: relative;
+    padding: 20px;
+    background-color: #040204;
+    border: 1px solid black;
+    outline: 2px solid #7d623c;
 
-  /*height: 70%;*/
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    z-index: 0;
+    position: relative;
+
+    /*height: 70%;*/
 
 }
 
 .ui-popup-inner {
-  position: relative; /* positioned so that it renders on top of bg */
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  max-height: calc(100vh - 100px - 46px); /* for IE11 */
+    position: relative; /* positioned so that it renders on top of bg */
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    max-height: calc(100vh - 100px - 46px); /* for IE11 */
 }
+
 .ui-popup-inner:after {
-  display: block;
-  content: "";
-  clear:both;
+    display: block;
+    content: "";
+    clear: both;
 }
 
 #game .ui-popup-inner .bg0 {
-  background-color: transparent;
+    background-color: transparent;
 }
+
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
     -khtml-user-select: none; /* Konqueror HTML */
     -moz-user-select: none; /* Old versions of Firefox */
     -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
+    user-select: none;
+    /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
 
-.mobile-menu{
-    max-height:99%;
+.mobile-menu {
+    max-height: 99%;
     font-size: 28pt;
     top: 50%;
     transform: translateY(-50%);
@@ -623,29 +607,19 @@ padding-right: 30%;*/
 
     font-family: Hack;
 }
+
 .menu {
-  font-family: Hack;
-  /*position: absolute;*/
-  /*left: 50%;*/
-  /*transform: translateX(-50%);*/
-  /*margin-top: 10%;*/
-  /*margin-bottom: 10%;*/
-  color: white;
-  /*width: 100%;*/
-  background-color: black;
-  border: 3px solid gold;
-  padding: 10px;
-  /*height: 40rem;*/
+    font-family: Hack;
+    color: white;
+    background-color: black;
+    border: 3px solid gold;
+    padding: 10px;
     max-height: 80vh;
-  overflow-y: auto;
-  /*width: 120%;*/
+    overflow-y: auto;
 }
 
-#ui-menu .ui-popup-inner{
-  /*width: 100%;*/
-}
-#ui-menu .body.fg7{
-  width: 100%;
+#ui-menu .body.fg7 {
+    width: 100%;
 }
 
 .text-popup-content {
@@ -653,69 +627,69 @@ padding-right: 30%;*/
     font-family: Hack;
 }
 
-.item{
-  display: flex;
-  /*margin-bottom: 5px;*/
-  /*white-space: nowrap;*/
-
+.item {
+    display: flex;
 }
+
 .menu-header {
     padding: 2px;
     white-space: pre;
-    /*margin-left: 1%;*/
 }
-.item-col {
 
+.item-tile {
+    max-width: 32px;
+    max-height: 32px;
+    text-align: center
 }
-.item-tile{
-  max-width: 32px;
-  max-height: 32px;
-  text-align: center
-}
+
 .item-key {
-  flex-basis: 3.2%;
-  color: greenyellow;
-  text-align: center
+    flex-basis: 3.2%;
+    color: greenyellow;
+    text-align: center
 }
+
 .item-selectable {
-    color: white!important;
+    color: white !important;
 }
+
 .item-non-selectable {
-    color: white!important;
+    color: white !important;
 }
-.item-sel{
-  flex-basis: 2%;
-  color: greenyellow;
-  text-align: center
+
+.item-sel {
+    flex-basis: 2%;
+    color: greenyellow;
+    text-align: center
 }
+
 .item-hyp {
-  flex-basis: 3%;
-  color: greenyellow;
-  text-align: start
+    flex-basis: 3%;
+    color: greenyellow;
+    text-align: start
 }
 
 .item-text {
-  /*flex-basis: 70%;*/
-  color: greenyellow;
-  /*margin-left: 1%;*/
-  white-space: pre;
+    color: greenyellow;
+    white-space: pre;
 }
 
 .item-header {
-  font-weight: bold;
-  padding-left: 1%;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  color: #2198e7;
-  background-color: white;
+    font-weight: bold;
+    padding-left: 1%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    color: #2198e7;
+    background-color: white;
 }
 
 .item-blessed {
     color: #0062cc;
 }
+
 .item-cursed {
     color: #f30000;
 }
+
 .item-uncursed {
     color: greenyellow;
 }
@@ -725,34 +699,28 @@ padding-right: 30%;*/
     padding: 2px;
     align-items: center;
 }
+
 .item:hover {
     box-shadow: 0 0 0 2px gold inset;
     cursor: pointer;
 }
 
 .item-default {
-    color:white;
+    color: white;
 }
 
-/*#define ATR_NONE       0*/
-/*#define ATR_BOLD       1*/
-/*#define ATR_DIM        2*/
-/*#define ATR_ULINE      4*/
-/*#define ATR_BLINK      5*/
-/*#define ATR_INVERSE    7*/
-
-.console-effect-none > span{
+.console-effect-none > span {
 }
 
-.console-effect-bold > span{
+.console-effect-bold > span {
     font-weight: bold;
 }
 
-.console-effect-dim > span{
+.console-effect-dim > span {
     filter: brightness(50%);
 }
 
-.console-effect-uline > span{
+.console-effect-uline > span {
     text-decoration: underline;
 }
 
@@ -770,10 +738,11 @@ padding-right: 30%;*/
     visibility: hidden;
 }
 
-#mobile-ui{
+#mobile-ui {
 
 }
-.mobile-button-line{
+
+.mobile-button-line {
     position: fixed;
     white-space: nowrap;
     position: relative;
@@ -787,16 +756,18 @@ padding-right: 30%;*/
     white-space: pre;
     width: 100%;
 }
+
 #mobile-message-content {
     width: 100%;
     font-family: Hack;
-    overflow-y:auto;
+    overflow-y: auto;
     word-break: break-word;
 }
+
 #mobile-chat {
     width: 100%;
-    color:#93a1a1;
-    overflow-y:auto;
+    color: #93a1a1;
+    overflow-y: auto;
     word-break: break-word;
 }
 
@@ -811,157 +782,190 @@ padding-right: 30%;*/
 }
 
 
-
-
-
 @media (-webkit-min-device-pixel-ratio: 1) {
-    #mobile-chat{
+    #mobile-chat {
         font-size: 20pt;
         height: 5vh;
     }
-    #mobile-status{
+
+    #mobile-status {
         font-size: 20pt;
     }
+
     #mobile-message-content {
         font-size: 20pt;
         height: 8vh;
     }
-    #mobile-button-ui{
+
+    #mobile-button-ui {
         font-size: 25px;
     }
-    #mobile-menu{
-        font-size:20px;
+
+    #mobile-menu {
+        font-size: 20px;
     }
+
     .text-popup-content {
         font-size: small;
     }
-    .ui-popup-outer{
+
+    .ui-popup-outer {
         max-height: 90vh;
     }
 }
 
-@media (-webkit-min-device-pixel-ratio: 1) and (min-width: 800px) and (orientation:portrait) {
-    #mobile-chat{
+@media (-webkit-min-device-pixel-ratio: 1) and (min-width: 800px) and (orientation: portrait) {
+    #mobile-chat {
         font-size: 24pt;
         height: 5vh;
     }
-    #mobile-status{
+
+    #mobile-status {
         font-size: 24pt;
     }
+
     #mobile-message-content {
         font-size: 24pt;
         height: 5vh;
     }
+
     .text-popup-content {
         font-size: 24pt;
     }
-    #mobile-button-ui{
+
+    #mobile-button-ui {
         font-size: 32px;
     }
-    #mobile-menu{
-        font-size:36px;
+
+    #mobile-menu {
+        font-size: 36px;
     }
-    #mobile-menu canvas{
-        zoom:2;
+
+    #mobile-menu canvas {
+        zoom: 2;
     }
-    .ui-popup-outer{
+
+    .ui-popup-outer {
         max-height: 90vh;
     }
 }
+
 .yn_function {
-    background-color : #2198e7;
+    background-color: #2198e7;
 }
 
-@media (-webkit-min-device-pixel-ratio: 2) and (orientation:portrait){
-    #mobile-chat{
+@media (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait) {
+    #mobile-chat {
         font-size: 24pt;
         height: 5vh;
     }
-    #mobile-status{
+
+    #mobile-status {
         font-size: 24pt;
     }
+
     #mobile-message-content {
         font-size: 24pt;
         height: 7vh;
     }
+
     .text-popup-content {
         font-size: 16pt;
     }
-    #mobile-button-ui{
+
+    #mobile-button-ui {
         font-size: 26px;
     }
-    #mobile-menu{
-        font-size:36px;
+
+    #mobile-menu {
+        font-size: 36px;
     }
-    #mobile-menu canvas{
-        zoom:2;
+
+    #mobile-menu canvas {
+        zoom: 2;
     }
-    .ui-popup-outer{
+
+    .ui-popup-outer {
         max-height: 90vh;
     }
 }
-@media (-webkit-min-device-pixel-ratio: 2) and (min-height: 1500px) and (orientation:portrait) {
+
+@media (-webkit-min-device-pixel-ratio: 2) and (min-height: 1500px) and (orientation: portrait) {
     #mobile-message-content {
         height: 5vh;
     }
-    #mobile-button-ui{
+
+    #mobile-button-ui {
         font-size: 36px;
     }
 }
-@media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1280px) and (orientation:portrait) {
-    #mobile-chat{
+
+@media (-webkit-min-device-pixel-ratio: 2) and (min-width: 1280px) and (orientation: portrait) {
+    #mobile-chat {
         font-size: 20pt;
         height: 5vh;
     }
-    #mobile-status{
+
+    #mobile-status {
         font-size: 20pt;
     }
+
     #mobile-message-content {
         font-size: 20pt;
         height: 8vh;
     }
-    #mobile-button-ui{
+
+    #mobile-button-ui {
         font-size: 20px;
     }
-    #mobile-menu{
-        font-size:20px;
+
+    #mobile-menu {
+        font-size: 20px;
     }
+
     .text-popup-content {
         font-size: 14pt;
     }
-    .ui-popup-outer{
+
+    .ui-popup-outer {
         max-height: 90vh;
     }
 }
 
 
-@media (-webkit-min-device-pixel-ratio: 2) and (orientation:landscape) {
-    #mobile-chat{
+@media (-webkit-min-device-pixel-ratio: 2) and (orientation: landscape) {
+    #mobile-chat {
         font-size: 11pt;
         height: 5vh;
     }
-    #mobile-status{
+
+    #mobile-status {
         font-size: 11pt;
     }
+
     #mobile-message-content {
         font-size: 11pt;
         height: 9vh;
     }
-    #mobile-button-ui{
+
+    #mobile-button-ui {
         font-size: 11px;
     }
-    #mobile-menu{
-        font-size:12px;
+
+    #mobile-menu {
+        font-size: 12px;
     }
+
     .text-popup-content {
         font-size: 12pt;
     }
-    .ui-popup-outer{
+
+    .ui-popup-outer {
         max-height: 90vh;
     }
 }
 
-@media (-webkit-min-device-pixel-ratio: 2) and (orientation:landscape) and (min-height: 400px) {
+@media (-webkit-min-device-pixel-ratio: 2) and (orientation: landscape) and (min-height: 400px) {
     #mobile-message-content {
         height: 8vh;
     }
@@ -972,12 +976,14 @@ padding-right: 30%;*/
 }
 
 @media (max-width: 768px) {
-    .navbar-nav > .nav-item{
+    .navbar-nav > .nav-item {
         padding-right: 0.4em;
     }
+
     .navbar1 {
         float: left;
     }
+
     .navbar2 {
         float: right;
         margin-top: 5px;
