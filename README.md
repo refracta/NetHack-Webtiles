@@ -86,7 +86,7 @@ You can talk and discuss development on the #dev channel of the [NetHack Live Di
 - [X] Implementation of the feature to watch the game
 - [X] Game room chat, Public chat feature implementation
 - [x] Add RC modification on the web
-- [x] Implement all game desktop interfaces
+- [x] Implement all desktop interfaces
 - [x] Mobile web support
 - [ ] Responsive web part refactoring
 - [ ] Front-end code migration (React)
