@@ -21,16 +21,11 @@ const wsHandler = new WSHandler(ws);
 udsHandler.init({wsSender, wsHandler});
 wsHandler.init({sender: wsSender, udsSender, udsHandler, games, config, db});
 
-
-
 Object.values(games).forEach(g => {
     !fs.existsSync(g.rcPath) ? Utils.mkDirByPathSync(g.rcPath) : void 0;
     !fs.existsSync(g.ttyrecPath) ? Utils.mkDirByPathSync(g.ttyrecPath) : void 0;
     !fs.existsSync(g.dumplogPath) ? Utils.mkDirByPathSync(g.dumplogPath) : void 0;
 });
-
-
-
 
 db.init();
 web.init();

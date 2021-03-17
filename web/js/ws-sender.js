@@ -9,12 +9,22 @@ class WSSender {
 
     saveRC(id, rcText) {
         this.client.send({msg: 'save_rc', id, rcText});
-    }getRC(id) {
+    }
+
+    getRC(id) {
         this.client.send({msg: 'get_rc', id});
     }
 
     key(keyCode) {
         this.client.send({msg: 'key', keyCode});
+    }
+
+    selectIndex(index) {
+        this.client.send({msg: 'select_index', index});
+    }
+
+    travel(i, click) {
+        this.client.send({msg: 'travel', i, click});
     }
 
     loginBySessionKey(sessionKey) {
@@ -24,11 +34,17 @@ class WSSender {
     login(username, password) {
         this.client.send({msg: 'login', username, password});
     }
+
     register(username, password, email) {
         this.client.send({msg: 'register', username, password, email});
     }
+
     watch(username) {
         this.client.send({msg: 'watch', username});
+    }
+
+    ping() {
+        this.client.send({msg: 'ping'});
     }
 
     lobby() {
@@ -39,4 +55,4 @@ class WSSender {
     }
 }
 
-export default WSSender;
+// export default WSSender;

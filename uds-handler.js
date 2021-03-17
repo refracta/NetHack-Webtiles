@@ -4,26 +4,30 @@ class UDSHandler {
         this.callback = {};
 
         this.callback['init_game'] = (data, info) => {
-            let roomInfo = this.wsHandler.getGameRoomByUsername(data.username);
+            let roomInfo = this.wsHandler.getGameRoomByUsername(info.username);
             if (roomInfo) {
                 this.wsSender.initGame(roomInfo.webRC, [roomInfo.player]);
-                info.closeHandler = (info) => {
-                    this.wsHandler.removeGameRoomByUsername(data.username);
-                    let roomMembersInfo = [roomInfo.player, ...roomInfo.watchers];
-                    let lobbyList = this.wsHandler.getStatusSocketInfoList('lobby');
-                    this.wsSender.lobbyRemove(roomInfo, lobbyList);
-                    this.wsHandler.toLobby(roomMembersInfo);
-                    roomInfo.ptyProcess.kill();
-                    if (roomInfo.closeHandler) {
-                        roomInfo.closeHandler(roomInfo);
-                    }
-                };
-                info.room = roomInfo;
-                roomInfo.udsInfo = info;
+                roomInfo.initGame = true;
             }
         }
+
         this.callback['debug'] = (data, info) => {
-            console.log('DebugMsg:', data);
+            if (data.debug) {
+                try {
+                    console.log('DebugMsg:', JSON.parse(data.debug));
+                } catch (e) {
+                    console.log('DebugMsg:', data.debug);
+                }
+            }
+        }
+
+        this.callback['error_start'] = (data, info) => {
+            let safeUsername = info && info.room && info.room.player && info.room.player.username;
+            console.error(`Game Error [${safeUsername}]`);
+        }
+
+        this.callback['error'] = (data, info) => {
+            console.error(data.error);
         }
 
         this.callback['tile'] = (data, info) => {
@@ -41,79 +45,62 @@ class UDSHandler {
             info.room.playData.status = statusData ? {...info.room.playData.status, ...data.data} : data.data;
             info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
         }
+        this.callback['cursor'] = (data, info) => {
+            info.room.playData.cursor = data.i;
+            info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
+        }
         this.callback['clear_tile'] = (data, info) => {
             info.room ? info.room.playData.tile = {} : void 0;
             info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
         }
-        this.callback['inventory'] = this.callback['more'] = (data, info) => {
-            info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
+
+        this.callback['tty_raw_print'] = (data, info) => {
+            let tty_raw_print = info.room.playData.tty_raw_print;
+            info.room.playData.tty_raw_print = tty_raw_print ? [...tty_raw_print, ...data.list] : data.list;
         }
+
+        this.callback['start_yn_function'] = this.callback['end_yn_function'] =
+            this.callback['sharp_autocomplete'] = this.callback['clear_built_in_inventory'] = this.callback['built_in_menu_item'] =
+                this.callback['update_menu_item'] = this.callback['close_menu_item'] = this.callback['menu_item'] =
+                    this.callback['close_sharp_input'] = this.callback['start_sharp_input'] = this.callback['sharp_input'] =
+                        this.callback['inventory'] = this.callback['more'] = this.callback['close_more'] = this.callback['large_text'] =
+                            this.callback['close_large_text'] = (data, info) => {
+                                info.room ? this.wsSender.dataToRoom(data, info.room) : void 0;
+                            }
     }
 
     handle(data, info) {
         let targetCallback = this.callback[data.msg];
-            if (targetCallback) {
-                targetCallback(data, info);
-            }
+        if (targetCallback) {
+            targetCallback(data, info);
+        }
+    }
+
+    connectionHandle(info) {
+        let username = info.username;
+        let roomInfo = this.wsHandler.getGameRoomByUsername(username);
+        if (roomInfo) {
+            info.room = roomInfo;
+            roomInfo.udsInfo = info;
+            info.closeHandler = (info) => {
+                this.wsHandler.removeGameRoomByUsername(username);
+                let roomMembersInfo = [roomInfo.player, ...roomInfo.watchers];
+                let lobbyList = this.wsHandler.getStatusSocketInfoList('lobby');
+                this.wsSender.lobbyRemove(roomInfo, lobbyList);
+                this.wsHandler.toLobby(roomMembersInfo);
+                roomInfo.ptyProcess.kill();
+                if (roomInfo.closeHandler) {
+                    roomInfo.closeHandler(roomInfo);
+                }
+            };
+        }
     }
 
     init(initHandle) {
         this.wsHandler = initHandle.wsHandler;
         this.wsSender = initHandle.wsSender;
-        this.server.preHandler =
-            (data) => {
-                if (data.list) {
-                    let newList = [];
-                    let lastElement = data.list.reduce((a, d) => {
-                        if (d.msg === a.msg) {
-                            if (d.msg === 'tile') {
-                                let i = d.i;
-                                delete d.i;
-                                delete d.msg;
-                                return {msg: 'tile', data: {...a.data, ...{[i]: {...a.data[i], ...d}}}};
-                            } else if (d.msg === 'text') {
-                                a.list.push(d.text);
-                                return a;
-                            } else if (d.msg === 'status') {
-                                let fldidx = d.fldidx;
-                                if (d.text) {
-                                    d.text = d.text.trim();
-                                }
-                                delete d.fldidx;
-                                delete d.msg;
-                                return {msg: 'status', data: {...a.data, ...{[fldidx]: {...a.data[fldidx], ...d}}}};
-                            } else {
-                                newList.push(d);
-                                return d;
-                            }
-                        } else {
-                            if (a.msg) {
-                                newList.push(a);
-                            }
-                            if (d.msg === 'tile') {
-                                let i = d.i;
-                                delete d.i;
-                                delete d.msg;
-                                return {msg: 'tile', data: {[i]: d}};
-                            } else if (d.msg === 'text') {
-                                return {msg: 'text', list: [d.text]};
-                            } else if (d.msg === 'status') {
-                                let fldidx = d.fldidx;
-                                if (d.text) {
-                                    d.text = d.text.trim();
-                                }
-                                delete d.fldidx;
-                                delete d.msg;
-                                return {msg: 'status', data: {[fldidx]: d}};
-                            }
-                            return d;
-                        }
-                    }, {});
-                    newList.push(lastElement);
-                    data.list = newList;
-                }
-            }
         this.server.handler = this.handle.bind(this);
+        this.server.connectionHandle = this.connectionHandle.bind(this);
     }
 }
 

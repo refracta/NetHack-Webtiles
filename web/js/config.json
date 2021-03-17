@@ -1,5 +1,6 @@
 {
   "terminalCols": 80,
-  "terminalRows": 25,
-  "archiveURL": "/"
+  "terminalRows": 24,
+  "archiveURL": "/",
+  "welcomeMessage": "Welcome to Hacktiles %USERNAME%! XD"
 }

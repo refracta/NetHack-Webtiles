@@ -17,21 +17,48 @@ class WSHandler {
         this.gameRoomMap = {};
         this.sessions = {};
         this.callback['key'] = (data, info) => {
-            if (!info.isLogin) {
+            if (!info.isLogin || info.status !== 'play') {
                 return;
             }
             let roomInfo = this.getGameRoomByUsername(info.username);
-            if (roomInfo) {
-                if (data.keyCode == 3) {
+            if (roomInfo && roomInfo.udsInfo) {
+                if (data.keyCode == 26) {
                     console.log('Okay Close Message');
                     this.udsSender.close([roomInfo.udsInfo]);
                 } else {
-                    this.udsSender.data(data, [roomInfo.udsInfo]);
+                    if (typeof data.keyCode === 'number') {
+                        this.udsSender.data({msg: 'key', keyCode: data.keyCode}, [roomInfo.udsInfo]);
+                    }
                 }
             }
         }
+
+        this.callback['travel'] = (data, info) => {
+            if (!info.isLogin || info.status !== 'play') {
+                return;
+            }
+            let roomInfo = this.getGameRoomByUsername(info.username);
+            if (roomInfo && roomInfo.udsInfo) {
+                if (typeof data.i === 'number' && typeof data.click === 'number' && (1 <= data.click && data.click <= 3)) {
+                    this.udsSender.data({msg: 'travel', i: data.i, click: data.click}, [roomInfo.udsInfo]);
+                }
+            }
+        }
+
+        this.callback['select_index'] = (data, info) => {
+            if (!info.isLogin || info.status !== 'play') {
+                return;
+            }
+            let roomInfo = this.getGameRoomByUsername(info.username);
+            if (roomInfo && roomInfo.udsInfo) {
+                if (typeof data.index === 'number') {
+                    this.udsSender.data({msg: 'select_index', index: data.index}, [roomInfo.udsInfo]);
+                }
+            }
+        }
+
         this.callback['register'] = (data, info) => {
-            console.log('Register request:', data);
+            console.log('Register request:', data.username, data.email);
             if (this.db.isRegistered(data.username)) {
                 this.sender.registerFail('User already exists!', [info]);
                 return;
@@ -83,7 +110,7 @@ class WSHandler {
                     this.sender.gameMenu(Object.values(this.games).map(e => ({name: e.name, id: e.id})), [info]);
                     this.updateLobbyWatcher();
                 } else {
-		    this.sender.loginFail('Username or password is invalid!', [info]);
+                    this.sender.loginFail('Username or password is invalid!', [info]);
                 }
             } else {
                 let session = this.getSessionBySessionKey(data.sessionKey);
@@ -97,7 +124,7 @@ class WSHandler {
                     this.sender.gameMenu(Object.values(this.games).map(e => ({name: e.name, id: e.id})), [info]);
                     this.updateLobbyWatcher();
                 } else {
-		    // this.sender.loginFail('Invalid session!', [info]);
+                    // this.sender.loginFail('Invalid session!', [info]);
                 }
             }
         }
@@ -159,21 +186,30 @@ class WSHandler {
                     info.forcePlayHandle = false;
                 }
                 if (prevRoomInfo) {
+                    if (!prevRoomInfo.udsInfo) {
+                        this.toLobby([info]);
+                    }
                     info.forcePlayHandle = true;
                     prevRoomInfo.closeHandler = (roomInfo) => {
                         this.callback['play'](data, info);
                     }
                     this.udsSender.close([prevRoomInfo.udsInfo]);
                     this.sender.gameCloseWait([info]);
+                    setTimeout(_ => {
+                        let roomInfo = this.getGameRoomByUsername(info.username);
+                        if (!roomInfo || (roomInfo && roomInfo.player != info)) {
+                            this.toLobby([info]);
+                        }
+                    }, 1000 * 10);
                     return;
                 }
-                // TODO 현재 플레이 중이면 해당 게임 종료 요청 보내야함
+
                 let sessionInfo = this.getSessionBySessionKey(info.sessionKey);
                 let config = this.getUserGameConfigWithInit(gameInfo, sessionInfo);
-		let rcText = this.getRCText(config.rcPath, config.defaultRCPath);
-		let webRC = this.parseWebRCData(rcText);
-		this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, webRC, info);
-		    
+                let rcText = this.getRCText(config.rcPath, config.defaultRCPath);
+                let webRC = this.parseWebRCData(rcText);
+                this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, webRC, info);
+
                 let ptyProcess = pty.spawn('/bin/bash', [], {
                     name: 'xterm-color',
                     cols: config.terminalCols,
@@ -181,6 +217,7 @@ class WSHandler {
                     cwd: process.env.HOME,
                     env: process.env
                 });
+
                 ptyProcess.write(config.cmd.nethackWithTTYREC);
                 let terminal = new Terminal();
                 let terminalSerializer = new SerializeAddon();
@@ -189,14 +226,16 @@ class WSHandler {
                     terminal.write(data);
                     this.sender.terminal(data, [roomInfo.player, ...roomInfo.watchers]);
                 });
-		ptyProcess.onExit((e) => {
-		    console.log(info.username + '\'s process is closed.');
-		});
+                ptyProcess.onExit((e) => {
+                    console.log(info.username + '\'s process is closed.');
+                });
                 ptyProcess.write('\r');
                 console.log(config.cmd.nethackWithTTYREC);
                 console.log(info.username);
-		
+                console.log(`PID: ${ptyProcess.pid}`);
+
                 let roomInfo = {
+                    pid: ptyProcess.pid,
                     id: gameInfo.id,
                     name: gameInfo.name,
                     player: info,
@@ -205,8 +244,8 @@ class WSHandler {
                     playData: {},
                     terminalSerializer,
                     gameInfo,
-		    ptyProcess,
-	            webRC
+                    ptyProcess,
+                    webRC
                 };
                 this.setGameRoomByUsername(info.username, roomInfo);
                 info.playRoom = roomInfo;
@@ -215,12 +254,14 @@ class WSHandler {
                 let watcherData = this.roomToWatcherData(roomInfo);
                 this.sender.updateWatcher(watcherData.userList, watcherData.numberOfWatchers, [roomInfo.player, ...roomInfo.watchers])
                 setTimeout(_ => {
-                    if (!roomInfo.udsInfo) {
+                    if (!roomInfo.initGame) {
+                        roomInfo.ptyProcess.write('\x03');
                         this.removeGameRoomByUsername(info.username);
                         let lobbyList = this.getStatusSocketInfoList('lobby');
                         this.sender.lobbyRemove(roomInfo, lobbyList);
                         let roomMembers = [roomInfo.player, ...roomInfo.watchers];
                         this.toLobby(roomMembers);
+                        this.sender.terminalError((roomInfo.playData.tty_raw_print ? roomInfo.playData.tty_raw_print : ['Unknown Error...']).join('\n'), [roomInfo.player]);
                         if (roomInfo.closeHandler) {
                             roomInfo.closeHandler(roomInfo);
                         }
@@ -236,7 +277,7 @@ class WSHandler {
                 info.watchRoom = roomInfo;
                 roomInfo.watchers.add(info);
                 this.sender.watch(data.username, [info]);
-		this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
+                this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
                 this.sender.initWatch(roomInfo.playData, roomInfo.terminalSerializer.serialize(), roomInfo.webRC, [info]);
                 let watcherData = this.roomToWatcherData(roomInfo);
                 this.sender.updateWatcher(watcherData.userList, watcherData.numberOfWatchers, [roomInfo.player, ...roomInfo.watchers])
@@ -245,18 +286,23 @@ class WSHandler {
             }
         }
 
+        this.callback['ping'] = (data, info) => {
+            this.sender.pong([info]);
+        }
+
     }
-    setTileWithWebRC(defaultTilePath, webRC, info){
-	    	let tileName = webRC.DEFAULT_TILE_NAME ? webRC.DEFAULT_TILE_NAME : 'default';
-		let tileFilePath = webRC.CUSTOM_TILE_FILE_PATH ? webRC.CUSTOM_TILE_FILE_PATH : (defaultTilePath + tileName + '.png');
-		let tileDataPath = webRC.CUSTOM_TILE_DATA_PATH ? webRC.CUSTOM_TILE_DATA_PATH : (defaultTilePath + tileName + '.json');
-	        let tileData;
-		try{
-			tileData = JSON.parse(webRC.CUSTOM_TILE_DATA);
-		} catch (e){	
-			
-		}    
-                this.sender.setTile(tileFilePath, tileDataPath, tileData, [info]);    
+
+    setTileWithWebRC(defaultTilePath, webRC, info) {
+        let tileName = webRC.DEFAULT_TILE_NAME ? webRC.DEFAULT_TILE_NAME : 'default';
+        let tileFilePath = webRC.CUSTOM_TILE_FILE_PATH ? webRC.CUSTOM_TILE_FILE_PATH : (defaultTilePath + tileName + '.png');
+        let tileDataPath = webRC.CUSTOM_TILE_DATA_PATH ? webRC.CUSTOM_TILE_DATA_PATH : (defaultTilePath + tileName + '.json');
+        let tileData;
+        try {
+            tileData = JSON.parse(webRC.CUSTOM_TILE_DATA);
+        } catch (e) {
+
+        }
+        this.sender.setTile(tileFilePath, tileDataPath, tileData, [info]);
     }
 
     handle(data, info) {
@@ -279,7 +325,7 @@ class WSHandler {
     }
 
     getSessionBySessionKey(sessionKey) {
-        return this.sessions[sessionKey];
+        return this.sessions[Object.keys(this.sessions).find(k => k === sessionKey)];
     }
 
     setSessionBySessionKey(sessionKey, data) {
@@ -340,8 +386,8 @@ class WSHandler {
         if (!fs.existsSync(rcPath) && fs.existsSync(defaultRCPath)) {
             fs.copyFileSync(defaultRCPath, rcPath);
         }
-		let dumplogPath = gameInfo.dumplogPath + sessionInfo.username + '/';
-		!fs.existsSync(dumplogPath) ? Utils.mkDirByPathSync(dumplogPath) : void 0;
+        let dumplogPath = gameInfo.dumplogPath + sessionInfo.username + '/';
+        !fs.existsSync(dumplogPath) ? Utils.mkDirByPathSync(dumplogPath) : void 0;
 
         let ttyrecPath = gameInfo.ttyrecPath + sessionInfo.username + '/';
         !fs.existsSync(ttyrecPath) ? Utils.mkDirByPathSync(ttyrecPath) : void 0;
@@ -356,24 +402,23 @@ class WSHandler {
         let nethackWithTTYREC = `${ttyrec} -e "${nethack} && exit"`;
         return {rcPath, dumplogPath, defaultRCPath, ttyrecPath, cmd: {nethack, ttyrec, nethackWithTTYREC}};
     }
-	
-	parseWebRCData(rcText){
-		let rcData = {};
-		rcText.split('\n').forEach(l => {
-			l = l.trim();
-			if(l.match(/^#\$.+=.+$/)){
-				let s = l.split('=');
-				rcData[s.shift().replace(/^#\$/, '').trim()] = s.join('=').trim();
-			}
-		});
-		return rcData;
-	}
+
+    parseWebRCData(rcText) {
+        let rcData = {};
+        rcText.split('\n').forEach(l => {
+            l = l.trim();
+            if (l.match(/^#\$.+=.+$/)) {
+                let s = l.split('=');
+                rcData[s.shift().replace(/^#\$/, '').trim()] = s.join('=').trim();
+            }
+        });
+        return rcData;
+    }
 
     init(initHandle) {
         this.sender = initHandle.sender;
         this.udsHandle = initHandle.udsHandle;
         this.udsSender = initHandle.udsSender;
-        this.config = initHandle.config;
         this.config = initHandle.config;
         this.games = initHandle.games;
         this.db = initHandle.db;
@@ -383,7 +428,9 @@ class WSHandler {
         this.server.closeHandler = this.server.errorHandler = ((info) => {
             if (info.status === 'play') {
                 let roomInfo = this.getGameRoomByUsername(info.username);
-                this.udsSender.close([roomInfo.udsInfo]);
+                if (roomInfo && roomInfo.udsInfo) {
+                    this.udsSender.close([roomInfo.udsInfo]);
+                }
             } else if (info.status === 'watch') {
                 let roomInfo = info.watchRoom;
                 roomInfo.watchers.delete(info);
@@ -395,7 +442,6 @@ class WSHandler {
                 this.updateLobbyWatcher();
             }
         }).bind(this);
-
     }
 }
 

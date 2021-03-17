@@ -17,6 +17,7 @@ class CoreUtils {
             return Math.floor(delta / (365 * 24 * 60 * 60)) + 'y';
         }
     }
+
     static waitFor(vf, t) {
         return new Promise(r => {
             let i = setInterval(_ => {
@@ -33,4 +34,4 @@ class CoreUtils {
     }
 }
 
-export default CoreUtils;
+// export default CoreUtils;

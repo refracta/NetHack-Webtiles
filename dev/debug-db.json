@@ -1,0 +1,14 @@
+{
+  "users": {
+    "wizard": {
+      "username": "wizard",
+      "password": "witcdJ58KLQUc",
+      "email": "password@is.wizard"
+    },
+    "debug": {
+      "username": "debug",
+      "password": "dewbcP2v5OAR6",
+      "email": "password@is.debug"
+    }
+  }
+}

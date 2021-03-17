@@ -48,7 +48,7 @@ GENERICUSERS=play player game games nethack nethacker
 # but number of different players is not limited.
 # Setting this to any other value constructs the lock files with
 # letter and "lock" (eg. alock, block, ...)
-MAXPLAYERS=10
+MAXPLAYERS=0
 
 # If not null, added to string "To get local support, " in the support
 # information help.
@@ -67,7 +67,7 @@ MAXPLAYERS=10
 #ACCESSIBILITY=1
 
 # Uncomment to disable savefile UID checking.
-#CHECK_SAVE_UID=0
+CHECK_SAVE_UID=0
 
 # Record (high score) file options.
 # CAUTION: changing these after people have started playing games can

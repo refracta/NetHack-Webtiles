@@ -2,31 +2,46 @@
 <html>
 <head>
     <title>NetHack Live</title>
+    <meta name="viewport" content="user-scalable=no"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-    <script src="//cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser.min.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.53.1/dist/phaser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm@4.8.1/lib/xterm.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.8.1/css/xterm.css">
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.4.0/lib/xterm-addon-fit.min.js"></script>
-
-    <script type="module" src="js/core.js"></script>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3/build/web/hack.css">
+    <script src="js/linkify.js"></script>
+    <script src="js/loader-utils.js"></script>
+    <!--    <script type="module" src="js/loader-native.js"></script>-->
+    <script src="js/loader-jquery.js"></script>
+    <script src="js/core.js"></script>
     <link rel="stylesheet" href="css/default.css">
 </head>
 
-<body class="ui-darkgray">
+<body class="ui-darkgray auto-zoom">
+
+<div class="mobile-menu" id="mobile-menu" style="display: none">
+</div>
+<div id="mobile-button-ui" style="display: none;">
+    <!-- JSON Data Menu -->
+</div>
+
 
 <!-- Top Menu1 -->
 <nav id="top-menu1" class="navbar navbar-dark fixed-top navbar-expand-md ui-darkblue" data-offset-top="80"
      data-spy="affix">
-    <div class="container">
+    <div class="container" style="align-items: unset">
         <!-- Logo  -->
         <a class="navbar-brand" href="/">NetHack Live</a>
         <div id="top-navbar">
             <ul class="nav navbar-nav ml-auto">
                 <!-- User Account Info -->
                 <li class="nav-item"><a id="account-info" href="#" class="nav-link"></a></li>
+                <li class="nav-item"><a id="latency-info"
+                                        title="This is the server response time. This can be affected by the server and your location. 1~10MS = Excellent, 11~50MS = Good, 51~100 = Fair, 101MS~ = Bad. "
+                                        href="#" class="nav-link"></a></li>
             </ul>
         </div>
     </div>
@@ -36,12 +51,8 @@
      data-offset-top="80" data-spy="affix">
     <div class="container">
 
-        <button type="button" class="navbar-toggler" data-toggle="collapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
+        <div class="navbar-collapse">
+            <ul class="nav navbar-nav navbar1">
                 <li class="nav-item"><a href="/" class="nav-link">Lobby</a></li>
                 <!-- Play Dropdown Menu -->
                 <li class="divider-vertical nav-item"></li>
@@ -62,7 +73,7 @@
             </ul>
 
             <!-- Login / Register Menu -->
-            <ul class="nav navbar-nav ml-auto">
+            <ul class="nav navbar-nav ml-auto navbar2">
                 <li class="nav-item">
                     <div class="input-group input-group-sm">
                         <form action="#" id="login-form" style="display:flex" method="get">
@@ -83,8 +94,8 @@
                             <button class="btn btn-sm btn-success" type="submit">Login</button>
 
                             <div class="lr-margin2d5"></div>
+                            <button type="button" id="register-btn" class="btn btn-sm btn-info">Register</button>
                         </form>
-                        <button id="register-btn" class="btn btn-sm btn-info">Register</button>
                         <div class="lr-margin2d5"></div>
                         <button id="logout-btn" class="btn btn-sm btn-dark" style="display: none;">Logout</button>
                     </div>
@@ -116,8 +127,6 @@
         <div class="col-md-8 flex-ratio-40">
             <div class="card">
                 <div class="card-header">Register</div>
-                <!-- 향후 삭제 예정 -->
-                <span style="margin: 20px">WARNING!!!<br>향후 적용할 dgamelaunch(Telnet, SSH 플레이)와의 호환성을 위해 비밀번호를 암호화하지 않고 서버에 날 것 그대로 저장합니다. 민감한 비밀번호를 쓰지마세요! (추후 dgamelaunch를 지원하게 되면 기존 비밀번호는 암호화 처리하고 이후 가입자의 비밀번호도 암호화 처리 될 예정입니다)</span>
                 <div class="card-body">
                     <!-- Registration Form-->
                     <form id="register-form" class="form-horizontal" action="#">
@@ -200,7 +209,7 @@
     </div>
 </div>
 
-<div id="loading" style="display: none;">
+<div id="loading" style="display: none; position: fixed; width:100%;height:100%;z-index: 999;background: inherit;">
     <div>
         <p id="loading-text" class="ui-darkblue"></p>
         <img src="/decoration/archaeologist.png" style="display: none; max-width: 500px;">
@@ -213,38 +222,118 @@
         <img src="/decoration/tourist.png" style="display: none; max-width: 700px;">
         <img src="/decoration/jackal.png" style="display: none; max-width: 500px;">
         <img src="/decoration/homunculus.png" style="display: none; max-width: 500px;">
-        <img src="/decoration/gompami-tourist.png" style="display: none; max-width: 900px;"> 
+        <img src="/decoration/gompami-tourist.png" style="display: none; max-width: 700px;">
     </div>
 </div>
 </body>
 
 
 <div id="game-content">
-    <div id="tile-content"></div>
-    <div id="browserhack-status"></div>
-    <div id="terminal-content"></div>
-    <div id="message-content"></div>
+    <div id="left-content">
+        <div id="mobile-ui" style="display: none; position: fixed; background:transparent">
+            <div id="mobile-status">
+            </div>
+            <div id="mobile-message-content"></div>
+            <div id="mobile-chat"></div>
+        </div>
+        <div id="message-content"></div>
+        <div id="tile-content-wrapper">
+            <div id="tile-content">
+
+            </div>
+        </div>
+    </div>
+    <div id="status-content">
+        <div id="browserhack-status"></div>
+        <div id="built-in-inventory"></div>
+    </div>
+    <div id="terminal-content" style="opacity: 0.7"></div>
     <div id="item-content" class="alert alert-info" role="alert"></div>
 </div>
-<div id="chat" style="" class="focus-trap">
+<div id="chat" style="" class="focus-trap" tabindex="-1">
     <a href="javascript:" id="chat_caption">
         <span id="spectator_count">0 spectators</span>
-        <span id="message_count">(Esc: back to game, Quotes('): go to chat)</span>
+        <span id="message_count">(Esc: back to game)</span>
     </a>
     <br>
-    <span id="spectator_list"></span>
-            <div id="chat_history_container">
+    <div id="chat_body">
+        <span id="spectator_list"></span>
+        <div id="chat_history_container">
                 <span id="chat_history">
                 </span>
-            </div>
-            <input class="text" type="text" name="chat_input" id="chat_input" style="">
-            <div id="chat_login_text" style="display: none;">
-                <a id="chat_login_link" href="javascript:">Login</a> to chat
-            </div>
+        </div>
+        <input class="text" type="text" name="chat_input" id="chat_input" style="">
+        <div id="chat_login_text" style="display: none;">
+            <a id="chat_login_link" href="javascript:">Login</a> to chat
+        </div>
+        <div id="chat_public" class="hidden">
 
-            <div id="chat_public" class="hidden">
-
-            </div>
+        </div>
+    </div>
 </div>
 
+<!-- ui-popup Start -->
+<div class="ui-popup" id="ui-popup" style="display: none;" data-generation-id="4">
+    <div class="ui-popup-overlay"></div>
+    <div class="ui-popup-outer">
+        <div class="ui-popup-inner">
+            <div class="formatted-scroller" data-tag="help">
+                <div class="body fg7" data-simplebar="init">
+                    <div class="simplebar-track vertical" style="visibility: hidden;">
+                        <div class="simplebar-scrollbar visible"></div>
+                    </div>
+                    <div class="simplebar-track horizontal" style="visibility: visible;">
+                        <div class="simplebar-scrollbar visible"
+                             style="width: 25px; transform: translate3d(0px, 0px, 0px);"></div>
+                    </div>
+                    <div class="simplebar-scroll-content" style="padding-right: 35px; padding-bottom: 100px; ">
+                        <div class="text-popup-content" style="white-space: pre;">
+                            <!-- Text Content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="scroller-shade top" style="opacity: 0;"></div>
+            <div class="scroller-shade bot" style="opacity: 0.0375;"></div>
+            <span class="scroller-lhd"></span>
+        </div>
+        <div class="more"></div>
+    </div>
+</div>
+<!-- ui-popup div End -->
+
+<!-- ui-menu Start -->
+<div
+        class="ui-popup"
+        id="ui-menu"
+        style="display: none"
+        data-generation-id="4"
+>
+    <div class="ui-popup-overlay"></div>
+    <div class="ui-popup-inner">
+        <div class="body fg7" data-simplebar="init">
+            <div class="simplebar-track vertical" style="visibility: hidden">
+                <div class="simplebar-scrollbar visible"></div>
+            </div>
+            <div class="simplebar-track horizontal" style="visibility: visible">
+                <div
+                        class="simplebar-scrollbar visible"
+                        style="width: 25px; transform: translate3d(0px, 0px, 0px)"
+                ></div>
+            </div>
+            <div class="simplebar-scroll-content">
+                <div class="popup-content">
+                    <div class="menu" id="menu">
+                        <!-- JSON Data Menu -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroller-shade top" style="opacity: 0"></div>
+        <div class="scroller-shade bot" style="opacity: 0.0375"></div>
+        <span class="scroller-lhd"></span>
+    </div>
+    <div class="more"></div>
+</div>
+<!-- ui-menu End -->
 </html>

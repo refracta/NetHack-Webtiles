@@ -2,9 +2,6 @@
 
 ## Also see https://nethackwiki.com/wiki/Options
 
-# Enable the curses interface
-#OPTIONS=windowtype:curses
-
 ## Automatics
 ## Automatically dig if you are wielding a digging tool and moving
 ## into a place that can be dug
@@ -59,7 +56,6 @@ OPTIONS=fruit:Kimchi of Yendor
 #OPTIONS=nudist
 #OPTIONS=blind
 
-
 ## Colored menus. Regular expressions allowed.
 #
 OPTIONS=menucolors
@@ -90,14 +86,14 @@ MENUCOLOR=" cursed .* (being worn)"=orange&underline
 OPTIONS=statushilites
 # HP
 OPTIONS=hitpointbar
-OPTIONS=hilite_status:hitpoints/100%/grey&normal
+OPTIONS=hilite_status:hitpoints/100%/brightgreen&normal
 OPTIONS=hilite_status:hitpoints/<100%/green&normal
 OPTIONS=hilite_status:hitpoints/<66%/yellow&normal
 OPTIONS=hilite_status:hitpoints/<50%/orange&normal
 OPTIONS=hilite_status:hitpoints/<33%/red&bold
 OPTIONS=hilite_status:hitpoints/<15%/red&inverse
 ## Pw
-OPTIONS=hilite_status:power/100%/grey&normal
+OPTIONS=hilite_status:power/100%/cyan&normal
 OPTIONS=hilite_status:power/<100%/green&normal
 OPTIONS=hilite_status:power/<66%/yellow&normal
 OPTIONS=hilite_status:power/<50%/orange&normal
@@ -121,3 +117,22 @@ OPTIONS=hilite_status: gold/up/yellow/down/brown
 ## Dog Name & Cat Name
 OPTIONS=dogname:Dangdangee
 OPTIONS=catname:Tekaaluk
+OPTIONS=perm_invent
+
+OPTIONS=rest_on_space
+OPTIONS=force_invmenu
+OPTIONS=number_pad:1
+
+# Webtile WebRC Setting
+#$ #PIN_TERMINAL = true
+#$ #FORCE_TERMINAL_KEY = true
+#$ #EXPERIMENTAL_FONT_PATCH = true
+
+#$ DEFAULT_TILE_NAME =
+# Absurd-64x64, DawnHack-32x32, Geoduck-30x50, NetHack-32x32, NethackModern-128x128, Nevanda-32x32, Nevanda-64x64
+
+#$ MOBILE_BUTTON_LINE10=%KEY%|Key %KEY_ENTER%|KEt [13]|Etr [27]|ESC [32]|SPA [8]|BSP O @ %ROOM_CHAT%|RChat %PUBLIC_CHAT%|PChat %CLEAR_CHAT%|ClrChat Sy|Save #quit[13]|qui #conduct[13]|cdt
+#$ MOBILE_BUTTON_LINE9=# #force[13]|foc #untrap[13]|utr #loot[13]|lot #kick[13]|kic #jump[13]|jmp #sit[13]|sit #invoke[13]|ivk #rub[13]|rub #wipe[13]|wip #pray[13]|pry #offer[13]|ofr #monster[13]|mon #ride[13]|rid #turn[13]|tun #adjust[13]*|adj #name[13]*|nam #dip[13]*|dip #enhance[13]|enh #twoweaphon[13]|twp
+#$ MOBILE_BUTTON_LINE8=7|↖️ 8|↑ 9|↗️ w W T R x A P d D E
+#$ MOBILE_BUTTON_LINE7=4|← .|. 6|→ c o e a r q z Z f Q t ; :
+#$ MOBILE_BUTTON_LINE6=1|↙️ 2|↓ 3|↘️ i , C p _ n20s [16]|msg [24]|att [1]|rep

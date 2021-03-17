@@ -4,7 +4,7 @@ const {
 
 const {
     UnixDgramSocket
-} = require('unix-dgram-socket');
+} = require('./unix-dgram-socket');
 
 const DEFAULT_GAME_UDS_PATH = '/tmp/nethack-webtiles-game';
 const DEFAULT_SERVER_UDS_PATH = '/tmp/nethack-webtiles-server';
@@ -28,7 +28,23 @@ class UDSServer {
         this.connectionInfoMap = {};
 
         this.socket.on('message', (message, socketInfo) => {
-            message = message.toString(UnixDgramSocket.payloadEncoding).substring(0, message.indexOf('\0'));
+            message = message.toString(UnixDgramSocket.payloadEncoding);
+            message = message.substring(0, message.indexOf('\0'));
+            ;
+
+            let path = socketInfo.remoteSocket;
+            let info = this.connectionInfoMap[path];
+
+            if (info && info.bigMsgInfo && info.bigMsgInfo.split > info.bigMsgInfo.receiveCount) {
+                info.bigMsgInfo.message += message;
+                if (info.bigMsgInfo.split > ++info.bigMsgInfo.receiveCount) {
+                    return;
+                } else {
+                    message = info.bigMsgInfo.message;
+                    delete info.bigMsgInfo;
+                }
+            }
+
             let data;
             try {
                 data = JSON.parse(message);
@@ -36,13 +52,13 @@ class UDSServer {
                 console.error('Error JSON Parsing:', message.length, message);
                 return;
             }
-            let path = socketInfo.remoteSocket;
-            let info = this.connectionInfoMap[path];
+
 
             if (!info && data.msg === 'init_socket') {
                 console.log('InitSocket:', path);
                 console.log(`SendSocketConnect: ${path}`);
                 info = {};
+                info.username = data.username;
                 info.socketInfo = socketInfo;
                 info.path = path;
                 info.pid = parseInt(path.split('-').pop());
@@ -71,6 +87,8 @@ class UDSServer {
                         msg: 'ping'
                     }, info);
                 }, Math.ceil(this.pingTimeout / 3));
+
+                this.connectionHandle(info);
             } else if (info) {
                 if (data.msg === 'ping') {
                     console.log(`Ping from ${path}`);
@@ -80,11 +98,12 @@ class UDSServer {
                     }, info);
                 } else if (data.msg === 'pong') {
                     //console.log(`Pong from ${path}`);
+                } else if (data.msg === 'big_msg') {
+                    info.bigMsgInfo = data;
+                    info.bigMsgInfo.receiveCount = 0;
+                    info.bigMsgInfo.message = '';
                 } else if (data.msg === 'queued_msg') {
                     if (this.handler) {
-                        if (this.preHandler) {
-                            this.preHandler(data);
-                        }
                         data.list.forEach(d => {
                             try {
                                 this.handler(d, info)
@@ -97,9 +116,6 @@ class UDSServer {
                     }
                 } else {
                     if (this.handler) {
-                        if (this.preHandler) {
-                            this.preHandler(data);
-                        }
                         this.handler(data, info);
                     }
                 }
@@ -107,8 +123,8 @@ class UDSServer {
         });
 
         this.socket.on('error', (error) => {
-            if(error.errorNumber !== 11){
-                console.log('UDSSocketError:\n', error);   
+            if (error.errorNumber !== 11) {
+                console.log('UDSSocketError:\n', error);
             }
             let info = this.connectionInfoMap[error.path];
             if (info) {
@@ -129,7 +145,7 @@ class UDSServer {
         }
         delete this.connectionInfoMap[info.path];
     }
-    
+
     clearError(info) {
         info.errorCount = 0;
         delete info.error;
@@ -168,7 +184,6 @@ class UDSServer {
                 pathInfo.deferQueue = [data];
                 this.clearError(pathInfo);
                 pathInfo.errorCount++;
-
                 let retryInterval = setInterval(_ => {
                     if (pathInfo.errorCount > DEFAULT_RETRY_LIMIT) {
                         console.error(`Out of Retry Limit!`);

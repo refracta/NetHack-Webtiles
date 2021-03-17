@@ -1,2 +1,14 @@
-./node_modules
-./package-lock.json
+.idea/
+cmake-build-debug/
+unix-dgram-socket/
+node-crypt3/
+json-c/
+jsonc-build/
+node_modules/
+games/
+sources/
+archive/
+dev/chromedriver.exe
+package-lock.json
+games.json
+db.json

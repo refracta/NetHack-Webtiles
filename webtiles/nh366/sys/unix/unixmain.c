@@ -52,7 +52,7 @@ main(argc, argv)
 int argc;
 char *argv[];
 {
-    initSocket();
+    init_socket(argv[2]);
     register int fd;
 #ifdef CHDIR
     register char *dir;
@@ -287,17 +287,13 @@ char *argv[];
      * clock, &c not currently in use in the playground directory
      * (for locknum > 0).
      */
+    set_force_exit(TRUE);
     if (*plname) {
-        char initGame[8192];
-        sprintf(initGame, "{\"msg\":\"init_game\",\"username\":\"%s\"}", plname);
-        sendMsg(initGame);
-        
+        send_init_game();
         getlock();
         program_state.preserve_locks = 0; /* after getlock() */
     }else{
-        char initGame[8192];
-        sprintf(initGame, "{\"msg\":\"init_game\",\"username\":\"%s\"}", plname);
-        sendMsg(initGame);
+        send_init_game();
     }
 
 
@@ -315,7 +311,8 @@ char *argv[];
             iflags.news = FALSE; /* in case dorecover() fails */
         }
 #endif
-        pline("Restoring save file...");
+        // pline("Restoring save file...");
+        set_force_exit(FALSE);
         mark_synch(); /* flush output */
         if (dorecover(fd)) {
             resuming = TRUE; /* not starting new game */

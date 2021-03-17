@@ -1,0 +1,8 @@
+{
+    "tileWidth": 128,
+    "tileHeight": 128,
+    "imageWidth": 5200,
+    "imageHeight": 4810,
+	"extruded": true,
+	"tileName": "NetHack Modern 3.6.0"
+}

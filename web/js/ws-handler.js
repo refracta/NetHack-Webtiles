@@ -3,13 +3,16 @@ class WSHandler {
         this.siteUIHandler = initHandle.siteUIHandler;
         this.gameUIHandler = initHandle.gameUIHandler;
         this.client = initHandle.client;
+
         if (initHandle.sender) {
             this.sender = initHandle.sender;
         } else if (self.WSSender) {
             this.sender = new WSSender(this.client);
         }
+
         this.callback = {};
         this.deferQueue = [];
+
         this.callback['register_fail'] = (data) => {
             this.siteUIHandler.alertFail(`<Register Fail>\n${data.reason}`);
         }
@@ -26,7 +29,7 @@ class WSHandler {
             this.loginInfo = data;
             this.siteUIHandler.setLocalSessionKey(data.sessionKey);
             this.siteUIHandler.setLoginUI();
-            this.siteUIHandler.setSubInfo(`Welcome to Hacktiles ${this.loginInfo.username}! XD`);
+            this.siteUIHandler.setWelcomeMessage(this.loginInfo.username);
             let playUserName = this.siteUIHandler.getPlayUsernameFromHash();
             if (playUserName) {
                 this.sender.play(playUserName);
@@ -49,6 +52,10 @@ class WSHandler {
             });
         }
 
+        this.callback['terminal_error'] = (data) => {
+            alert(data.error);
+        }
+
         this.callback['save_rc_success'] = (data) => {
             this.siteUIHandler.showEditRCModal(false);
         }
@@ -58,11 +65,15 @@ class WSHandler {
             this.siteUIHandler.extendMode(false);
             this.siteUIHandler.clearMainContent();
             this.siteUIHandler.clearLoading();
-           
+            this.siteUIHandler.addZoom();
 
             this.gameUIHandler.showTileContent(false);
+            this.gameUIHandler.clearMobileButton();
             this.gameUIHandler.clearTerminal();
             this.gameUIHandler.clearTileContent();
+            this.gameUIHandler.close_more();
+            this.gameUIHandler.closePopup();
+            this.gameUIHandler.closeMenu();
             this.gameUIHandler.showGameContent(false);
             this.gameUIHandler.disapplyFontPatch();
             this.siteUIHandler.showGameList(true);
@@ -88,7 +99,7 @@ class WSHandler {
             } else {
                 tileData = data.tileData;
             }
-            this.gameUIHandler.initTileRenderer(data.filePath, tileData);
+            this.gameUIHandler.initTileRenderer(data.filePath, tileData, {travelClick: (i, click) => this.sender.travel(i, click)});
         }
 
         this.callback['lobby_add'] = (data) => {
@@ -113,9 +124,141 @@ class WSHandler {
             this.siteUIHandler.setLoading("Loading...");
         }
 
+        this.callback['menu_item'] = (data, info) => {
+            this.gameUIHandler.createMenu(data.list);
+        }
+
+        this.callback['update_menu_item'] = (data, info) => {
+            this.gameUIHandler.updateMenu(data.list);
+        }
+
+        this.callback['built_in_menu_item'] = (data, info) => {
+            this.gameUIHandler.updateBuiltInInventory(data.list);
+        }
+
+        this.callback['clear_built_in_inventory'] = (data, info) => {
+            this.gameUIHandler.clearBuiltInInventory();
+        }
+
+        this.callback['close_menu_item'] = (data, info) => {
+            this.gameUIHandler.closeMenu();
+        }
+
+        let addButtonLine = (btnText) => {
+            let splitWithoutSlashSpace = (str) => {
+                let queue = [];
+                let regex = /(\\)? /gi;
+                let matcher;
+                let index = 0;
+                while (matcher = regex.exec(str)) {
+                    if (!matcher[1]) {
+                        queue.push(str.substring(index, matcher.index));
+                        index = matcher.index;
+                    }
+                }
+                queue.push(str.substring(index, str.length));
+                return queue.map(s => s.trim());
+            };
+            // Equivalent to btnText.split(/(?<!\\) /)
+            let buttons = splitWithoutSlashSpace(btnText).map(e => {
+                let s = e.split('|');
+                let button = {};
+                if (s.length >= 2) {
+                    button.key = s[0];
+                    button.text = s[1];
+                } else if (s.length == 1) {
+                    button.key = s[0];
+                    button.text = s[0];
+                }
+                let match = button.key.match(/\[\d{1,4}\]/g);
+                if (match) {
+                    for (let e of match) {
+                        button.key = button.key.replace(e, String.fromCharCode(parseInt(e.split(/[\[\]]/)[1])));
+                    }
+                }
+
+                if (button.key == '%FULL_SCREEN%') {
+                    button.action = 'FULL_SCREEN';
+                } else if (button.key == '%PUBLIC_CHAT%') {
+                    button.action = 'PUBLIC_CHAT';
+                } else if (button.key == '%ROOM_CHAT%') {
+                    button.action = 'ROOM_CHAT';
+                } else if (button.key == '%CLEAR_CHAT%') {
+                    button.action = 'CLEAR_CHAT';
+                } else if (button.key == '%KEY%') {
+                    button.action = 'KEY';
+                } else if (button.key == '%KEY_ENTER%') {
+                    button.action = 'KEY_ENTER';
+                }
+                button.text = button.text.replace(/\\\\ /g, ' ');
+                button.key = button.key.replace(/\\r/g, '\r');
+                return button;
+            });
+
+            let buttonLine = $('<div>');
+            buttonLine.addClass('mobile-button-line');
+            buttons.forEach(b => {
+                let btn = $('<button type="button" className="mbtn btn btn-light" style="margin-right: 0.2em; min-width: 3em; min-height: 3em;"></button>');
+                btn.click(_ => {
+                    if (b.action) {
+                        switch (b.action) {
+                            case 'FULL_SCREEN':
+                                document.body.requestFullscreen();
+                                break;
+                            case 'PUBLIC_CHAT':
+                                this.sender.chatMsg(prompt("Public Chat?"), true);
+                                break;
+                            case 'ROOM_CHAT':
+                                this.sender.chatMsg(prompt("Room Chat?"), false);
+                                break;
+                            case 'CLEAR_CHAT':
+                                $('#mobile-chat').html('');
+                                break;
+                            case 'KEY':
+                            case 'KEY_ENTER':
+                                let key = prompt("KEY?");
+                                if (key) {
+                                    let match = key.match(/\[\d{1,4}\]/g);
+                                    if (match) {
+                                        for (let e of match) {
+                                            key = key.replace(e, String.fromCharCode(parseInt(e.split(/[\[\]]/)[1])));
+                                        }
+                                    }
+                                    key.split('').forEach(k => this.sender.key(k.charCodeAt(0)));
+                                    if (b.action == 'KEY_ENTER') {
+                                        this.sender.key(13);
+                                    }
+                                }
+                                break;
+                        }
+                        return;
+                    }
+                    this.gameUIHandler.ignoreSharpInput = true;
+                    b.key.split('').forEach(k => this.sender.key(k.charCodeAt(0)));
+                    setTimeout(_ => {
+                        this.gameUIHandler.ignoreSharpInput = false
+                    }, 2000);
+                });
+
+                btn.text(b.text);
+                btn.data('key', b.key);
+                buttonLine.append(btn);
+            });
+
+            $('#mobile-button-ui').append(buttonLine);
+        }
 
         this.callback['init_watch'] = (data) => {
             this.deferMode = true;
+            this.siteUIHandler.clearZoom();
+
+            if (this.gameUIHandler.isMobile) {
+                this.gameUIHandler.applyMobileInterface();
+            }
+
+            this.gameUIHandler.showTileContent(true);
+            this.gameUIHandler.showGameContent(true);
+
             setTimeout(async _ => {
                 await this.gameUIHandler.waitTileRendererInit();
                 let queue = this.deferQueue;
@@ -123,56 +266,104 @@ class WSHandler {
                 this.deferMode = false;
 
                 this.siteUIHandler.clearLoading();
-                this.gameUIHandler.showTileContent(true);
-                this.gameUIHandler.showGameContent(true);
-
                 this.gameUIHandler.initTerminal();
-
                 this.gameUIHandler.openTerminal();
                 this.gameUIHandler.writeTerminal(data.terminalData);
 
                 let tData = data.playData.tile;
                 this.gameUIHandler.drawTile(tData);
-                // console.log('status', data.playData.status);
-                this.gameUIHandler.update_status(data.playData.status);
 
-                if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
+                if (data.playData.cursor) {
+                    this.gameUIHandler.setCursor(data.playData.cursor);
+                } else {
+                    this.gameUIHandler.setCursor(0);
+                }
+
+                if (data.playData.status) {
+                    this.gameUIHandler.update_status(data.playData.status);
+                }
+
+                if (data.webRC.EXPERIMENTAL_FONT_PATCH === 'true') {
                     this.gameUIHandler.applyFontPatch();
                 }
-                
-                queue = [{msg: 'text', list: data.playData.text}, ...queue];
+
+                this.gameUIHandler.spectorMode = true;
+
+                if (this.gameUIHandler.isMobile) {
+                    addButtonLine("%ROOM_CHAT%|RoomChat %PUBLIC_CHAT%|PublicChat %CLEAR_CHAT%|ClearChat");
+                    $('#mobile-button-ui').show();
+                }
+
+                if (data.playData.text) {
+                    this.gameUIHandler.addText(data.playData.text);
+                }
+
                 queue.forEach(d => this.handle(d));
             }, 1000);
         }
 
+        this.callback['debug'] = (data) => {
+            console.log('DebugMsg:', data.debug);
+        }
+
+
         this.callback['init_game'] = (data) => {
             this.deferMode = true;
+            this.siteUIHandler.clearZoom();
+
+            if (this.gameUIHandler.isMobile) {
+                this.gameUIHandler.applyMobileInterface();
+            }
+
+            this.gameUIHandler.showTileContent(true);
+            this.gameUIHandler.showGameContent(true);
             setTimeout(async _ => {
                 await this.gameUIHandler.waitTileRendererInit();
-
                 let queue = this.deferQueue;
                 this.deferQueue = [];
                 this.deferMode = false;
 
                 this.siteUIHandler.clearLoading();
-                // this.sender.key(32);
-                this.gameUIHandler.showTileContent(true);
-                this.gameUIHandler.showGameContent(true);
                 this.gameUIHandler.openTerminal();
-                
-                if(data.webRC.EXPERIMENTAL_FONT_PATCH === 'true'){
+                if (data.webRC.EXPERIMENTAL_FONT_PATCH === 'true') {
                     this.gameUIHandler.applyFontPatch();
                 }
 
+                if (data.webRC.PIN_TERMINAL === 'true') {
+                    $('#terminal-content').css('z-index', '9999999');
+                } else {
+                    $('#terminal-content').css('z-index', '');
+                }
+
+                if (data.webRC.FORCE_TERMINAL_KEY === 'true') {
+                    this.gameUIHandler.forceTerminalKey = true;
+                } else {
+                    this.gameUIHandler.forceTerminalKey = false;
+                }
+
+                this.gameUIHandler.spectorMode = false;
+                if (this.gameUIHandler.isMobile) {
+                    for (let i = 11; i > 0; i--) {
+                        let btnText = data.webRC[`MOBILE_BUTTON_LINE${i}`];
+                        if (btnText) {
+                            addButtonLine(btnText);
+                        }
+                    }
+                    $('#mobile-button-ui').show();
+                } else {
+                    $('#mobile-button-ui').hide();
+                }
                 queue.forEach(d => this.handle(d));
                 this.gameUIHandler.initKeyHandler();
             }, 1000);
         }
 
         this.callback['tile'] = (data) => {
-            // 임시
-            this.gameUIHandler.clearTempUI();
             this.gameUIHandler.drawTile(data.data);
+        }
+
+        this.callback['cursor'] = (data) => {
+            this.gameUIHandler.setCursor(data.i);
         }
 
         this.callback['clear_tile'] = (data) => {
@@ -183,31 +374,88 @@ class WSHandler {
             this.gameUIHandler.update_status(data.data);
         }
 
-        this.callback['text'] = (data) => {
-            this.gameUIHandler.clearTempUI();
-            /*if (data.list.length > 10 && status == 'play') {
-                alert(data.list.join('\n'));
-                break;
-            }*/
+        this.callback['start_sharp_input'] = (data) => {
+            this.sharp_query = data.query + ' ';
+            this.sharp_input_text = '';
+            this.gameUIHandler.sharp_input(this.sharp_query + this.sharp_input_text);
+            if (this.gameUIHandler.isMobile && !this.gameUIHandler.ignoreSharpInput && !this.gameUIHandler.spectorMode) {
+                let key = prompt(this.sharp_query);
+                if (key !== '') {
+                    let match = key.match(/\[\d{1,4}\]/g);
+                    if (match) {
+                        for (let e of match) {
+                            key = key.replace(e, String.fromCharCode(parseInt(e.split(/[\[\]]/)[1])));
+                        }
+                    }
+                    key.split('').forEach(k => this.sender.key(k.charCodeAt(0)));
+                    this.sender.key(13);
+                }
+            }
+            this.gameUIHandler.ignoreSharpInput = false;
+        }
 
+        this.callback['sharp_autocomplete'] = (data) => {
+            this.gameUIHandler.sharp_autocomplete(data.autocomplete);
+        }
+
+        this.callback['sharp_input'] = (data) => {
+            if (data.c == 8) {
+                this.sharp_input_text = this.sharp_input_text.slice(0, -1);
+            } else if (data.c == 27) {
+                this.sharp_input_text = '';
+            } else {
+                this.sharp_input_text += String.fromCharCode(data.c);
+
+            }
+            this.gameUIHandler.sharp_input(this.sharp_query + this.sharp_input_text);
+        }
+
+        this.callback['close_sharp_input'] = (data) => {
+            this.gameUIHandler.close_sharp_input();
+        }
+
+        this.callback['text'] = (data) => {
             this.gameUIHandler.addText(data.list);
-            this.gameUIHandler.resizeMessageContent();
         }
 
         this.callback['update_watcher'] = (data) => {
             this.siteUIHandler.updateWatchers(data.userList, data.numberOfWatchers);
         }
 
+        this.callback['start_yn_function'] = (data) => {
+            this.gameUIHandler.start_yn_function(data);
+        }
+
+        this.callback['end_yn_function'] = (data) => {
+            this.gameUIHandler.end_yn_function();
+        }
+
         this.callback['more'] = (data) => {
             this.gameUIHandler.more(data.prompt);
+        }
+
+        this.callback['close_more'] = (data) => {
+            this.gameUIHandler.close_more();
+        }
+
+        this.callback['large_text'] = (data) => {
+            this.gameUIHandler.launchLargeTextPopup(data.list.join('\n'));
+        }
+
+        this.callback['close_large_text'] = (data) => {
+            this.gameUIHandler.closePopup();
         }
 
         this.callback['inventory'] = (data) => {
             this.gameUIHandler.renderInventory(data.items);
         }
 
+        this.callback['pong'] = (data) => {
+            this.siteUIHandler.updateLatency();
+        }
+
         this.callback['chat_msg'] = (data) => {
-            data.isPublic ? this.siteUIHandler.publicChat(data.username, data.text) : this.siteUIHandler.roomChat(data.username, data.text);
+            data.isPublic ? this.siteUIHandler.publicChat(data.username, data.text, this.gameUIHandler.isMobile) : this.siteUIHandler.roomChat(data.username, data.text, this.gameUIHandler.isMobile);
         }
         this.gameUIHandler.initResizeMessageHandler();
     }
@@ -220,8 +468,8 @@ class WSHandler {
     }
 
     init() {
-
         this.client.socket.onopen = (event) => {
+            this.siteUIHandler.sendPing(true);
             if (this.siteUIHandler.getLocalSessionKey()) {
                 this.sender.loginBySessionKey(this.siteUIHandler.getLocalSessionKey());
             }
@@ -232,6 +480,7 @@ class WSHandler {
                 this.sender.lobby();
             }
         }
+
         /*
         this.socket.onerror = (event) => {
             alert("Connection Error!");
@@ -242,14 +491,16 @@ class WSHandler {
             //console.log("Server error message: ", event.data);
         }
          */
+
         this.client.socket.onmessage = (event) => {
             let data;
+
             try {
                 data = JSON.parse(event.data);
             } catch (e) {
-                console.error('Error JSON Parsing:', message);
+                console.error('Error JSON Parsing:', event.data.length, event.data);
             }
-            // console.log('RAW DATA:' ,data);
+
             if (this.deferMode) {
                 this.deferQueue.push(data);
                 return;
@@ -263,17 +514,19 @@ class WSHandler {
             this.siteUIHandler.showMenu1(true);
             this.siteUIHandler.showMenu2(false);
             this.siteUIHandler.clearLoading();
+            this.siteUIHandler.clearPingInterval();
             this.siteUIHandler.setSubInfo('Socket Error!!! Plz Refresh Page...');
 
             this.gameUIHandler.showTileContent(false);
+            this.gameUIHandler.close_more();
+            this.gameUIHandler.closePopup();
+            this.gameUIHandler.closeMenu();
             this.gameUIHandler.clearTileContent();
             this.gameUIHandler.showGameContent(false);
         }
         this.client.socket.onclose = closeHandler;
         this.client.socket.onerror = closeHandler;
     }
-
-
 }
 
-export default WSHandler;
+// export default WSHandler;

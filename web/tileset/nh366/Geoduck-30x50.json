@@ -1,0 +1,8 @@
+{
+    "tileWidth": 30,
+    "tileHeight": 50,
+    "imageWidth": 1280,
+    "imageHeight": 2028,
+	"extruded": true,
+	"tileName": "Geoduck 3.6.0"
+}

@@ -1,4 +1,3 @@
-
 class SiteUIHandler {
     constructor(sender, config) {
         this.sender = sender;
@@ -13,7 +12,6 @@ class SiteUIHandler {
         this.message_history = [];
         this.unsent_message = "";
         this.history_pos = -1;
-        // this.message;
     }
 
     showRegisterModal(show) {
@@ -23,20 +21,34 @@ class SiteUIHandler {
             $('#register-modal').modal('hide');
         }
     }
+
     updateWatchers(userList, numberOfWatchers) {
         $('#spectator_list').text(userList.join(", "));
-        if(this.status == 'lobby'){
+        if (this.status == 'lobby') {
             $('#spectator_count').text(numberOfWatchers + ' users');
-        }else{
+        } else {
             $('#spectator_count').text(numberOfWatchers + ' spectators');
         }
     }
 
-    roomChat(username, text){
-        this.system_chat( username, text);
+    roomChat(username, text, isMobile = false) {
+        if (!isMobile) {
+            this.system_chat(username, text);
+        } else {
+            this.mobile_system_chat(username, text);
+        }
     }
-    publicChat(username, text){
-        this.system_chat('§'  + username, text);
+
+    publicChat(username, text, isMobile = false) {
+        if (!isMobile) {
+            this.system_chat('§' + username, text);
+        } else {
+            this.mobile_system_chat('§' + username, text);
+        }
+    }
+
+    updateLatency() {
+        $('#latency-info').text(`${new Date().getTime() - this.requestPingTime}MS`);
     }
 
     showEditRCModal(show) {
@@ -47,10 +59,11 @@ class SiteUIHandler {
         }
     }
 
-    getLocalSessionKey(){
+    getLocalSessionKey() {
         return localStorage.sessionKey;
     }
-    setLocalSessionKey(sessionKey){
+
+    setLocalSessionKey(sessionKey) {
         localStorage.sessionKey = sessionKey;
     }
 
@@ -66,7 +79,6 @@ class SiteUIHandler {
     clearMainContent() {
         $('#main-content tbody').empty();
         $('#game-list').hide();
-        // 초기화하고 하이드 처리
     }
 
     setSubInfo(text) {
@@ -84,7 +96,8 @@ class SiteUIHandler {
     showMenu2(show) {
         show ? $('#top-menu2').show() : $('#top-menu2').hide();
     }
-    setEditRCSaveButtonHandler(handler){
+
+    setEditRCSaveButtonHandler(handler) {
         $('#save-edit-rc-btn').off('click').on('click', handler);
     }
 
@@ -101,6 +114,7 @@ class SiteUIHandler {
             return null;
         }
     }
+
     getWatchTargetUsernameFromHash() {
         let watch = location.hash.match(/^#watch-(.+)/i);
         if (watch) {
@@ -109,7 +123,8 @@ class SiteUIHandler {
             return null;
         }
     }
-    addPlayMenu(games){
+
+    addPlayMenu(games) {
         games.forEach((g, i, a) => {
             let e = $(`<a class="dropdown-item" href="#"></a>`);
             e.data('id', g.id);
@@ -124,16 +139,16 @@ class SiteUIHandler {
             }
         });
     }
-    clearPlayMenu(){
+
+    clearPlayMenu() {
         $('#play-list-div').empty();
     }
-    getEditRCText(){
+
+    getEditRCText() {
         return $('#edit-rc-text').val();
     }
 
-
-
-    addEditRCMenu(games){
+    addEditRCMenu(games) {
         games.forEach((g, i, a) => {
             let e = $(`<a class="dropdown-item" href="#"></a>`);
             e.data('id', g.id);
@@ -148,7 +163,8 @@ class SiteUIHandler {
             }
         });
     }
-    clearEditRCMenu(){
+
+    clearEditRCMenu() {
         $('#edit-rc-list-div').empty();
     }
 
@@ -202,6 +218,14 @@ class SiteUIHandler {
         return this.getGameTrByData(data).length !== 0;
     }
 
+    clearZoom() {
+        $('body').removeClass('auto-zoom');
+    }
+
+    addZoom() {
+        $('body').addClass('auto-zoom');
+    }
+
     appendGameTr(data) {
         if (!(data instanceof HTMLElement)) {
             data = this.generateGameTr(data);
@@ -251,6 +275,48 @@ class SiteUIHandler {
         $('#logout-btn').show();
     }
 
+    mobile_system_chat(sender, msg) {
+        $("#mobile-chat").append($('<span/>', {
+            class: 'chat_sender',
+            text: sender
+        }));
+        ;
+        $("#mobile-chat").append(": ");
+        $("#mobile-chat").append($('<span/>', {
+            class: 'chat_msg',
+            text: msg
+        }));
+        $('#mobile-chat').scrollTop($('#mobile-chat')[0].scrollHeight);
+        $("#mobile-chat").append("<br>");
+    }
+
+    linkify(text) {
+        let ALLOWED_PROTOCOLS = ["http", "https", "ftp", "irc"];
+
+        let ba_linkify = window.linkify;
+
+        function escape_html(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        return (function (text) {
+            return ba_linkify(text,
+                {
+                    callback: function (text, href) {
+                        if (!href)
+                            return escape_html(text);
+                        if (!ALLOWED_PROTOCOLS.some(function (p) {
+                            return href.indexOf(p + "://") === 0;
+                        })) {
+                            return escape_html(text);
+                        }
+                        return $("<a>").attr("href", href).attr("target", "_blank")
+                            .text(text)[0].outerHTML;
+                    }
+                });
+        })(text);
+    }
+
     system_chat(sender, msg) {
         $("#chat_history").append($('<span/>', {
             class: 'chat_sender',
@@ -258,16 +324,18 @@ class SiteUIHandler {
         }));
         ;
         $("#chat_history").append(": ");
-        $("#chat_history").append($('<span/>', {
-            class: 'chat_msg',
-            text: msg
-        }));
+        let chat_msg = $('<span/>', {
+            class: 'chat_msg'
+        });
+        chat_msg.html(this.linkify(msg));
+        $("#chat_history").append(chat_msg);
         $("#chat_history").append("<br>");
         $('#chat_history_container').scrollTop($('#chat_history_container')[0].scrollHeight);
         if ($("#chat_body").css("display") === "none") {
-            $("#message_count").html("new system messages (Press F12)");
+            $("#message_count").html("new messages (Press F12)");
             $("#message_count").toggleClass("has_new", true);
         }
+        $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
     }
 
     toggle() {
@@ -282,6 +350,13 @@ class SiteUIHandler {
             //update_message_count();
             $('body').focus();
         }
+        setTimeout(_ => {
+            $('#built-in-inventory').css('height', `calc(100vh - ${($('#browserhack-status').height() + 10)}px - ${($('#chat').height() + 12) + 'px'})`);
+        }, 300);
+    }
+
+    setWelcomeMessage(username) {
+        this.setSubInfo(this.config.welcomeMessage.replace(/%USERNAME%/g, username));
     }
 
     chat_message_send(e) {
@@ -304,7 +379,7 @@ class SiteUIHandler {
             }
             return false;
         }
-// Up arrow to access message history.
+        // Up arrow to access message history.
         else if (e.which == 38 && !e.shiftKey) {
             e.preventDefault();
             e.stopPropagation();
@@ -319,7 +394,7 @@ class SiteUIHandler {
                 $("#chat_input").val(this.message_history[++this.history_pos]);
             }
         }
-// Down arrow to access message history and any unsent message.
+        // Down arrow to access message history and any unsent message.
         else if (e.which == 40 && !e.shiftKey) {
             e.preventDefault();
             e.stopPropagation();
@@ -332,14 +407,21 @@ class SiteUIHandler {
                 $("#chat_input").val(this.message);
             }
         }
-// Esc key to return to game.
+        // Esc key to return to game.
         else if (e.which == 27) {
             e.preventDefault();
             e.stopPropagation();
-            this.toggle();
+            // this.toggle();
             $(document.activeElement).blur();
         }
         return true;
+    }
+
+    sendPing(force) {
+        if (this.status === 'lobby' || force) {
+            this.requestPingTime = new Date().getTime();
+            this.sender.ping();
+        }
     }
 
     init() {
@@ -374,17 +456,25 @@ class SiteUIHandler {
             }
         }, 1000);
 
+        this.pingIntervalKey = setInterval(this.sendPing.bind(this), 1000 * 3);
     }
-    setCurrentStatus(status, data){
+
+    clearPingInterval() {
+        clearInterval(this.pingIntervalKey);
+    }
+
+
+    setCurrentStatus(status, data) {
         this.status = status;
-        if(status === 'lobby'){
+        if (status === 'lobby') {
             location.hash = 'lobby';
-        }else if(status === 'play'){
+        } else if (status === 'play') {
             location.hash = `play-${data}`;
-        }else if(status === 'watch'){
+        } else if (status === 'watch') {
             location.hash = `watch-${data}`;
         }
     }
+
 }
 
-export default SiteUIHandler;
+// export default SiteUIHandler;

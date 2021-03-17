@@ -12,7 +12,7 @@
  * to back out the changes. */
 #include "hack.h"
 #include "webtiles.h"
-#define tgetch() getch_by_webtiles() 
+#define tgetch() getch_by_webtiles()
 
 #define H2344_BROKEN
 
@@ -238,6 +238,9 @@ void
 print_vt_code(i, c, d)
 int i, c, d;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void print_vt_code(i:%d, c:%d, d:%d)", i, c, d);
+    #endif
     HUPSKIP();
     if (iflags.vt_tiledata) {
         if (c >= 0) {
@@ -268,6 +271,9 @@ STATIC_OVL void
 bail(mesg)
 const char *mesg;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void bail(mesg:%s)", stringify(mesg));
+    #endif
     clearlocks();
     tty_exit_nhwindows(mesg);
     nh_terminate(EXIT_SUCCESS);
@@ -293,6 +299,9 @@ int sig_unused UNUSED;
 {
     int oldLI = LI, oldCO = CO, i;
     register struct WinDesc *cw;
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void winch_handler(sig_unused:%d)", sig_unused);
+    #endif
 
 #ifdef WINCHAIN
     {
@@ -356,6 +365,9 @@ int sig_unused UNUSED;
 STATIC_OVL void
 new_status_window()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void new_status_window()");
+    #endif
     if (WIN_STATUS != WIN_ERR) {
         /* if it's shrinking, clear it before destroying so that
            dropped portion won't show anything that's now becoming stale */
@@ -392,6 +404,9 @@ tty_init_nhwindows(argcp, argv)
 int *argcp UNUSED;
 char **argv UNUSED;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_init_nhwindows(argcp:?, argv:?)");
+    #endif
     int wid, hgt, i;
 
     /* options aren't processed yet so wc2_statuslines might be 0;
@@ -459,6 +474,9 @@ void
 tty_preference_update(pref)
 const char *pref;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_preference_update(pref:%s)", stringify(pref));
+    #endif
     if (!strcmp(pref, "statuslines") && iflags.window_inited) {
         new_status_window();
     }
@@ -480,6 +498,9 @@ const char *pref;
 void
 tty_player_selection()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_player_selection()");
+    #endif
     int i, k, n, choice, nextpick;
     boolean getconfirmation, picksomething;
     char pick4u = 'n';
@@ -520,7 +541,6 @@ tty_player_selection()
         int echoline;
         char *prompt = build_plselection_prompt(pbuf, QBUFSZ,
                                                 ROLE, RACE, GEND, ALGN);
-
         /* this prompt string ends in "[ynaq]?":
            y - game picks role,&c then asks player to confirm;
            n - player manually chooses via menu selections;
@@ -530,11 +550,15 @@ tty_player_selection()
         tty_putstr(BASE_WINDOW, 0, "");
         echoline = wins[BASE_WINDOW]->cury;
         tty_putstr(BASE_WINDOW, 0, prompt);
+        send_start_yn_function(pbuf, "ynaq", "");
         do {
             pick4u = lowc(readchar());
             if (index(quitchars, pick4u))
                 pick4u = 'y';
         } while (!index(ynaqchars, pick4u));
+
+        send_end_yn_function();
+
         if ((int) strlen(prompt) + 1 < CO) {
             /* Echo choice and move back down line */
             tty_putsym(BASE_WINDOW, (int) strlen(prompt) + 1, echoline,
@@ -1018,6 +1042,7 @@ tty_player_selection()
 
     /* Success! */
     tty_display_nhwindow(BASE_WINDOW, FALSE);
+    set_force_exit(FALSE);
     return;
 
  give_up:
@@ -1026,12 +1051,16 @@ tty_player_selection()
         free((genericptr_t) selected); /* [obsolete] */
     bail((char *) 0);
     /*NOTREACHED*/
+    set_force_exit(FALSE);
     return;
 }
 
 STATIC_OVL boolean
 reset_role_filtering()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("boolean reset_role_filtering()");
+    #endif
     winid win;
     anything any;
     int i, n;
@@ -1089,6 +1118,9 @@ winid win;
 boolean filtering; /* True => exclude filtered roles; False => filter reset */
 int race, gend, algn; /* all ROLE_NONE for !filtering case */
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void setup_rolemenu(win:%d, filtering:%d, race:%d, gend:%d, algn:%d)", win, filtering, race, gend, algn);
+    #endif
     anything any;
     int i;
     boolean role_ok;
@@ -1132,6 +1164,9 @@ winid win;
 boolean filtering;
 int role, gend, algn;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void setup_racemenu(win:%d, filtering:%d, role:%d, gend:%d, algn:%d)", win, filtering, role, gend, algn);
+    #endif
     anything any;
     boolean race_ok;
     int i;
@@ -1165,6 +1200,9 @@ winid win;
 boolean filtering;
 int role, race, algn;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void setup_gendmenu(win:%d, filtering:%d, role:%d, race:%d, algn:%d)", win, filtering, role, race, algn);
+    #endif
     anything any;
     boolean gend_ok;
     int i;
@@ -1196,6 +1234,9 @@ winid win;
 boolean filtering;
 int role, race, gend;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void setup_gendmenu(win:%d, filtering:%d, role:%d, race:%d, gend:%d)", win, filtering, role, race, gend);
+    #endif
     anything any;
     boolean algn_ok;
     int i;
@@ -1230,6 +1271,9 @@ int role, race, gend;
 void
 tty_askname()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_askname()");
+    #endif
     static const char who_are_you[] = "Who are you? ";
     register int c, ct, tryct = 0;
 
@@ -1336,6 +1380,9 @@ tty_askname()
 void
 tty_get_nh_event()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_get_nh_event()");
+    #endif
     return;
 }
 
@@ -1343,6 +1390,9 @@ tty_get_nh_event()
 STATIC_OVL void
 getret()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void getret()");
+    #endif
     HUPSKIP();
     xputs("\n");
     if (flags.standout)
@@ -1360,6 +1410,11 @@ void
 tty_suspend_nhwindows(str)
 const char *str;
 {
+    #if defined(WEBTILES_DEBUG)
+    if(str != NULL){
+        send_debug("void tty_suspend_nhwindows(str:%s)", stringify(str));
+    }
+    #endif
     settty(str); /* calls end_screen, perhaps raw_print */
     if (!str)
         tty_raw_print(""); /* calls fflush(stdout) */
@@ -1368,6 +1423,9 @@ const char *str;
 void
 tty_resume_nhwindows()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_resume_nhwindows()");
+    #endif
     gettty();
     setftty(); /* calls start_screen */
     docrt();
@@ -1377,6 +1435,11 @@ void
 tty_exit_nhwindows(str)
 const char *str;
 {
+    #if defined(WEBTILES_DEBUG)
+    if(str!=NULL){
+        send_debug("void tty_exit_nhwindows(str:%s)", stringify(str));
+    }
+    #endif
     winid i;
 
     tty_suspend_nhwindows(str);
@@ -1421,6 +1484,9 @@ winid
 tty_create_nhwindow(type)
 int type;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_create_nhwindow(type:%d)", type);
+    #endif
     struct WinDesc *newwin;
     int i, rowoffset;
     int newid;
@@ -1537,6 +1603,9 @@ winid window;
 struct WinDesc *cw;
 boolean clear;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void erase_menu_or_text(window:%d, cw:?, clear:%d)", window, clear);
+    #endif
     if (cw->offx == 0) {
         if (cw->offy) {
             tty_curs(window, 1, 0);
@@ -1556,6 +1625,9 @@ free_window_info(cw, free_data)
 struct WinDesc *cw;
 boolean free_data;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void free_window_info(cw:?, free_data:%d)", free_data);
+    #endif
     int i;
 
     if (cw->data) {
@@ -1585,6 +1657,9 @@ boolean free_data;
             cw->mlist = temp->next;
             if (temp->str)
                 free((genericptr_t) temp->str);
+            if (temp->o_str){
+                free((genericptr_t) temp->o_str);
+            }
             free((genericptr_t) temp);
         }
     }
@@ -1603,6 +1678,9 @@ void
 tty_clear_nhwindow(window)
 winid window;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_clear_nhwindow(window:%d)", window);
+    #endif
     int i, j, m, n;
     register struct WinDesc *cw = 0;
 
@@ -1643,7 +1721,7 @@ winid window;
         /*FALLTHRU*/
     case NHW_BASE:
         clear_screen();
-        sendClearTile();
+        send_clear_tile();
         /*for (i = 0; i < cw->maxrow; ++i)           */
         /*    finalx[i][NOW] = finalx[i][BEFORE] = 0;*/
         break;
@@ -1665,6 +1743,9 @@ int lineno;
 boolean in_view, counting;
 long count;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void toggle_menu_curr(window:%d, curr:?, lineno:%d, in_view:%d, counting:%d, count:%ld)", window, lineno, in_view, counting, count);
+    #endif
     if (curr->selected) {
         if (counting && count > 0) {
             curr->count = count;
@@ -1701,8 +1782,11 @@ dmore(cw, s)
 register struct WinDesc *cw;
 const char *s; /* valid responses */
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void dmore(cw:?, s:%s)", stringify(s));
+    #endif
     const char *prompt = cw->morestr ? cw->morestr : defmorestr;
-    sendMore(prompt);
+
     int offset = (cw->type == NHW_TEXT) ? 1 : 2;
 
     HUPSKIP();
@@ -1715,7 +1799,9 @@ const char *s; /* valid responses */
     if (flags.standout)
         standoutend();
 
+    send_more(prompt);
     xwaitforspace(s);
+    send_close_more();
 }
 
 STATIC_OVL void
@@ -1724,6 +1810,9 @@ winid window;
 int lineno;
 tty_menu_item *item;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void set_item_state(window:%d, lineno:%d, item:%s)", window, lineno, item->o_str);
+    #endif
     char ch = item->selected ? (item->count == -1L ? '+' : '#') : '-';
 
     HUPSKIP();
@@ -1739,6 +1828,9 @@ set_all_on_page(window, page_start, page_end)
 winid window;
 tty_menu_item *page_start, *page_end;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void set_all_on_page(window:%d, page_start:?, page_end:?)", window);
+    #endif
     tty_menu_item *curr;
     int n;
 
@@ -1754,6 +1846,9 @@ unset_all_on_page(window, page_start, page_end)
 winid window;
 tty_menu_item *page_start, *page_end;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void unset_all_on_page(window:%d, page_start:?, page_end:?)", window);
+    #endif
     tty_menu_item *curr;
     int n;
 
@@ -1771,6 +1866,9 @@ winid window;
 tty_menu_item *page_start, *page_end;
 char acc; /* group accelerator, 0 => all */
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void invert_all_on_page(window:%d, page_start:?, page_end:?, acc:%c)", window, acc);
+    #endif
     tty_menu_item *curr;
     int n;
 
@@ -1794,6 +1892,9 @@ winid window;
 tty_menu_item *page_start, *page_end;
 char acc; /* group accelerator, 0 => all */
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void invert_all(window:%d, page_start:?, page_end:?, acc:5c)", window, acc);
+    #endif
     tty_menu_item *curr;
     boolean on_curr_page;
     struct WinDesc *cw = wins[window];
@@ -1824,6 +1925,9 @@ toggle_menu_attr(on, color, attr)
 boolean on;
 int color, attr;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void toggle_menu_attr(on:%d, color:%d, attr:%d)", on, color, attr);
+    #endif
     if (on) {
         term_start_attr(attr);
 #ifdef TEXTCOLOR
@@ -1848,6 +1952,9 @@ process_menu_window(window, cw)
 winid window;
 struct WinDesc *cw;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void process_menu_window(window:%d, cw:?)", window);
+    #endif
     tty_menu_item *page_start, *page_end, *curr;
     long count;
     int n, attr_n, curr_page, page_lines, resp_len;
@@ -1863,6 +1970,16 @@ struct WinDesc *cw;
     count = 0L;
     reset_count = TRUE;
     finished = FALSE;
+
+    tty_menu_item *currentItem;
+    for(currentItem = cw->mlist; currentItem; currentItem = currentItem->next){
+        int attr, color = NO_COLOR;
+        if (!iflags.use_menu_color
+            || !get_menu_coloring(currentItem->str, &color, &attr))
+            attr = currentItem->attr;
+        send_menu_item(currentItem, color, attr);
+    }
+    clear_current_data();
 
     /* collect group accelerators; for PICK_NONE, they're ignored;
        for PICK_ONE, only those which match exactly one entry will be
@@ -1987,6 +2104,7 @@ struct WinDesc *cw;
                 page_end = 0;
                 page_lines = 0;
             }
+
             *rp = 0;
             /* remember how many explicit menu choices there are */
             resp_len = (int) strlen(resp);
@@ -2016,12 +2134,19 @@ struct WinDesc *cw;
 
             tty_curs(window, 1, page_lines);
             cl_end();
+            save_menu_status(window, page_start, page_end, page_lines, counting, count, cw, &finished);
             dmore(cw, resp);
+            clear_menu_status();
         } else {
             /* just put the cursor back... */
+            save_menu_status(window, page_start, page_end, page_lines, counting, count, cw, &finished);
             tty_curs(window, (int) strlen(cw->morestr) + 2, page_lines);
+            send_more(cw->morestr);
             xwaitforspace(resp);
+            send_close_more();
+            clear_menu_status();
         }
+
 
         really_morc = morc; /* (only used with MENU_EXPLICIT_CHOICE */
         if ((rp = index(resp, morc)) != 0 && rp < resp + resp_len)
@@ -2031,7 +2156,6 @@ struct WinDesc *cw;
             morc = MENU_EXPLICIT_CHOICE;
         else
             morc = map_menu_cmd(morc);
-
         switch (morc) {
         case '0':
             /* special case: '0' is also the default ball class */
@@ -2209,9 +2333,18 @@ struct WinDesc *cw;
             break;
         }
 
+    tty_menu_item *cItem;
+    for(cItem = cw->mlist; cItem; cItem = cItem->next){
+        if(cItem->identifier.a_void){
+            send_update_menu_item(cItem);
+         }
+    }
+
+
     } /* while */
     cw->morestr = msave;
     free((genericptr_t) morestr);
+    send_close_menu_item();
 }
 
 STATIC_OVL void
@@ -2223,6 +2356,9 @@ struct WinDesc *cw;
     boolean linestart;
     register char *cp;
 
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void process_text_window(window:%d, cw:?)", window);
+    #endif
     for (n = 0, i = 0; i < cw->maxrow; i++) {
         HUPSKIP();
         if (!cw->offx && (n + cw->offy == ttyDisplay->rows - 1)) {
@@ -2298,6 +2434,9 @@ tty_display_nhwindow(window, blocking)
 winid window;
 boolean blocking; /* with ttys, all windows are blocking */
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_display_nhwindow(window:%d, blocking:%d)", window, blocking);
+    #endif
     register struct WinDesc *cw = 0;
     short s_maxcol;
 
@@ -2306,6 +2445,23 @@ boolean blocking; /* with ttys, all windows are blocking */
         panic(winpanicstr, window);
     if (cw->flags & WIN_CANCELLED)
         return;
+
+    if(get_update_inventory_mode()){
+        if(iflags.perm_invent){
+            tty_menu_item *currentItem;
+            for(currentItem = cw->mlist; currentItem; currentItem = currentItem->next){
+                int attr, color = NO_COLOR;
+                if (!iflags.use_menu_color
+                    || !get_menu_coloring(currentItem->str, &color, &attr))
+                    attr = currentItem->attr;
+                send_built_in_menu_item(currentItem, color, attr);
+            }
+            clear_current_data();
+        }
+        return;
+    }
+
+
     ttyDisplay->lastwin = window;
     ttyDisplay->rawprint = 0;
 
@@ -2336,6 +2492,10 @@ boolean blocking; /* with ttys, all windows are blocking */
         (void) fflush(stdout);
         break;
     case NHW_TEXT:
+/*        for(int i = 0; i < cw->maxrow; i++){
+            send_debug("{type:\"nhtext\", i:%d, s:%s}", i, stringify(cw->data[i]));
+        }*/
+
         cw->maxcol = ttyDisplay->cols; /* force full-screen mode */
         /*FALLTHRU*/
     case NHW_MENU:
@@ -2379,10 +2539,16 @@ boolean blocking; /* with ttys, all windows are blocking */
                 tty_clear_nhwindow(WIN_MESSAGE);
         }
 
-        if (cw->data || !cw->maxrow)
+        if (cw->data || !cw->maxrow){
+            for(int i = 0; i < cw->maxrow; i++){
+                register char *cp = &cw->data[i][1];
+                send_large_text(cp);
+            }
             process_text_window(window, cw);
-        else
+            send_close_large_text();
+        }else{
             process_menu_window(window, cw);
+        }
         break;
     }
     cw->active = 1;
@@ -2392,6 +2558,9 @@ void
 tty_dismiss_nhwindow(window)
 winid window;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_dismiss_nhwindow(window:%d)", window);
+    #endif
     register struct WinDesc *cw = 0;
 
     HUPSKIP();
@@ -2425,7 +2594,9 @@ winid window;
                  * leave the ending window on the screen, we don't want to
                  * erase it anyway.
                  */
+                set_screen_change(FALSE);
                 erase_menu_or_text(window, cw, FALSE);
+                set_screen_change(TRUE);
             }
             cw->active = 0;
         }
@@ -2438,6 +2609,9 @@ void
 tty_destroy_nhwindow(window)
 winid window;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_destroy_nhwindow(window:%d)", window);
+    #endif
     register struct WinDesc *cw = 0;
 
     if (window == WIN_ERR || (cw = wins[window]) == (struct WinDesc *) 0)
@@ -2461,6 +2635,14 @@ winid window;
 register int x, y; /* not xchar: perhaps xchar is unsigned and
                       curx-x would be unsigned as well */
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_curs(window:%d, x:%d, y:%d)", window, x, y);
+    #endif
+
+    if(window == NHW_MAP){
+        set_cursor(x, y);
+    }
+
     struct WinDesc *cw = 0;
     int cx = ttyDisplay->curx;
     int cy = ttyDisplay->cury;
@@ -2562,6 +2744,9 @@ winid window;
 int x, y;
 char ch;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_putsym(window:%d, x:%d, y:%d, ch:%c)", window, x, y, ch);
+    #endif
     register struct WinDesc *cw = 0;
 
     HUPSKIP();
@@ -2593,6 +2778,9 @@ STATIC_OVL const char *
 compress_str(str)
 const char *str;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void compress_str(str:%s)", stringify(str));
+    #endif
     static char cbuf[BUFSZ];
 
     /* compress out consecutive spaces if line is too long;
@@ -2626,6 +2814,9 @@ winid window;
 int attr;
 const char *str;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_putstr(window:%d, attr:%d, str:%s)", window, attr, stringify(str));
+    #endif
     register struct WinDesc *cw = 0;
     register char *ob;
     register long i, n0;
@@ -2633,8 +2824,7 @@ const char *str;
     register const char *nb;
     register long j;
 #endif
-	sendText(str);
-	
+
     HUPSKIP();
     /* Assume there's a real problem if the window is missing --
      * probably a panic message
@@ -2656,6 +2846,7 @@ const char *str;
 
     switch (cw->type) {
     case NHW_MESSAGE: {
+
         int suppress_history = (attr & ATR_NOHISTORY);
 
         /* in case we ever support display attributes for topline
@@ -2676,6 +2867,8 @@ const char *str;
             /* write to top line without remembering what we're writing */
             show_topl(str);
         }
+
+        send_text(str);
         break;
     }
 #ifndef STATUS_HILITES
@@ -2726,6 +2919,7 @@ const char *str;
     case NHW_BASE:
         tty_curs(window, cw->curx + 1, cw->cury);
         term_start_attr(attr);
+        send_text(str);
         while (*str) {
             if ((int) ttyDisplay->curx >= (int) ttyDisplay->cols - 1) {
                 cw->curx = 0;
@@ -2742,6 +2936,8 @@ const char *str;
         break;
     case NHW_MENU:
     case NHW_TEXT:
+
+/*
 #ifdef H2344_BROKEN
         if (cw->type == NHW_TEXT
             && (cw->cury + cw->offy) == ttyDisplay->rows - 1)
@@ -2749,8 +2945,8 @@ const char *str;
         if (cw->type == NHW_TEXT && cw->cury == ttyDisplay->rows - 1)
 #endif
         {
-            /* not a menu, so save memory and output 1 page at a time */
-            cw->maxcol = ttyDisplay->cols; /* force full-screen mode */
+            *//* not a menu, so save memory and output 1 page at a time *//*
+            cw->maxcol = ttyDisplay->cols; *//* force full-screen mode *//*
             tty_display_nhwindow(window, TRUE);
             for (i = 0; i < cw->maxrow; i++)
                 if (cw->data[i]) {
@@ -2759,6 +2955,8 @@ const char *str;
                 }
             cw->maxrow = cw->cury = 0;
         }
+*/
+
         /* always grows one at a time, but alloc 12 at a time */
         if (cw->cury >= cw->rows) {
             char **tmp;
@@ -2803,6 +3001,9 @@ tty_display_file(fname, complain)
 const char *fname;
 boolean complain;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_display_file(fname:%s, complain:%d)", stringify(fname), complain);
+    #endif
 #ifdef DEF_PAGER /* this implies that UNIX is defined */
     {
         /* use external pager; this may give security problems */
@@ -2896,10 +3097,16 @@ void
 tty_start_menu(window)
 winid window;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_start_menu(window:%d)", window);
+    #endif
     tty_clear_nhwindow(window);
     return;
 }
 
+#ifdef USE_TILES
+extern short glyph2tile[];
+#endif
 /*ARGSUSED*/
 /*
  * Add a menu item to the beginning of the menu list.  This list is reversed
@@ -2916,6 +3123,9 @@ int attr;                   /* attribute for string (like tty_putstr()) */
 const char *str;            /* menu string */
 boolean preselected;        /* item is marked as selected */
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_add_menu(window:%d, glyph:%d, anything:?, ch:%d, gch:%d, attr:%d, str:%s, preselected:%d)", window, glyph, ch, gch, attr, stringify(str), preselected);
+    #endif
     register struct WinDesc *cw = 0;
     tty_menu_item *item;
     const char *newstr;
@@ -2951,11 +3161,14 @@ boolean preselected;        /* item is marked as selected */
     item->count = -1L;
     item->selected = preselected;
     item->selector = ch;
+    item->ch = ch;
     item->gselector = gch;
     item->attr = attr;
     item->str = dupstr(newstr ? newstr : "");
-
+    item->o_str = dupstr(str ? str : "");
     item->next = cw->mlist;
+    item->tile = glyph != NO_GLYPH ? glyph2tile[glyph] : -1;
+    // TODO
     cw->mlist = item;
 }
 
@@ -2964,6 +3177,9 @@ STATIC_OVL tty_menu_item *
 reverse(curr)
 tty_menu_item *curr;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void reverse(curr:?)");
+    #endif
     tty_menu_item *next, *head = 0;
 
     while (curr) {
@@ -2986,6 +3202,9 @@ tty_end_menu(window, prompt)
 winid window;       /* menu to use */
 const char *prompt; /* prompt to for menu */
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_end_menu(window:%d, prompt:?)", window);
+    #endif
     struct WinDesc *cw = 0;
     tty_menu_item *curr;
     short len;
@@ -3054,11 +3273,6 @@ const char *prompt; /* prompt to for menu */
         }
         if (len > cw->cols)
             cw->cols = len;
-        /*
-        char msg[8192];
-        sprintf(msg, "{\"msg\":\"putstr\", \"str\":\"%s\"}", curr->str);
-        sendMsg(msg);
-        */
 
     }
     cw->plist[cw->npages] = 0; /* plist terminator */
@@ -3096,17 +3310,6 @@ const char *prompt; /* prompt to for menu */
         cw->maxrow = cw->rows = lmax + 1;
     else
         cw->maxrow = cw->rows = cw->nitems + 1;
-
-    int jesi;
-    json_object *array = json_object_new_array();
-    json_object *result = json_object_new_object();
-    for (jesi = 0, curr=cw->mlist; curr; jesi++, curr = curr->next) {
-        append_json_array(array, curr->str);
-    }
-    char *msg = make_json_msg(result, array);
-    sendMsg(msg);
-    free(array);
-    free(result);
 }
 
 int
@@ -3115,6 +3318,12 @@ winid window;
 int how;
 menu_item **menu_list;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_select_menu(window:%d, how:%d, menu_list:?)", window, how);
+    #endif
+    if(how != PICK_NONE){
+        set_built_in_menu_lock(TRUE);
+    }
     register struct WinDesc *cw = 0;
     tty_menu_item *curr;
     menu_item *mi;
@@ -3148,7 +3357,7 @@ menu_item **menu_list;
                 mi++;
             }
     }
-
+    set_built_in_menu_lock(FALSE);
     return n;
 }
 
@@ -3159,6 +3368,9 @@ char let;
 int how;
 const char *mesg;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_message_menu(let:%c, how:%d, mesg:%s)", let, how, stringify(mesg));
+    #endif
     HUPSKIP();
     /* "menu" without selection; use ordinary pline, no more() */
     if (how == PICK_NONE) {
@@ -3189,12 +3401,28 @@ const char *mesg;
 void
 tty_update_inventory()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_update_inventory()");
+    #endif
+
+    if(iflags.perm_invent){
+        if(get_update_inventory_mode() == FALSE && get_built_in_menu_lock() == FALSE){
+            set_update_inventory_mode(TRUE);
+            display_inventory(NULL, FALSE);
+            set_update_inventory_mode(FALSE);
+        }
+    }else{
+        send_clear_built_in_inventory();
+    }
     return;
 }
 
 void
 tty_mark_synch()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_mark_synch()");
+    #endif
     HUPSKIP();
     (void) fflush(stdout);
 }
@@ -3202,6 +3430,9 @@ tty_mark_synch()
 void
 tty_wait_synch()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_wait_synch()");
+    #endif
     HUPSKIP();
     /* we just need to make sure all windows are synch'd */
     if (!ttyDisplay || ttyDisplay->rawprint) {
@@ -3229,6 +3460,9 @@ void
 docorner(xmin, ymax)
 register int xmin, ymax;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void docorner(xmin:%d, ymax:%d)", xmin, ymax);
+    #endif
     register int y;
     register struct WinDesc *cw = wins[WIN_MAP];
 
@@ -3281,6 +3515,9 @@ register int xmin, ymax;
 void
 end_glyphout()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void end_glyphout()");
+    #endif
     HUPSKIP();
 #if defined(ASCIIGRAPH) && !defined(NO_TERMS)
     if (GFlag) {
@@ -3301,6 +3538,9 @@ void
 g_putch(in_ch)
 int in_ch;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void g_putch(in_ch:%d)", in_ch);
+    #endif
     register char ch = (char) in_ch;
 
     HUPSKIP();
@@ -3340,6 +3580,9 @@ int in_ch;
 void
 setclipped()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void setclipped()");
+    #endif
     clipping = TRUE;
     clipx = clipy = 0;
     clipxmax = CO;
@@ -3350,6 +3593,9 @@ void
 tty_cliparound(x, y)
 int x, y;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_cliparound(x:%d, y:%d)", x, y);
+    #endif
     int oldx = clipx, oldy = clipy;
 
     HUPSKIP();
@@ -3394,13 +3640,10 @@ xchar x, y;
 int glyph;
 int bkglyph UNUSED;
 {
-    /*
-    char msg[8192];
-    sprintf(msg, "{\"msg\":\"print_glyph\",\"window\":%d, \"x\":%d, \"y\":%d, \"glyph\":%d, \"bkglyph\":%d}", window, x, y, glyph, bkglyph);
-    sendMsg(msg);
-    */
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_print_glyph(window:%d, x:%d, y:%d, glyph:%d, bkglyph:%d)", window, x, y, glyph, bkglyph);
+    #endif
 
-	
     int ch;
     boolean reverse_on = FALSE;
     int color;
@@ -3424,12 +3667,7 @@ int bkglyph UNUSED;
     print_vt_code3(AVTC_GLYPH_START, glyph2tile[glyph], special);
 
     #if defined(WEBTILES_GRAPHICS)
-    /*
-        char updateTile[8192];
-        sprintf(updateTile, "{\"msg\":\"update_tile\",\"tile\":%d,\"x\":%d,\"y\":%d}", );
-        sendMsg(updateTile);
-     */
-    sendTile(x, y, glyph2tile[glyph]);
+     send_tile(x, y, glyph2tile[glyph]);
     #endif
 
 #ifndef NO_TERMS
@@ -3454,9 +3692,19 @@ int bkglyph UNUSED;
         || ((special & MG_OBJPILE) && iflags.hilite_pile)
         || ((special & MG_DETECT) && iflags.use_inverse)
         || ((special & MG_BW_LAVA) && iflags.use_inverse)) {
+
         term_start_attr(ATR_INVERSE);
         reverse_on = TRUE;
     }
+
+    #if defined(WEBTILES_GRAPHICS)
+    if((special & MG_PET) && iflags.hilite_pet){
+         send_tile_flag(x, y, "hilite_pet");
+    }else if((special & MG_OBJPILE) && iflags.hilite_pile){
+         send_tile_flag(x, y, "hilite_pile");
+    }
+
+    #endif
 
 #if defined(USE_TILES) && defined(MSDOS)
     if (iflags.grmode && iflags.tile_view)
@@ -3486,6 +3734,21 @@ void
 tty_raw_print(str)
 const char *str;
 {
+    #if defined(WEBTILES_DEBUG)
+    if(!get_print_error_mode())
+    send_debug("void tty_raw_print(str:%s)", stringify(str));
+    #endif
+    if(str != NULL && strcmp(str, "Generating more information you may report:\n") == 0){
+        set_print_error_mode(TRUE);
+        send_error_start();
+    }
+    if(get_print_error_mode()){
+        send_error(str);
+    }
+    if(!get_init_game()){
+        send_tty_raw_print(str);
+    }
+
     HUPSKIP();
     if (ttyDisplay)
         ttyDisplay->rawprint++;
@@ -3502,6 +3765,10 @@ void
 tty_raw_print_bold(str)
 const char *str;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_raw_print_bold(str:%s) %d", stringify(str));
+    #endif
+
     HUPSKIP();
     if (ttyDisplay)
         ttyDisplay->rawprint++;
@@ -3524,6 +3791,9 @@ const char *str;
 int
 tty_nhgetch()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("int tty_nhgetch()");
+    #endif
     int i;
 #ifdef UNIX
     /* kludge alert: Some Unix variants return funny values if getc()
@@ -3586,6 +3856,9 @@ int
 tty_nh_poskey(x, y, mod)
 int *x, *y, *mod;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("int tty_nh_poskey(x:?, y:?, mod:?)");
+    #endif
     int i;
 
     HUPSKIP_RESULT('\033');
@@ -3604,11 +3877,25 @@ int *x, *y, *mod;
     if (ttyDisplay && ttyDisplay->toplin == 1)
         ttyDisplay->toplin = 2;
 #else /* !WIN32CON */
+    //send_debug("POS_KEY %d %d %d", *x, *y, *mod);
+
     nhUse(x);
     nhUse(y);
     nhUse(mod);
 
     i = tty_nhgetch();
+    // send_debug("POS_KEY %d %d %d %d", *x, *y, *mod, i);
+
+    if(i == '\033'){
+        int i = get_travel_position();
+        if(i > -1){
+            *x = to_2d_x(i);
+            *y = to_2d_y(i);
+            *mod = get_click();
+            set_travel_position(-1);
+            return 0;
+        }
+    }
 #endif /* ?WIN32CON */
     return i;
 }
@@ -3617,6 +3904,9 @@ void
 win_tty_init(dir)
 int dir;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void win_tty_init(dir:%d)", dir);
+    #endif
     if (dir != WININIT)
         return;
     return;
@@ -3627,6 +3917,9 @@ void
 tty_update_positionbar(posbar)
 char *posbar;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_update_positionbar(posbar:%s)", stringify(posbar));
+    #endif
 #ifdef MSDOS
     video_update_positionbar(posbar);
 #endif
@@ -3790,6 +4083,9 @@ static int do_field_opt =
 void
 tty_status_init()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_status_init()");
+    #endif
 #ifdef STATUS_HILITES
     int i, num_rows;
 
@@ -3822,6 +4118,9 @@ const char *nm;
 const char *fmt;
 boolean enable;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_status_enablefield(fieldidx:%d, nm:%s, fmt:%s, enable:%d)", fieldidx, stringify(nm), stringify(fmt), enable);
+    #endif
     genl_status_enablefield(fieldidx, nm, fmt, enable);
 }
 
@@ -3890,6 +4189,9 @@ int fldidx, chg UNUSED, percent, color;
 genericptr_t ptr;
 unsigned long *colormasks;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_status_update(fldidx:%d, chg:%d, percent:%d, color:%d, ptr:?, colormasks:?)", fldidx, chg, percent, color);
+    #endif
     int attrmask;
     long *condptr = (long *) ptr;
     char *text = (char *) ptr;
@@ -3897,8 +4199,8 @@ unsigned long *colormasks;
     const char *fmt;
     boolean reset_state = NO_RESET;
 
-    sendStatus(fldidx, percent, text);
-
+    // sendStatus(fldidx, percent, text);
+    send_status(fldidx, chg, percent, color, ptr);
     if ((fldidx < BL_RESET) || (fldidx >= MAXBLSTATS))
         return;
 
@@ -3925,6 +4227,23 @@ unsigned long *colormasks;
         tty_status[NOW][fldidx].dirty = TRUE;
         tty_status[NOW][fldidx].sanitycheck = TRUE;
         truncation_expected = FALSE;
+
+        long bits = tty_condition_bits;
+        int coloridx = 0; int attrmask2 = 0; long mask;
+        for (int c = 0; c < SIZE(conditions) && bits != 0L; ++c) {
+            mask = conditions[c].mask;
+            if (bits & mask) {
+                const char *condtext;
+                if (iflags.hilite_delta) {
+                    attrmask2 = condattr(mask, tty_colormasks);
+                    coloridx = condcolor(mask, tty_colormasks);
+                }
+                condtext = conditions[c].text[0];
+                add_status_condition(fldidx,condtext, coloridx, attrmask2);
+                bits &= ~mask;
+            }
+        }
+
         break;
     case BL_GOLD:
         text = decode_mixed(goldbuf, text);
@@ -3948,6 +4267,7 @@ unsigned long *colormasks;
         tty_status[NOW][fldidx].idx = fldidx;
         tty_status[NOW][fldidx].color = (color & 0x00FF);
         tty_status[NOW][fldidx].attr = term_attr_fixup(attrmask);
+        add_status_attr(fldidx, tty_status[NOW][fldidx].attr);
         tty_status[NOW][fldidx].lth = strlen(status_vals[fldidx]);
         tty_status[NOW][fldidx].valid = TRUE;
         tty_status[NOW][fldidx].dirty = TRUE;
@@ -4013,6 +4333,9 @@ STATIC_OVL int
 make_things_fit(force_update)
 boolean force_update;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("int make_things_fit(force_update:%d)", force_update);
+    #endif
     int trycnt, fitting = 0, requirement;
     int rowsz[3], num_rows, condrow, otheroptions = 0;
 
@@ -4078,6 +4401,9 @@ check_fields(forcefields, sz)
 boolean forcefields;
 int sz[3];
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("boolean make_things_fit(forcefields:%d, sz:?)", forcefields);
+    #endif
     int c, i, row, col, num_rows, idx;
     boolean valid = TRUE, matchprev, update_right;
 
@@ -4179,6 +4505,9 @@ int sz[3];
 STATIC_OVL void
 status_sanity_check(VOID_ARGS)
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void status_sanity_check()");
+    #endif
     int i;
     static boolean in_sanity_check = FALSE;
     static const char *const idxtext[] = {
@@ -4188,7 +4517,7 @@ status_sanity_check(VOID_ARGS)
         "BL_TIME", "BL_HUNGER", "BL_HP", "BL_HPMAX",           /* 16.. 19 */
         "BL_LEVELDESC", "BL_EXP", "BL_CONDITION"              /* 20.. 22 */
     };
-   
+
     if (in_sanity_check)
         return;
     in_sanity_check = TRUE;
@@ -4229,6 +4558,9 @@ tty_putstatusfield(text, x, y)
 const char *text;
 int x, y;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void tty_putstatusfield(text:%s, x:%d, y:%d)", stringify(text), x, y);
+    #endif
     int i, n, ncols, nrows, lth = 0;
     struct WinDesc *cw = 0;
 
@@ -4270,6 +4602,9 @@ int x, y;
 STATIC_OVL void
 set_condition_length()
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void set_condition_length()");
+    #endif
     long mask;
     int c, lth = 0;
 
@@ -4287,6 +4622,9 @@ STATIC_OVL void
 shrink_enc(lvl)
 int lvl;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void shrink_enc(lvl:%d)", lvl);
+    #endif
     /* shrink or restore the encumbrance word */
     if (lvl <= 2) {
         enc_shrinklvl = lvl;
@@ -4299,6 +4637,9 @@ STATIC_OVL void
 shrink_dlvl(lvl)
 int lvl;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void shrink_dlvl(lvl:%d)", lvl);
+    #endif
     /* try changing Dlvl: to Dl: */
     char buf[BUFSZ];
     char *levval = index(status_vals[BL_LEVELDESC], ':');
@@ -4319,6 +4660,9 @@ int lvl;
 STATIC_OVL boolean
 check_windowdata(VOID_ARGS)
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void check_windowdata()");
+    #endif
     if (WIN_STATUS == WIN_ERR || wins[WIN_STATUS] == (struct WinDesc *) 0) {
         paniclog("check_windowdata", " null status window.");
         return FALSE;
@@ -4339,6 +4683,9 @@ condcolor(bm, bmarray)
 long bm;
 unsigned long *bmarray;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("int condcolor(bm:%ld, bmarray:?)", bm);
+    #endif
     int i;
 
     if (bm && bmarray)
@@ -4361,6 +4708,9 @@ condattr(bm, bmarray)
 long bm;
 unsigned long *bmarray;
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("int condattr(bm:%ld, bmarray:?)", bm);
+    #endif
     int attr = 0;
     int i;
 
@@ -4425,6 +4775,9 @@ unsigned long *bmarray;
 STATIC_OVL void
 render_status(VOID_ARGS)
 {
+    #if defined(WEBTILES_DEBUG)
+    send_debug("void render_status()");
+    #endif
     long mask, bits;
     int i, x, y, idx, c, row, tlth, num_rows, coloridx = 0, attrmask = 0;
     char *text;
