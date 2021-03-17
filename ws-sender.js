@@ -13,12 +13,16 @@ class WSSender {
             numberOfWatcher: roomInfo.watchers.size
         };
     }
-    gameCloseWait(socketInfoList){
+
+    gameCloseWait(socketInfoList) {
         this.server.sendToList({msg: 'game_close_wait'}, socketInfoList);
     }
 
     lobby(roomInfoList, socketInfoList) {
-        this.server.sendToList({msg: 'lobby', gameList: roomInfoList.map(r => this.roomInfoToLobbyInfo(r))}, socketInfoList);
+        this.server.sendToList({
+            msg: 'lobby',
+            gameList: roomInfoList.map(r => this.roomInfoToLobbyInfo(r))
+        }, socketInfoList);
     }
 
     initGame(webRC, socketInfoList) {
@@ -37,7 +41,7 @@ class WSSender {
         this.server.sendToList({msg: 'pong'}, socketInfoList);
     }
 
-    chatMsg(username, text, isPublic, socketInfoList){
+    chatMsg(username, text, isPublic, socketInfoList) {
         this.server.sendToList({msg: 'chat_msg', username, text, isPublic}, socketInfoList);
     }
 

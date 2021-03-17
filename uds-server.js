@@ -29,16 +29,17 @@ class UDSServer {
 
         this.socket.on('message', (message, socketInfo) => {
             message = message.toString(UnixDgramSocket.payloadEncoding);
-            message = message.substring(0, message.indexOf('\0'));;
+            message = message.substring(0, message.indexOf('\0'));
+            ;
 
             let path = socketInfo.remoteSocket;
             let info = this.connectionInfoMap[path];
 
-            if(info && info.bigMsgInfo && info.bigMsgInfo.split > info.bigMsgInfo.receiveCount){
+            if (info && info.bigMsgInfo && info.bigMsgInfo.split > info.bigMsgInfo.receiveCount) {
                 info.bigMsgInfo.message += message;
-                if(info.bigMsgInfo.split > ++info.bigMsgInfo.receiveCount){
+                if (info.bigMsgInfo.split > ++info.bigMsgInfo.receiveCount) {
                     return;
-                }else{
+                } else {
                     message = info.bigMsgInfo.message;
                     delete info.bigMsgInfo;
                 }
@@ -51,7 +52,6 @@ class UDSServer {
                 console.error('Error JSON Parsing:', message.length, message);
                 return;
             }
-
 
 
             if (!info && data.msg === 'init_socket') {
@@ -123,8 +123,8 @@ class UDSServer {
         });
 
         this.socket.on('error', (error) => {
-            if(error.errorNumber !== 11){
-                console.log('UDSSocketError:\n', error);   
+            if (error.errorNumber !== 11) {
+                console.log('UDSSocketError:\n', error);
             }
             let info = this.connectionInfoMap[error.path];
             if (info) {
@@ -145,7 +145,7 @@ class UDSServer {
         }
         delete this.connectionInfoMap[info.path];
     }
-    
+
     clearError(info) {
         info.errorCount = 0;
         delete info.error;

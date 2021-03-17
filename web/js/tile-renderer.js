@@ -46,7 +46,7 @@ class TileRenderer {
                 height: '100%',
                 parent: 'tile-content',
             },
-            render:{
+            render: {
                 pixelArt: (this.tileConfig.extruded || this.tileConfig.forceWebGL) ? false : true,
                 antialias: false
             },
@@ -66,17 +66,10 @@ class TileRenderer {
 
     preload(phaser) {
         this.phaser = phaser;
-
-        /*this.phaser.load.spritesheet('tileset', this.tileConfig.tileImage, {
-            frameWidth: this.tileConfig.tileWidth,
-            frameHeight: this.tileConfig.tileHeight
-        });*/
-        this.phaser.load.image('hilite_pet' ,'/assets/hilite/pet.png');
-
-        this.phaser.load.image('hilite_pile', '/assets/hilite/pile.png');
         this.hiliteMap = {};
+        this.phaser.load.image('hilite_pet', '/assets/hilite/pet.png');
+        this.phaser.load.image('hilite_pile', '/assets/hilite/pile.png');
         this.phaser.load.image('tiles', this.tileConfig.tileImage);
-
         this.phaser.load.tilemapTiledJSON('map', {
             "nextobjectid": 1,
             "type": "map",
@@ -137,11 +130,11 @@ class TileRenderer {
 
 
         this.map = this.phaser.make.tilemap({key: 'map'});
-        if(this.tileConfig.extruded){
+        if (this.tileConfig.extruded) {
             this.tiles = this.map.addTilesetImage(this.tileConfig.tileName, 'tiles', this.tileConfig.tileWidth, this.tileConfig.tileHeight, 1, 2);
-        }else{
+        } else {
             this.tiles = this.map.addTilesetImage(this.tileConfig.tileName, 'tiles', this.tileConfig.tileWidth, this.tileConfig.tileHeight);
-        };
+        }
 
         this.layer = this.map.createDynamicLayer(0, this.tiles, 0, 0);
 
@@ -156,17 +149,15 @@ class TileRenderer {
         this.cursorMarker = this.phaser.add.graphics();
         this.cursorMarker.lineStyle(1, 0xffff00, 1);
         this.cursorMarker.strokeRect(0, 0, this.tileConfig.tileWidth, this.tileConfig.tileHeight);
-        //this.mapOutline.x = this.map.tileToWorldX(this.cursorX);
-        //this.mapOutline.y = this.map.tileToWorldY(this.cursorY);
 
         this.tileSourceImage = this.phaser.textures.get('tiles').getSourceImage();
 
         this.phaser.input.on('pointerdown', function (pointer) {
-            if(pointer.leftButtonDown()){
+            if (pointer.leftButtonDown()) {
                 this.click = 1;
-            }else if(pointer.rightButtonDown()){
+            } else if (pointer.rightButtonDown()) {
                 this.click = 2;
-            }else if(pointer.middleButtonDown()){
+            } else if (pointer.middleButtonDown()) {
                 this.click = 3;
             }
             this.dragCount = 0;
@@ -175,12 +166,12 @@ class TileRenderer {
 
         this.phaser.input.on('pointerup', function (pointer) {
             this.nDragCount = 0;
-            if(this.dragCount > 5){
+            if (this.dragCount > 5) {
                 return;
             }
 
-            if(this.eventHandlerMap.travelClick){
-                if(!this.click){
+            if (this.eventHandlerMap.travelClick) {
+                if (!this.click) {
                     return;
                 }
 
@@ -188,7 +179,6 @@ class TileRenderer {
 
                 let pointerTileX = this.map.worldToTileX(worldPoint.x);
                 let pointerTileY = this.map.worldToTileY(worldPoint.y);
-                //console.log('CLICKED', pointerTileX, pointerTileY, to2DIndex(pointerTileX, pointerTileY));
                 this.eventHandlerMap.travelClick(to2DIndex(pointerTileX, pointerTileY), this.click);
                 this.click = void 0;
             }
@@ -196,10 +186,12 @@ class TileRenderer {
         this.setMarkerColor(1);
         this.initEnd = true;
 
-        window.R = this;
+        if (window.debugMode) {
+            window.R = this;
+        }
     }
 
-    setMarkerColor(hpRatio){
+    setMarkerColor(hpRatio) {
         let green = Math.floor(255 * hpRatio);
         let red = 255 - green;
         this.markerColor = (red << 16) + (green << 8);
@@ -210,7 +202,7 @@ class TileRenderer {
             for (let y = 0; y < this.tileConfig.maxHeight; y++) {
                 let i = to2DIndex(x, y);
                 let text = this.phaser.add.text(0, 0, `X:${x}\nY:${y}\nI:${i}`);
-                text.setOrigin(0,0);
+                text.setOrigin(0, 0);
                 text.setFontSize(8);
                 text.x = this.tileConfig.tileWidth * (x);
                 text.y = this.tileConfig.tileHeight * (y);
@@ -237,9 +229,6 @@ class TileRenderer {
     }
 
     update(phaser) {
-/*        this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
-        this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);*/
-
         this.marker.clear();
         this.marker.lineStyle(1, this.markerColor, 1);
         this.marker.strokeRect(0, 0, this.tileConfig.tileWidth, this.tileConfig.tileHeight);
@@ -251,50 +240,48 @@ class TileRenderer {
         let pointerTileX = this.map.worldToTileX(worldPoint.x);
         let pointerTileY = this.map.worldToTileY(worldPoint.y);
 
-        if(this.isMobile && !this.isPincing){
+        if (this.isMobile && !this.isPincing) {
             return;
         }
         this.cursorMarker.x = this.map.tileToWorldX(pointerTileX);
         this.cursorMarker.y = this.map.tileToWorldY(pointerTileY);
-
     }
 
     drawTileByData(data) {
         let [x, y] = to2DXY(data.i);
         this.map.putTileAt(data.t + 1, x, y);
         let hiliteInfo = this.hiliteMap[data.i];
-        if(!hiliteInfo){
+        if (!hiliteInfo) {
             hiliteInfo = {};
             this.hiliteMap[data.i] = hiliteInfo;
         }
-        if(!data.f){
-            if(hiliteInfo.image){
+        if (!data.f) {
+            if (hiliteInfo.image) {
                 hiliteInfo.image.destroy();
                 this.hiliteMap[data.i] = {};
             }
-        }else if(data.f && hiliteInfo.f != data.f){
-            if(hiliteInfo.image){
-               hiliteInfo.image.destroy();
+        } else if (data.f && hiliteInfo.f != data.f) {
+            if (hiliteInfo.image) {
+                hiliteInfo.image.destroy();
             }
             hiliteInfo.image = this.phaser.add.image(0, 0, data.f);
 
             hiliteInfo.image.scaleX = (this.tileConfig.tileWidth / 32) * 2;
-            //console.log(hiliteInfo.image.scaleX);
             hiliteInfo.image.scaleY = (this.tileConfig.tileHeight / 32) * 2;
             hiliteInfo.smoothed = false;
-            hiliteInfo.image.setOrigin(0,0);
+            hiliteInfo.image.setOrigin(0, 0);
 
             hiliteInfo.image.x = this.tileConfig.tileWidth * (x + 0.6);
             hiliteInfo.image.y = this.tileConfig.tileHeight * (y + 0.1);
             hiliteInfo.f = data.f;
-            // this.H = hiliteInfo;
         }
     }
 
-    setZoom(scale){
+    setZoom(scale) {
         this.camera.setZoom(scale);
     }
-    getZoom(){
+
+    getZoom() {
         return this.camera.zoom;
     }
 
@@ -305,7 +292,7 @@ class TileRenderer {
                 this.map.putTileAt(0, x, y);
                 let i = to2DIndex(x, y);
                 let hiliteInfo = this.hiliteMap[i];
-                if(hiliteInfo && hiliteInfo.image){
+                if (hiliteInfo && hiliteInfo.image) {
                     hiliteInfo.image.destroy();
                     this.hiliteMap[i] = {};
                 }
@@ -318,12 +305,11 @@ class TileRenderer {
         this.game = new Phaser.Game(this.getPhaserConfig());
     }
 
-
     setCursor(i) {
         let [x, y] = to2DXY(i);
         this.cursorX = x;
         this.cursorY = y;
-        if(!(this.nDragCount && this.nDragCount > 0)){
+        if (!(this.nDragCount && this.nDragCount > 0)) {
             this.camera.centerOn(this.tileConfig.tileWidth * this.cursorX + this.tileConfig.tileWidth / 2,
                 this.tileConfig.tileHeight * this.cursorY + this.tileConfig.tileHeight / 2);
         }

@@ -26,8 +26,8 @@ class WSHandler {
                     console.log('Okay Close Message');
                     this.udsSender.close([roomInfo.udsInfo]);
                 } else {
-                    if(typeof data.keyCode === 'number'){
-                        this.udsSender.data({msg:'key', keyCode:data.keyCode}, [roomInfo.udsInfo]);
+                    if (typeof data.keyCode === 'number') {
+                        this.udsSender.data({msg: 'key', keyCode: data.keyCode}, [roomInfo.udsInfo]);
                     }
                 }
             }
@@ -39,10 +39,10 @@ class WSHandler {
             }
             let roomInfo = this.getGameRoomByUsername(info.username);
             if (roomInfo && roomInfo.udsInfo) {
-                    if(typeof data.i === 'number' && typeof data.click === 'number' && (1<= data.click && data.click <= 3)){
-                        this.udsSender.data({msg:'travel', i: data.i, click: data.click}, [roomInfo.udsInfo]);
-                    }
+                if (typeof data.i === 'number' && typeof data.click === 'number' && (1 <= data.click && data.click <= 3)) {
+                    this.udsSender.data({msg: 'travel', i: data.i, click: data.click}, [roomInfo.udsInfo]);
                 }
+            }
         }
 
         this.callback['select_index'] = (data, info) => {
@@ -51,8 +51,8 @@ class WSHandler {
             }
             let roomInfo = this.getGameRoomByUsername(info.username);
             if (roomInfo && roomInfo.udsInfo) {
-                if(typeof data.index === 'number'){
-                    this.udsSender.data({msg:'select_index', index: data.index}, [roomInfo.udsInfo]);
+                if (typeof data.index === 'number') {
+                    this.udsSender.data({msg: 'select_index', index: data.index}, [roomInfo.udsInfo]);
                 }
             }
         }
@@ -110,7 +110,7 @@ class WSHandler {
                     this.sender.gameMenu(Object.values(this.games).map(e => ({name: e.name, id: e.id})), [info]);
                     this.updateLobbyWatcher();
                 } else {
-		    this.sender.loginFail('Username or password is invalid!', [info]);
+                    this.sender.loginFail('Username or password is invalid!', [info]);
                 }
             } else {
                 let session = this.getSessionBySessionKey(data.sessionKey);
@@ -124,7 +124,7 @@ class WSHandler {
                     this.sender.gameMenu(Object.values(this.games).map(e => ({name: e.name, id: e.id})), [info]);
                     this.updateLobbyWatcher();
                 } else {
-		    // this.sender.loginFail('Invalid session!', [info]);
+                    // this.sender.loginFail('Invalid session!', [info]);
                 }
             }
         }
@@ -186,7 +186,7 @@ class WSHandler {
                     info.forcePlayHandle = false;
                 }
                 if (prevRoomInfo) {
-                    if(!prevRoomInfo.udsInfo){
+                    if (!prevRoomInfo.udsInfo) {
                         this.toLobby([info]);
                     }
                     info.forcePlayHandle = true;
@@ -197,19 +197,19 @@ class WSHandler {
                     this.sender.gameCloseWait([info]);
                     setTimeout(_ => {
                         let roomInfo = this.getGameRoomByUsername(info.username);
-                        if(!roomInfo || (roomInfo && roomInfo.player != info)){
+                        if (!roomInfo || (roomInfo && roomInfo.player != info)) {
                             this.toLobby([info]);
                         }
                     }, 1000 * 10);
                     return;
                 }
-                // TODO 현재 플레이 중이면 해당 게임 종료 요청 보내야함
+
                 let sessionInfo = this.getSessionBySessionKey(info.sessionKey);
                 let config = this.getUserGameConfigWithInit(gameInfo, sessionInfo);
                 let rcText = this.getRCText(config.rcPath, config.defaultRCPath);
                 let webRC = this.parseWebRCData(rcText);
                 this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, webRC, info);
-		    
+
                 let ptyProcess = pty.spawn('/bin/bash', [], {
                     name: 'xterm-color',
                     cols: config.terminalCols,
@@ -233,7 +233,7 @@ class WSHandler {
                 console.log(config.cmd.nethackWithTTYREC);
                 console.log(info.username);
                 console.log(`PID: ${ptyProcess.pid}`);
-		
+
                 let roomInfo = {
                     pid: ptyProcess.pid,
                     id: gameInfo.id,
@@ -244,7 +244,7 @@ class WSHandler {
                     playData: {},
                     terminalSerializer,
                     gameInfo,
-		            ptyProcess,
+                    ptyProcess,
                     webRC
                 };
                 this.setGameRoomByUsername(info.username, roomInfo);
@@ -277,7 +277,7 @@ class WSHandler {
                 info.watchRoom = roomInfo;
                 roomInfo.watchers.add(info);
                 this.sender.watch(data.username, [info]);
-		        this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
+                this.setTileWithWebRC(`/tileset/${gameInfo.id}/`, roomInfo.webRC, info);
                 this.sender.initWatch(roomInfo.playData, roomInfo.terminalSerializer.serialize(), roomInfo.webRC, [info]);
                 let watcherData = this.roomToWatcherData(roomInfo);
                 this.sender.updateWatcher(watcherData.userList, watcherData.numberOfWatchers, [roomInfo.player, ...roomInfo.watchers])
@@ -291,16 +291,17 @@ class WSHandler {
         }
 
     }
-    setTileWithWebRC(defaultTilePath, webRC, info){
-	    let tileName = webRC.DEFAULT_TILE_NAME ? webRC.DEFAULT_TILE_NAME : 'default';
-		let tileFilePath = webRC.CUSTOM_TILE_FILE_PATH ? webRC.CUSTOM_TILE_FILE_PATH : (defaultTilePath + tileName + '.png');
-		let tileDataPath = webRC.CUSTOM_TILE_DATA_PATH ? webRC.CUSTOM_TILE_DATA_PATH : (defaultTilePath + tileName + '.json');
-	        let tileData;
-		try{
-			tileData = JSON.parse(webRC.CUSTOM_TILE_DATA);
-		} catch (e){	
-			
-		}    
+
+    setTileWithWebRC(defaultTilePath, webRC, info) {
+        let tileName = webRC.DEFAULT_TILE_NAME ? webRC.DEFAULT_TILE_NAME : 'default';
+        let tileFilePath = webRC.CUSTOM_TILE_FILE_PATH ? webRC.CUSTOM_TILE_FILE_PATH : (defaultTilePath + tileName + '.png');
+        let tileDataPath = webRC.CUSTOM_TILE_DATA_PATH ? webRC.CUSTOM_TILE_DATA_PATH : (defaultTilePath + tileName + '.json');
+        let tileData;
+        try {
+            tileData = JSON.parse(webRC.CUSTOM_TILE_DATA);
+        } catch (e) {
+
+        }
         this.sender.setTile(tileFilePath, tileDataPath, tileData, [info]);
     }
 
@@ -324,7 +325,7 @@ class WSHandler {
     }
 
     getSessionBySessionKey(sessionKey) {
-	    return this.sessions[Object.keys(this.sessions).find(k => k === sessionKey)];
+        return this.sessions[Object.keys(this.sessions).find(k => k === sessionKey)];
     }
 
     setSessionBySessionKey(sessionKey, data) {
@@ -385,8 +386,8 @@ class WSHandler {
         if (!fs.existsSync(rcPath) && fs.existsSync(defaultRCPath)) {
             fs.copyFileSync(defaultRCPath, rcPath);
         }
-		let dumplogPath = gameInfo.dumplogPath + sessionInfo.username + '/';
-		!fs.existsSync(dumplogPath) ? Utils.mkDirByPathSync(dumplogPath) : void 0;
+        let dumplogPath = gameInfo.dumplogPath + sessionInfo.username + '/';
+        !fs.existsSync(dumplogPath) ? Utils.mkDirByPathSync(dumplogPath) : void 0;
 
         let ttyrecPath = gameInfo.ttyrecPath + sessionInfo.username + '/';
         !fs.existsSync(ttyrecPath) ? Utils.mkDirByPathSync(ttyrecPath) : void 0;
@@ -401,18 +402,18 @@ class WSHandler {
         let nethackWithTTYREC = `${ttyrec} -e "${nethack} && exit"`;
         return {rcPath, dumplogPath, defaultRCPath, ttyrecPath, cmd: {nethack, ttyrec, nethackWithTTYREC}};
     }
-	
-	parseWebRCData(rcText){
-		let rcData = {};
-		rcText.split('\n').forEach(l => {
-			l = l.trim();
-			if(l.match(/^#\$.+=.+$/)){
-				let s = l.split('=');
-				rcData[s.shift().replace(/^#\$/, '').trim()] = s.join('=').trim();
-			}
-		});
-		return rcData;
-	}
+
+    parseWebRCData(rcText) {
+        let rcData = {};
+        rcText.split('\n').forEach(l => {
+            l = l.trim();
+            if (l.match(/^#\$.+=.+$/)) {
+                let s = l.split('=');
+                rcData[s.shift().replace(/^#\$/, '').trim()] = s.join('=').trim();
+            }
+        });
+        return rcData;
+    }
 
     init(initHandle) {
         this.sender = initHandle.sender;
@@ -427,7 +428,7 @@ class WSHandler {
         this.server.closeHandler = this.server.errorHandler = ((info) => {
             if (info.status === 'play') {
                 let roomInfo = this.getGameRoomByUsername(info.username);
-                if(roomInfo && roomInfo.udsInfo){
+                if (roomInfo && roomInfo.udsInfo) {
                     this.udsSender.close([roomInfo.udsInfo]);
                 }
             } else if (info.status === 'watch') {
@@ -441,7 +442,6 @@ class WSHandler {
                 this.updateLobbyWatcher();
             }
         }).bind(this);
-
     }
 }
 

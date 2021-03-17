@@ -25,9 +25,8 @@
 <div class="mobile-menu" id="mobile-menu" style="display: none">
 </div>
 <div id="mobile-button-ui" style="display: none;">
-    <!-- json으로 받은 항목들 여기에 생성 -->
+    <!-- JSON Data Menu -->
 </div>
-
 
 
 <!-- Top Menu1 -->
@@ -40,7 +39,9 @@
             <ul class="nav navbar-nav ml-auto">
                 <!-- User Account Info -->
                 <li class="nav-item"><a id="account-info" href="#" class="nav-link"></a></li>
-                <li class="nav-item"><a id="latency-info" title="This is the server response time. This can be affected by the server and your location. 1~10MS = Excellent, 11~50MS = Good, 51~100 = Fair, 101MS~ = Bad. " href="#" class="nav-link"></a></li>
+                <li class="nav-item"><a id="latency-info"
+                                        title="This is the server response time. This can be affected by the server and your location. 1~10MS = Excellent, 11~50MS = Good, 51~100 = Fair, 101MS~ = Bad. "
+                                        href="#" class="nav-link"></a></li>
             </ul>
         </div>
     </div>
@@ -229,11 +230,11 @@
 
 <div id="game-content">
     <div id="left-content">
-        <div id="mobile-ui"  style="display: none; position: fixed; background:transparent" >
-        <div id="mobile-status">
-        </div>
-        <div id="mobile-message-content"></div>
-        <div id="mobile-chat"></div>
+        <div id="mobile-ui" style="display: none; position: fixed; background:transparent">
+            <div id="mobile-status">
+            </div>
+            <div id="mobile-message-content"></div>
+            <div id="mobile-chat"></div>
         </div>
         <div id="message-content"></div>
         <div id="tile-content-wrapper">
@@ -242,7 +243,10 @@
             </div>
         </div>
     </div>
-    <div id="status-content"><div id="browserhack-status"></div><div id="built-in-inventory"></div></div>
+    <div id="status-content">
+        <div id="browserhack-status"></div>
+        <div id="built-in-inventory"></div>
+    </div>
     <div id="terminal-content" style="opacity: 0.7"></div>
     <div id="item-content" class="alert alert-info" role="alert"></div>
 </div>
@@ -268,67 +272,68 @@
     </div>
 </div>
 
-<!-- ui-popup div 시작 -->
+<!-- ui-popup Start -->
 <div class="ui-popup" id="ui-popup" style="display: none;" data-generation-id="4">
-  <div class="ui-popup-overlay"></div>
-  <div class="ui-popup-outer" >
-     <div class="ui-popup-inner">
-        <div class="formatted-scroller" data-tag="help">
-           <div class="body fg7" data-simplebar="init">
-              <div class="simplebar-track vertical" style="visibility: hidden;">
-                 <div class="simplebar-scrollbar visible"></div>
-              </div>
-              <div class="simplebar-track horizontal" style="visibility: visible;">
-                 <div class="simplebar-scrollbar visible" style="width: 25px; transform: translate3d(0px, 0px, 0px);"></div>
-              </div>
-              <div class="simplebar-scroll-content" style="padding-right: 35px; padding-bottom: 100px; ">
-                      <div class="text-popup-content" style="white-space: pre;">
-                        <!-- 본문내용 -->
-                       </div>
-                     </div>
-                 </div>
-              </div>
-              <div class="scroller-shade top" style="opacity: 0;"></div>
-              <div class="scroller-shade bot" style="opacity: 0.0375;"></div>
-              <span class="scroller-lhd"></span>
-           </div>
-           <div class="more"></div>
+    <div class="ui-popup-overlay"></div>
+    <div class="ui-popup-outer">
+        <div class="ui-popup-inner">
+            <div class="formatted-scroller" data-tag="help">
+                <div class="body fg7" data-simplebar="init">
+                    <div class="simplebar-track vertical" style="visibility: hidden;">
+                        <div class="simplebar-scrollbar visible"></div>
+                    </div>
+                    <div class="simplebar-track horizontal" style="visibility: visible;">
+                        <div class="simplebar-scrollbar visible"
+                             style="width: 25px; transform: translate3d(0px, 0px, 0px);"></div>
+                    </div>
+                    <div class="simplebar-scroll-content" style="padding-right: 35px; padding-bottom: 100px; ">
+                        <div class="text-popup-content" style="white-space: pre;">
+                            <!-- Text Content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="scroller-shade top" style="opacity: 0;"></div>
+            <div class="scroller-shade bot" style="opacity: 0.0375;"></div>
+            <span class="scroller-lhd"></span>
         </div>
-     </div>
-     <!-- ui-popup div 끝 -->
+        <div class="more"></div>
+    </div>
+</div>
+<!-- ui-popup div End -->
 
-       <!-- ui-menu 시작 -->
-  <div
-  class="ui-popup"
-  id="ui-menu"
-  style="display: none"
-  data-generation-id="4"
+<!-- ui-menu Start -->
+<div
+        class="ui-popup"
+        id="ui-menu"
+        style="display: none"
+        data-generation-id="4"
 >
-  <div class="ui-popup-overlay"></div>
-  <div class="ui-popup-inner">
-    <div class="body fg7" data-simplebar="init">
-      <div class="simplebar-track vertical" style="visibility: hidden">
-        <div class="simplebar-scrollbar visible"></div>
-      </div>
-      <div class="simplebar-track horizontal" style="visibility: visible">
-        <div
-          class="simplebar-scrollbar visible"
-          style="width: 25px; transform: translate3d(0px, 0px, 0px)"
-        ></div>
-      </div>
-      <div class="simplebar-scroll-content">
-        <div class="popup-content">
-            <div class="menu" id="menu">
-                <!-- json으로 받은 항목들 여기에 생성 -->
+    <div class="ui-popup-overlay"></div>
+    <div class="ui-popup-inner">
+        <div class="body fg7" data-simplebar="init">
+            <div class="simplebar-track vertical" style="visibility: hidden">
+                <div class="simplebar-scrollbar visible"></div>
+            </div>
+            <div class="simplebar-track horizontal" style="visibility: visible">
+                <div
+                        class="simplebar-scrollbar visible"
+                        style="width: 25px; transform: translate3d(0px, 0px, 0px)"
+                ></div>
+            </div>
+            <div class="simplebar-scroll-content">
+                <div class="popup-content">
+                    <div class="menu" id="menu">
+                        <!-- JSON Data Menu -->
+                    </div>
+                </div>
             </div>
         </div>
-      </div>
+        <div class="scroller-shade top" style="opacity: 0"></div>
+        <div class="scroller-shade bot" style="opacity: 0.0375"></div>
+        <span class="scroller-lhd"></span>
     </div>
-    <div class="scroller-shade top" style="opacity: 0"></div>
-    <div class="scroller-shade bot" style="opacity: 0.0375"></div>
-    <span class="scroller-lhd"></span>
-  </div>
-  <div class="more"></div>
+    <div class="more"></div>
 </div>
-<!-- ui-menu 끝 -->
+<!-- ui-menu End -->
 </html>

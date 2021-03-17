@@ -14,6 +14,7 @@ class LocalDB {
             users: {}
         }).write();
     }
+
     getUser(username) {
         return db.get('users').value()[username.toLowerCase()];
     }
