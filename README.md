@@ -6,7 +6,7 @@ NetHack-Webtiles
 
 This is NetHack's webtiles server based on NetHack tty port.
 
-It's a HTTP server that allows users to play Nethack remotely through a web browser.
+It's a HTTP server that allows users to play NetHack remotely through a web browser.
 
 Supports both desktop and mobile play.
 
@@ -23,11 +23,11 @@ Desktop             |  Mobile
 
 `games`:The built game binary and save files
 
-`sources`:Original nethack source path
+`sources`:Original NetHack source path
 
 `web`:All web related files
 
-`webtiles`:Nethack webtiles port code
+`webtiles`:NetHack webtiles port code
 
 ## Prerequisites
 - Linux environment
