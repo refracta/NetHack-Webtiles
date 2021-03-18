@@ -255,7 +255,6 @@ class GameUIHandler {
                 }
             }
             if ($('#chat_input:focus').length > 0) {
-                //e.preventDefault();
                 return;
             }
             var code = e.charCode || e.keyCode;
@@ -267,8 +266,6 @@ class GameUIHandler {
             } else {
                 if (e.ctrlKey)
                     return; // should have been processed in keydown
-                $('#key-ui').text(`keyCode: ${code}`);
-
                 this.sender.key(code);
             }
         });
@@ -327,6 +324,7 @@ class GameUIHandler {
                 e.preventDefault();
                 return;
             }
+
             if ($('#chat_input:focus').length > 0) {
                 //e.preventDefault();
                 return;
@@ -346,8 +344,8 @@ class GameUIHandler {
                 return;
             }
 
-
             var code = e.charCode || e.keyCode;
+
             // some browsers do not `apply` the control key to charCode
             if ((code >= 65) && (code <= 90)) { // A~Z
                 code = code - 64;
@@ -369,23 +367,27 @@ class GameUIHandler {
                 }
 
                 code += 96;
+
+
                 this.sender.key(code | 0x80);
                 e.preventDefault();
                 return;
             }
-
+            let remapKey = {
+                'ArrowUp': 65,
+                'ArrowDown': 66,
+                'ArrowLeft': 68,
+                'ArrowRight': 67
+            };
+            if(remapKey[e.key]){
+                this.sender.key(remapKey[e.key]);
+                return;
+            }
             if (!e.ctrlKey)
                 return; // key events without ctrl is handled in `keypress` events
             if (e.keyCode == 17)
                 return; // ctrl is pressed down
             e.preventDefault();
-            // console.log(code);
-            if (code == 39) {
-                $('#chat_input').focus();
-                e.preventDefault();
-                return;
-            }
-            // $('#key-ui').text(`keyCode: ${code}`);
             this.sender.key(code);
         });
     }
