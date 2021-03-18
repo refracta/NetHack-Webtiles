@@ -370,15 +370,30 @@ class GameUIHandler {
                 return;
             }
 
-            let remapKey = {
-                'ArrowUp': 65,
-                'ArrowDown': 66,
-                'ArrowLeft': 68,
-                'ArrowRight': 67
+            let arrowKeys = {
+               default: {
+                   'ArrowUp': 65,
+                   'ArrowDown': 66,
+                   'ArrowLeft': 68,
+                   'ArrowRight': 67
+               },
+                number_pad:{
+                    'ArrowUp': '8'.charCodeAt(0),
+                    'ArrowDown': '2'.charCodeAt(0),
+                    'ArrowLeft': '4'.charCodeAt(0),
+                    'ArrowRight': '6'.charCodeAt(0)
+                },
+                hjklyubn:{
+                    'ArrowUp': 'k'.charCodeAt(0),
+                    'ArrowDown': 'j'.charCodeAt(0),
+                    'ArrowLeft': 'h'.charCodeAt(0),
+                    'ArrowRight': 'l'.charCodeAt(0)
+                }
             };
 
-            if(remapKey[e.key]){
-                this.sender.key(remapKey[e.key]);
+            let arrowKey = arrowKeys[this.arrowKeyType][e.key];
+            if(arrowKeys[this.arrowKeyType][e.key]){
+                this.sender.key(arrowKey);
                 return;
             }
 

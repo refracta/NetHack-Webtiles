@@ -329,6 +329,14 @@ class WSHandler {
                     this.gameUIHandler.applyFontPatch();
                 }
 
+                if (data.webRC.EXPERIMENTAL_ARROW_KEY_SUPPORT == 'number_pad') {
+                    this.gameUIHandler.arrowKeyType = 'number_pad';
+                } else if (data.webRC.EXPERIMENTAL_ARROW_KEY_SUPPORT == 'hjklyubn') {
+                    this.gameUIHandler.arrowKeyType = 'hjklyubn';
+                } else {
+                    this.gameUIHandler.arrowKeyType = 'default';
+                }
+
                 if (data.webRC.PIN_TERMINAL === 'true') {
                     $('#terminal-content').css('z-index', '9999999');
                 } else {
