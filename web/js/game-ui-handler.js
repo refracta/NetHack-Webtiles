@@ -312,7 +312,7 @@ class GameUIHandler {
                 } else if (e.key == 'F12') {
                     $("#chat_body").slideDown(200);
                     this.new_message_count = 0;
-                    //update_message_count();
+
                     $("#message_count").html("(Esc: back to game)");
                     $('#chat_history_container').scrollTop($('#chat_history_container')[0].scrollHeight);
                     setTimeout(_ => {
@@ -361,28 +361,27 @@ class GameUIHandler {
                 if (e.keyCode == 16) { // ignore duplicated input 'alt +shift'
                     return;
                 }
-
                 if (e.shiftKey) {
                     code -= 32; // to uppercase
                 }
-
                 code += 96;
-
-
                 this.sender.key(code | 0x80);
                 e.preventDefault();
                 return;
             }
+
             let remapKey = {
                 'ArrowUp': 65,
                 'ArrowDown': 66,
                 'ArrowLeft': 68,
                 'ArrowRight': 67
             };
+
             if(remapKey[e.key]){
                 this.sender.key(remapKey[e.key]);
                 return;
             }
+
             if (!e.ctrlKey)
                 return; // key events without ctrl is handled in `keypress` events
             if (e.keyCode == 17)
