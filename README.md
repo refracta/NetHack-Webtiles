@@ -12,7 +12,7 @@ Supports both desktop and mobile play.
 
 Desktop             |  Mobile
 :-------------------------:|:-------------------------:
-<img height="350" src="https://user-images.githubusercontent.com/58779799/111501484-5ff31400-8788-11eb-9395-53532bf024e5.gif"> |  <img height="350" src="https://user-images.githubusercontent.com/58779799/111501466-5cf82380-8788-11eb-93e1-bd66f3706637.gif">
+<img height="350" src="https://user-images.githubusercontent.com/58779799/111670796-951c6680-885b-11eb-87db-356f4a40b23f.gif"> |  <img height="350" src="https://user-images.githubusercontent.com/58779799/111501466-5cf82380-8788-11eb-93e1-bd66f3706637.gif">
 
 ## Project Structure
 ![](https://user-images.githubusercontent.com/58779799/103433510-68ca5400-4c35-11eb-8836-9505bd77d15f.png)
