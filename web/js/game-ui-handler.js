@@ -398,8 +398,9 @@ class GameUIHandler {
             };
 
             let arrowKey = arrowKeys[this.arrowKeyType][e.key];
+            console.log(e);
             if(arrowKey){
-                if(arrowKey === 'hjklyubn' && e.shiftKey){
+                if(this.arrowKeyType === 'hjklyubn' && e.shiftKey){
                     this.sender.key(arrowKeys['HJKLYUBN'][e.key]);
                 }else{
                     this.sender.key(arrowKey);
