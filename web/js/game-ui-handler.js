@@ -388,12 +388,22 @@ class GameUIHandler {
                     'ArrowDown': 'j'.charCodeAt(0),
                     'ArrowLeft': 'h'.charCodeAt(0),
                     'ArrowRight': 'l'.charCodeAt(0)
+                },
+                HJKLYUBN:{
+                    'ArrowUp': 'K'.charCodeAt(0),
+                    'ArrowDown': 'J'.charCodeAt(0),
+                    'ArrowLeft': 'H'.charCodeAt(0),
+                    'ArrowRight': 'L'.charCodeAt(0)
                 }
             };
 
             let arrowKey = arrowKeys[this.arrowKeyType][e.key];
-            if(arrowKeys[this.arrowKeyType][e.key]){
-                this.sender.key(arrowKey);
+            if(arrowKey){
+                if(arrowKey === 'hjklyubn' && e.shiftKey){
+                    this.sender.key(arrowKeys['HJKLYUBN'][e.key]);
+                }else{
+                    this.sender.key(arrowKey);
+                }
                 return;
             }
 
